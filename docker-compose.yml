@@ -1,0 +1,10 @@
+services:
+  local-mysql:
+    image: mysql
+    container_name: 8ocket-mindLog
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: mindLog
+    ports:
+      - "3306:3306"
+    platform: linux/arm64
