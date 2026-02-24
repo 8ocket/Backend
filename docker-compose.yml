@@ -1,10 +1,11 @@
-services:
-  local-mysql:
-    image: mysql
-    container_name: 8ocket-mindLog
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: mindLog
-    ports:
-      - "3306:3306"
-    platform: linux/arm64
+  services:
+    local-postgres:
+      image: postgres:18
+      container_name: mindlog-postgres
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: 1234
+        POSTGRES_DB: mindLog
+      ports:
+        - "5432:5432"
+      platform: linux/arm64
