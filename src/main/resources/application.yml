@@ -3,10 +3,10 @@ spring:
     name: mindLog
 
   datasource:
-    url: jdbc:mysql://localhost:3306/mindLog
-    username: root
+    url: jdbc:postgresql://localhost:5432/mindLog
+    username: admin
     password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
