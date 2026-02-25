@@ -1,4 +1,4 @@
-package com.kt.mindLog.common.exception;
+package com.kt.mindLog.global.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

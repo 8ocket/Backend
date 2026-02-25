@@ -1,4 +1,4 @@
-package com.kt.mindLog.common.response;
+package com.kt.mindLog.global.common.response;
 
 import java.time.LocalDateTime;
 
