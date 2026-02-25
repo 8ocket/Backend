@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mindLog
+    username: admin
+    password: 1234
+
+jwt:
+  secret-key: to-test-in-local-jwt-secret-key-it-will-be-changed
+
+server:
+  port: 8080

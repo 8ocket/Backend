@@ -9,6 +9,7 @@ import com.kt.mindLog.domain.enums.LoginType;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.service.auth.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final JwtService jwtService;
 
 	@Transactional
 	public LoginResponse login(final String email, final LoginType loginType) {
@@ -24,17 +26,16 @@ public class UserService {
 		Optional<User> findUser = userRepository.findByEmailAndLoginType(email, loginType);
 
 		if (findUser.isPresent()) {
-			//기존 사용자
-			//return jwt 생성 로직
+			return jwtService.createJwtTokens(findUser.get(), false);
 		}
 
-		//신규 사용자
 		User newUser = User.builder()
 			.email(email)
 			.loginType(loginType)
 			.build();
 
 		userRepository.save(newUser);
-		//return jwt 생성 로직
+
+		return jwtService.createJwtTokens(newUser, true);
 	}
 }

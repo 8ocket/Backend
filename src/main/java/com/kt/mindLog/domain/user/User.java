@@ -33,7 +33,7 @@ public class User {
 	// @Column(nullable = false, length = 256)
 	// private String password;
 
-	@Column(nullable = false, length = 30)
+	@Column(length = 30)
 	private String nickname;
 
 	private String profileImageUrl;
@@ -46,6 +46,8 @@ public class User {
 
 	private boolean isActive;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private LoginType loginType;
 
 	@Column(updatable = false)

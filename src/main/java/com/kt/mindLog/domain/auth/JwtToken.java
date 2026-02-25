@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,9 +34,10 @@ public class JwtToken {
 	@Column(nullable = false)
 	private LocalDateTime expiresAt;
 
+	@Builder
 	public JwtToken(String refreshToken, User user, LocalDateTime expiresAt) {
-		this.refreshToken = refreshToken;
 		this.user = user;
+		this.refreshToken = refreshToken;
 		this.expiresAt = expiresAt;
 	}
 
