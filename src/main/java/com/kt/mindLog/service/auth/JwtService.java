@@ -26,7 +26,6 @@ public class JwtService {
 	private final JwtProperties jwtProperties;
 	private final JwtTokenRepository jwtTokenRepository;
 
-	@Transactional
 	public LoginResponse createJwtTokens(User user, boolean isNewUser) {
 		String accessToken = createToken(user.getId(), jwtProperties.getAccessTokenExp());
 		String refreshToken = createToken(user.getId(), jwtProperties.getRefreshTokenExp());

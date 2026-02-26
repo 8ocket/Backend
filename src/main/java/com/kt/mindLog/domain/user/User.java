@@ -24,8 +24,8 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Long id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "USER_SEQ")
+	private Long id;
 
 	@Column(nullable = false, length = 30)
 	private String email;
