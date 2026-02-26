@@ -1,4 +1,4 @@
-package com.kt.mindLog.common.support;
+package com.kt.mindLog.global.common.support;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.kt.mindLog.common.exception;
+package com.kt.mindLog.global.common.exception;
 
 import lombok.Getter;
 

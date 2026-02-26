@@ -1,11 +1,13 @@
 spring:
   application:
     name: mindLog
+  profiles:
+    active: ${PROFILE}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mindLog
-    username: admin
-    password: 1234
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -22,5 +24,7 @@ management:
       exposure:
         include: health
 
-server:
-  port: 8080
+jwt:
+  secret-key: ${KT_JWT_SECRET}
+  access-token-exp: 300000
+  refresh-token-exp: 43200000
