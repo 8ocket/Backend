@@ -44,4 +44,9 @@ public class JwtToken {
 	public boolean isExpired() {
 		return expiresAt.isBefore(LocalDateTime.now());
 	}
+
+	public void updateToken(String token) {
+		this.refreshToken = token;
+		this.expiresAt = LocalDateTime.now();
+	}
 }

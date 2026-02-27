@@ -9,7 +9,7 @@ import com.kt.mindLog.domain.enums.LoginType;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.LoginResponse;
 import com.kt.mindLog.repository.UserRepository;
-import com.kt.mindLog.service.auth.JwtService;
+import com.kt.mindLog.service.auth.AuthService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
-	private final JwtService jwtService;
+	private final AuthService authService;
 
 	@Transactional
 	public LoginResponse login(final String email, final LoginType loginType) {
@@ -26,7 +26,8 @@ public class UserService {
 		Optional<User> findUser = userRepository.findByEmailAndLoginType(email, loginType);
 
 		if (findUser.isPresent()) {
-			return jwtService.createJwtTokens(findUser.get(), false);
+			findUser.get().updateLastLoginAt();
+			return authService.createJwtTokens(findUser.get(), false);
 		}
 
 		User newUser = User.builder()
@@ -36,6 +37,6 @@ public class UserService {
 
 		userRepository.save(newUser);
 
-		return jwtService.createJwtTokens(newUser, true);
+		return authService.createJwtTokens(newUser, true);
 	}
 }

@@ -26,8 +26,8 @@ management:
 
 jwt:
   secret-key: ${KT_JWT_SECRET}
-  access-token-exp: 300000
-  refresh-token-exp: 43200000
+  access-token-exp: 1800000 #30분
+  refresh-token-exp: 43200000 #12시간
 
 kakao:
   client-id: ${KAKAO_CLIENT_ID}
