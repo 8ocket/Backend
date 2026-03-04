@@ -27,6 +27,7 @@ public class UserService {
 
 		if (findUser.isPresent()) {
 			findUser.get().updateLastLoginAt();
+			//TODO 3 credit 부여
 			return authService.createJwtTokens(findUser.get(), false);
 		}
 

@@ -13,7 +13,7 @@ import com.kt.mindLog.dto.user.LoginResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.JwtProperties;
-import com.kt.mindLog.global.provider.JwtProvider;
+import com.kt.mindLog.global.security.JwtProvider;
 import com.kt.mindLog.repository.JwtTokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,8 @@ public class AuthService {
 	private final JwtTokenRepository jwtTokenRepository;
 
 	public LoginResponse createJwtTokens(User user, Boolean isNewUser) {
-		String accessToken = jwtProvider.createToken(user.getId(), jwtProperties.getAccessTokenExp());
-		String refreshToken = jwtProvider.createToken(user.getId(), jwtProperties.getRefreshTokenExp());
+		String accessToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getAccessTokenExp());
+		String refreshToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getRefreshTokenExp());
 
 		LocalDateTime expiresAt = jwtProperties.getRefreshTokenExp().toInstant()
 			.atZone(ZoneId.systemDefault())
@@ -49,13 +49,12 @@ public class AuthService {
 
 	@Transactional
 	public LoginResponse reissueToken(String token) {
-		if (!jwtProvider.validateToken(token)) {
-			throw new CustomException(ErrorCode.EXPIRED_TOKEN);
-		}
+
+		jwtProvider.validateToken(token);
 
 		Optional<JwtToken> jwtToken = jwtTokenRepository.findByRefreshToken(token);
 		if (jwtToken.isEmpty()) {
-			throw new CustomException(ErrorCode.INVALID_TOKEN);
+			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN_FORMAT);
 		}
 
 		LoginResponse reissueToken = createJwtTokens(jwtToken.get().getUser(), null);
