@@ -28,3 +28,8 @@ jwt:
   secret-key: ${KT_JWT_SECRET}
   access-token-exp: 300000
   refresh-token-exp: 43200000
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  client-secret: ${KAKAO_CLIENT_SECRET}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
