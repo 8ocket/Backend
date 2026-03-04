@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private static final String[] GET_PERMIT_ALL = {"/actuator/**"};
+	private static final String[] GET_PERMIT_ALL = {"/actuator/**", "/v1/auth/kakao/**"};
 	private static final String[] POST_PERMIT_ALL = {"/"};
 	private static final String[] PATCH_PERMIT_ALL = {"/"};
 	private static final String[] PUT_PERMIT_ALL = {"/"};

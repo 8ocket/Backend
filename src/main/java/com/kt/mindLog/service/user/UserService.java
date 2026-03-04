@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.enums.LoginType;
 import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.dto.user.response.LoginResponse;
+import com.kt.mindLog.dto.user.LoginResponse;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.service.auth.JwtService;
 

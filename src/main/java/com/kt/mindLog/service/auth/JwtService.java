@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.auth.JwtToken;
 import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.dto.user.response.LoginResponse;
+import com.kt.mindLog.dto.user.LoginResponse;
 import com.kt.mindLog.global.property.JwtProperties;
 import com.kt.mindLog.repository.JwtTokenRepository;
 

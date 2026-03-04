@@ -1,4 +1,4 @@
-package com.kt.mindLog.dto.user.response;
+package com.kt.mindLog.dto.user;
 
 import lombok.Builder;
 
