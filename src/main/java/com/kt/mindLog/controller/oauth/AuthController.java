@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/auth/kakao")
+@RequestMapping("/v1/auth")
 public class AuthController {
 
 	private final AuthService authService;
