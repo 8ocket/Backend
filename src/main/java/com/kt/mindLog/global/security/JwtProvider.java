@@ -46,7 +46,7 @@ public class JwtProvider {
 		} catch (MalformedJwtException e) {
 			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN_FORMAT);
 		} catch (JwtException | IllegalArgumentException e) {
-			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
+			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN_FORMAT);
 		}
 	}
 

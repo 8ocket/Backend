@@ -1,66 +1,68 @@
 package com.kt.mindLog.service.auth;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
-
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.kt.mindLog.domain.auth.JwtToken;
-import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.dto.user.LoginResponse;
+import com.kt.mindLog.dto.oauth.response.KakaoTokenResponse;
+import com.kt.mindLog.dto.oauth.response.KakaoUserInfoResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
-import com.kt.mindLog.global.property.JwtProperties;
-import com.kt.mindLog.global.security.JwtProvider;
-import com.kt.mindLog.repository.JwtTokenRepository;
+import com.kt.mindLog.global.common.support.Preconditions;
+import com.kt.mindLog.global.property.KakaoProperties;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
-@Service
-@Slf4j
 @RequiredArgsConstructor
+@Service
 public class AuthService {
+	private final KakaoProperties kakaoProperties;
+	private final String KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
+	private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
-	private final JwtProperties jwtProperties;
-	private final JwtProvider jwtProvider;
-	private final JwtTokenRepository jwtTokenRepository;
+	// KAKAO
+	public String getAccessTokenFromKakao(String code) {
+		KakaoTokenResponse response = WebClient.create(KAUTH_TOKEN_URL_HOST)
+			.post()
+			.uri("/oauth/token")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(BodyInserters.fromFormData("grant_type", "authorization_code")
+				.with("client_id", kakaoProperties.getClientId())
+				.with("client_secret", kakaoProperties.getClientSecret())
+				.with("redirect_uri", kakaoProperties.getRedirectUri())
+				.with("code", code))
+			.retrieve()
+			.onStatus(HttpStatusCode::isError,
+				ClientResponse -> Mono.error(new CustomException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
+			.bodyToMono(KakaoTokenResponse.class)
+			.block();
 
-	public LoginResponse createJwtTokens(User user, Boolean isNewUser) {
-		String accessToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getAccessTokenExp());
-		String refreshToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getRefreshTokenExp());
-
-		LocalDateTime expiresAt = jwtProperties.getRefreshTokenExp().toInstant()
-			.atZone(ZoneId.systemDefault())
-			.toLocalDateTime();
-
-		JwtToken jwtToken = JwtToken.builder()
-			.user(user)
-			.refreshToken(refreshToken)
-			.expiresAt(expiresAt)
-			.build();
-
-		jwtTokenRepository.save(jwtToken);
-
-		return LoginResponse.of(accessToken, refreshToken, isNewUser);
+		return response.getAccessToken();
 	}
 
-	@Transactional
-	public LoginResponse reissueToken(String token) {
+	public String getUserInfo(String accessToken) {
+		KakaoUserInfoResponse userInfo = WebClient.create(KAUTH_USER_URL_HOST)
+			.get()
+			.uri("/v2/user/me")
+			.header("Authorization", "Bearer " + accessToken)
+			.retrieve()
+			.bodyToMono(KakaoUserInfoResponse.class)
+			.block();
 
-		jwtProvider.validateToken(token);
+		Preconditions.validate(userInfo != null, ErrorCode.KAKAO_USER_INFO_ERROR);
+		Preconditions.validate(userInfo.getKakaoAccount() != null, ErrorCode.KAKAO_USER_INFO_ERROR);
 
-		Optional<JwtToken> jwtToken = jwtTokenRepository.findByRefreshToken(token);
-		if (jwtToken.isEmpty()) {
-			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN_FORMAT);
-		}
+		String email = userInfo.getKakaoAccount().getEmail();
 
-		LoginResponse reissueToken = createJwtTokens(jwtToken.get().getUser(), null);
-		jwtTokenRepository.delete(jwtToken.get());
+		Preconditions.validate(email != null, ErrorCode.KAKAO_USER_INFO_ERROR);
 
-		return reissueToken;
+		return email;
 	}
+
+
+
 
 }

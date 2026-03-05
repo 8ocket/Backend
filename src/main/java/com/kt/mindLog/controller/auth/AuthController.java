@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.domain.enums.LoginType;
-import com.kt.mindLog.dto.user.response.LoginResponse;
+import com.kt.mindLog.dto.user.LoginResponse;
 import com.kt.mindLog.service.auth.AuthService;
 import com.kt.mindLog.service.user.UserService;
 
@@ -17,19 +17,16 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/auth")
 public class AuthController {
 
-	private final AuthService authService;
-
-	@GetMapping("/refresh")
-	public LoginResponse reissue(@RequestParam String refreshToken) {
-		return authService.reissueToken(refreshToken);
-	}
-
-
-	//for test
+	private final AuthService AuthService;
 	private final UserService userService;
 
-	@GetMapping
-	public LoginResponse login(@RequestParam String email, @RequestParam LoginType loginType) {
-		return userService.login(email, loginType);
+	// KAKAO
+	@GetMapping("/kakao/callback")
+	public LoginResponse callback(@RequestParam("code") String code) {
+
+		String accessToken = AuthService.getAccessTokenFromKakao(code);
+		String email = AuthService.getUserInfo(accessToken);
+
+		return userService.login(email, LoginType.KAKAO);
 	}
 }
