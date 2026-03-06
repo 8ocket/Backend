@@ -1,9 +1,8 @@
-package com.kt.mindLog.service.auth;
+package com.kt.mindLog.service.user;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.UUID;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kt.mindLog.domain.auth.JwtToken;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.LoginResponse;
+import com.kt.mindLog.global.common.exception.CustomException;
+import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.JwtProperties;
+import com.kt.mindLog.global.security.JwtProvider;
 import com.kt.mindLog.repository.JwtTokenRepository;
 
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,12 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtService {
 
 	private final JwtProperties jwtProperties;
+	private final JwtProvider jwtProvider;
 	private final JwtTokenRepository jwtTokenRepository;
 
-	@Transactional
-	public LoginResponse createJwtTokens(User user, boolean isNewUser) {
-		String accessToken = createToken(user.getId(), jwtProperties.getAccessTokenExp());
-		String refreshToken = createToken(user.getId(), jwtProperties.getRefreshTokenExp());
+	public LoginResponse createJwtTokens(User user, Boolean isNewUser) {
+		String accessToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getAccessTokenExp());
+		String refreshToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getRefreshTokenExp());
 
 		LocalDateTime expiresAt = jwtProperties.getRefreshTokenExp().toInstant()
 			.atZone(ZoneId.systemDefault())
@@ -46,14 +47,20 @@ public class JwtService {
 		return LoginResponse.of(accessToken, refreshToken, isNewUser);
 	}
 
-	private String createToken(final Long userId, final Date expired) {
+	@Transactional
+	public LoginResponse reissueToken(String token) {
 
-		return Jwts.builder()
-			.id(UUID.randomUUID().toString())
-			.subject(userId.toString())
-			.issuer("8ocket")
-			.expiration(expired)
-			.signWith(jwtProperties.getJwtSecretkey())
-			.compact();
+		jwtProvider.validateToken(token);
+
+		Optional<JwtToken> jwtToken = jwtTokenRepository.findByRefreshToken(token);
+		if (jwtToken.isEmpty()) {
+			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN_FORMAT);
+		}
+
+		LoginResponse reissueToken = createJwtTokens(jwtToken.get().getUser(), null);
+		jwtTokenRepository.delete(jwtToken.get());
+
+		return reissueToken;
 	}
+
 }

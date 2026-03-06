@@ -24,14 +24,11 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Long id;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_SEQ")
+	private Long id;
 
-	@Column(nullable = false, length = 30)
+	@Column(length = 30)
 	private String email;
-
-	// @Column(nullable = false, length = 256)
-	// private String password;
 
 	@Column(length = 30)
 	private String nickname;
@@ -41,8 +38,6 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Role role;
-
-	private String onboardingData;
 
 	private boolean isActive;
 
@@ -62,6 +57,10 @@ public class User {
 		this.role = Role.USER;
 		this.isActive = true;
 		this.createdAt = LocalDateTime.now();
+		this.lastLoginAt = LocalDateTime.now();
+	}
+
+	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
 	}
 }

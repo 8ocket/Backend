@@ -1,4 +1,4 @@
-package com.kt.mindLog.service.oauth;
+package com.kt.mindLog.service.auth;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;

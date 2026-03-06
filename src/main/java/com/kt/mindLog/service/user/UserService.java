@@ -9,7 +9,6 @@ import com.kt.mindLog.domain.enums.LoginType;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.LoginResponse;
 import com.kt.mindLog.repository.UserRepository;
-import com.kt.mindLog.service.auth.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +25,8 @@ public class UserService {
 		Optional<User> findUser = userRepository.findByEmailAndLoginType(email, loginType);
 
 		if (findUser.isPresent()) {
+			findUser.get().updateLastLoginAt();
+			//TODO 3 credit 부여
 			return jwtService.createJwtTokens(findUser.get(), false);
 		}
 
