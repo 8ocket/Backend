@@ -2,7 +2,6 @@ package com.kt.mindLog.global.security;
 
 import java.io.IOException;
 
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -31,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		var header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-		if (Strings.isBlank(header)) {
+		if (header == null || !header.startsWith(TOKEN_PREFIX)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
