@@ -22,11 +22,20 @@ public class AuthController {
 
 	// KAKAO
 	@GetMapping("/kakao/callback")
-	public LoginResponse callback(@RequestParam("code") String code) {
+	public LoginResponse kakaoLogin(@RequestParam("code") String code) {
 
 		String accessToken = AuthService.getAccessTokenFromKakao(code);
-		String email = AuthService.getUserInfo(accessToken);
+		String email = AuthService.getKakaoUserInfo(accessToken);
 
 		return userService.login(email, LoginType.KAKAO);
+	}
+
+	// GOOGLE
+	@GetMapping("/google/callback")
+	public LoginResponse googleLogin(@RequestParam("code") String code) {
+		String accessToken = AuthService.getAccessTokenFromGoogle(code);
+		String email = AuthService.getGoogleUserInfo(accessToken);
+
+		return userService.login(email, LoginType.GOOGLE);
 	}
 }

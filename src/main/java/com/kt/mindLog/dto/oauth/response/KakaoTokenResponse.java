@@ -3,31 +3,27 @@ package com.kt.mindLog.dto.oauth.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-@Getter
-@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoTokenResponse {
+public record KakaoTokenResponse(
 	@JsonProperty("token_type")
-	public String tokenType;
+	String tokenType,
 
 	@JsonProperty("access_token")
-	public String accessToken;
+    String accessToken,
 
-	@JsonProperty("id_token")
-	public String idToken;
+    @JsonProperty("id_token")
+	String idToken,
 
-	@JsonProperty("expires_in")
-	public Integer expiresIn;
+    @JsonProperty("expires_in")
+    Integer expiresIn,
 
-	@JsonProperty("refresh_token")
-	public String refreshToken;
+   @JsonProperty("refresh_token")
+   String refreshToken,
 
-	@JsonProperty("refresh_token_expires_in")
-	public Integer refreshTokenExpiresIn;
+   @JsonProperty("refresh_token_expires_in")
+   Integer refreshTokenExpiresIn,
 
-	@JsonProperty("scope")
-	public String scope;
+   @JsonProperty("scope")
+   String scope
+) {
 }
