@@ -43,6 +43,7 @@ public class JwtService {
 			.build();
 
 		jwtTokenRepository.save(jwtToken);
+		log.info("success to login : userId={}, loginType={}", user.getId(), user.getLoginType());
 
 		return LoginResponse.of(accessToken, refreshToken, isNewUser);
 	}
