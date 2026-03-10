@@ -25,6 +25,9 @@ public enum ErrorCode {
 	INVALID_JWT_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 접근입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	INVALID_JWT_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
+
+	//user
+	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),
 	;
 
 	private final HttpStatus status;

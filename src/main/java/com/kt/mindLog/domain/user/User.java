@@ -2,7 +2,9 @@ package com.kt.mindLog.domain.user;
 
 import java.time.LocalDateTime;
 
+import com.kt.mindLog.domain.enums.Gender;
 import com.kt.mindLog.domain.enums.LoginType;
+import com.kt.mindLog.domain.enums.Occupation;
 import com.kt.mindLog.domain.enums.Role;
 
 import jakarta.persistence.Column;
@@ -36,6 +38,14 @@ public class User {
 	private String profileImageUrl;
 
 	@Enumerated(EnumType.STRING)
+	private Occupation occupation;
+
+	@Enumerated(EnumType.STRING)
+	private	Gender gender;
+
+	private Integer age;
+
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Role role;
 
@@ -62,5 +72,14 @@ public class User {
 
 	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
+	}
+
+	public void updateUserInfo(String nickname, String profileImageUrl,
+		Occupation occupation, Integer age, Gender gender) {
+		this.nickname = nickname;
+		this.profileImageUrl = profileImageUrl;
+		this.occupation = occupation;
+		this.age = age;
+		this.gender = gender;
 	}
 }
