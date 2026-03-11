@@ -7,5 +7,8 @@ spring:
 jwt:
   secret-key: to-test-in-local-jwt-secret-key-it-will-be-changed
 
+session:
+  baseurl: http://localhost:8080
+
 server:
   port: 8080
