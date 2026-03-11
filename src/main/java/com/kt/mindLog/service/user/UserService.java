@@ -4,14 +4,19 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kt.mindLog.domain.enums.LoginType;
 import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.dto.user.LoginResponse;
+import com.kt.mindLog.dto.user.request.UserCreateRequest;
+import com.kt.mindLog.dto.user.response.LoginResponse;
+import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -38,5 +43,25 @@ public class UserService {
 		userRepository.save(newUser);
 
 		return jwtService.createJwtTokens(newUser, true);
+	}
+
+
+	@Transactional
+	public void createUserInfo(final Long userId, final MultipartFile profile, final UserCreateRequest request) {
+
+		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+
+		//TODO profile image 업로드 처리
+		String profileImageUrl = "";
+
+		user.updateUserInfo(
+			request.nickname(),
+			profileImageUrl,
+			request.occupation(),
+			request.age(),
+			request.gender()
+		);
+
+		userRepository.save(user);
 	}
 }

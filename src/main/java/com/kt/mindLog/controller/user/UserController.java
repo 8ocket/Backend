@@ -1,24 +1,31 @@
 package com.kt.mindLog.controller.user;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.kt.mindLog.dto.user.LoginResponse;
-import com.kt.mindLog.service.user.JwtService;
+import com.kt.mindLog.dto.user.request.UserCreateRequest;
+import com.kt.mindLog.global.annotation.Login;
+import com.kt.mindLog.global.common.response.ApiResult;
+import com.kt.mindLog.global.security.CustomUser;
+import com.kt.mindLog.service.user.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1/users")
 public class UserController {
 
-	private final JwtService authService;
+	private final UserService userService;
 
-	@GetMapping("/refresh")
-	public LoginResponse reissue(@RequestParam String refreshToken) {
-		return authService.reissueToken(refreshToken);
+	@PatchMapping("/signup")
+	public ApiResult<Void> createUser(@Login CustomUser user, @RequestPart("profile_image") MultipartFile profileImage,
+		@Valid @RequestPart("contents") final UserCreateRequest request) {
+		userService.createUserInfo(user.getId(), profileImage, request);
+		return ApiResult.ok();
 	}
 }

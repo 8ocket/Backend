@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtToken {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "JWT_SEQ")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false, length = 512, unique = true)

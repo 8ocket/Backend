@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.auth.JwtToken;
 import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.dto.user.LoginResponse;
+import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.JwtProperties;
@@ -43,6 +43,7 @@ public class JwtService {
 			.build();
 
 		jwtTokenRepository.save(jwtToken);
+		log.info("success to login : userId={}, loginType={}", user.getId(), user.getLoginType());
 
 		return LoginResponse.of(accessToken, refreshToken, isNewUser);
 	}
