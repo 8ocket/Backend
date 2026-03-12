@@ -28,6 +28,12 @@ public enum ErrorCode {
 
 	//user
 	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),
+
+	//session
+	NOT_FOUND_SESSION(HttpStatus.BAD_REQUEST, "존재하지 않는 세션입니다."),
+
+	//persona
+	NOT_FOUND_PERSONA(HttpStatus.BAD_REQUEST, "존재하지 않는 페르소나입니다."),
 	;
 
 	private final HttpStatus status;

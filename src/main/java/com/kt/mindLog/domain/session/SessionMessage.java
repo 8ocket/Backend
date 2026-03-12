@@ -6,6 +6,8 @@ import com.kt.mindLog.domain.user.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +26,7 @@ public class SessionMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	private String content;
@@ -33,10 +36,10 @@ public class SessionMessage {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "session_id", nullable = false)
-	private CounselingSession session;
+	private Session session;
 
 	@Builder
-	public SessionMessage(Role role, String content, CounselingSession session) {
+	public SessionMessage(Role role, String content, Session session) {
 		this.role = role;
 		this.content = content;
 		this.session = session;

@@ -1,94 +1,42 @@
 package com.kt.mindLog.service.session;
 
-import java.time.Duration;
-import java.util.Map;
-
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.kt.mindLog.dto.session.response.CrisisCheck;
+import com.kt.mindLog.domain.session.Session;
+import com.kt.mindLog.dto.session.request.SessionCreateRequest;
 import com.kt.mindLog.global.common.exception.ErrorCode;
-import com.kt.mindLog.global.property.SessionProperties;
+import com.kt.mindLog.repository.PersonaRepository;
+import com.kt.mindLog.repository.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.SynchronousSink;
-import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionService {
-
+	private final SessionRepository sessionRepository;
 	private final UserRepository userRepository;
-	private final ObjectMapper objectMapper;
-	private final SessionProperties sessionProperties;
-	private final WebClient webClient;
+	private final PersonaRepository personaRepository;
+	private final SessionMessageService sessionMessageService;
 
+	@Transactional
+	public Flux<ServerSentEvent<?>> createSession(final Long userId, final SessionCreateRequest request) {
+		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
 
-	public Flux<ServerSentEvent<?>> receiveSSE(final String contents, final Long sessionId, final Long userId) {
-		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		var session = Session.builder()
+			.user(user)
+			.persona(persona)
+			.build();
 
-		return webClient.post()
-			.uri(sessionProperties.getUri(), sessionId)
-			.contentType(MediaType.APPLICATION_JSON)
-			.bodyValue(contents)
-			.accept(MediaType.TEXT_EVENT_STREAM)
-			.retrieve()
-			.onStatus(HttpStatusCode::isError, response ->
-				response.bodyToMono(String.class)
-					.map(body -> new RuntimeException("AI 서버 오류: " + body))
-			)
-			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
-			.timeout(Duration.ofMinutes(2))
-			.doOnNext(event -> {
-				if (!"error".equals(event.event())) {
-					log.info("event: {}, data: {}", event.event(), event.data());
-				}})
-			.handle(this::handleEvent)
-			.doOnError(e -> log.error("스트림 오류", e));
-	}
+		sessionRepository.save(session);
+		log.info("success to create session : userId = {}, sessionId = {}", userId, session.getId());
 
-
-	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<ServerSentEvent<?>> sink) {
-		switch (event.event()) {
-
-			case "ai_chunk" -> sink.next(event);
-
-			case "crisis_check" -> {
-				CrisisCheck crisis = objectMapper.readValue(event.data(), CrisisCheck.class);
-
-				if(crisis.detected()) {
-					sink.next(
-						ServerSentEvent.builder(Map.of("content", crisis.suggestedResponse()))
-							.event("crisis_check")
-							.build()
-					);
-				}
-			}
-
-			case "error" -> {
-				log.error("AI server error: {}", event.data());
-				sink.next(event);
-				sink.complete();
-			}
-
-			case "ai_complete" -> {
-				sink.next(ServerSentEvent.builder()
-					.event("ai_complete")
-					.build());
-				//TODO db 저장 로직
-			}
-
-			case "done" -> sink.complete();
-
-			default -> {}
-		}
+		return sessionMessageService.receiveSSE(request.firstContent(), session.getId(), userId);
 	}
 }

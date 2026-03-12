@@ -4,25 +4,34 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.UuidGenerator;
+
+import com.kt.mindLog.domain.persona.Persona;
 import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.global.common.support.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Table(name = "counseling_session")
 @NoArgsConstructor
-public class CounselingSession extends BaseEntity {
+public class Session {
+
+	@Id
+	@UuidGenerator
+	private String id;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -30,16 +39,29 @@ public class CounselingSession extends BaseEntity {
 
 	private LocalDateTime endedAt;
 
+	@Column(updatable = false)
+	private LocalDateTime createdAt;
+
+	@Column(updatable = false)
+	private LocalDateTime updatedAt;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "persona_id", nullable = false)
+	private Persona persona;
 
 	@OneToMany(mappedBy = "session")
 	private List<SessionMessage> messages = new ArrayList<>();
 
 	@Builder
-	public CounselingSession(User user) {
+	public Session(User user, Persona persona) {
 		this.user = user;
+		this.persona = persona;
 		this.status = SessionStatus.ACTIVE;
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
 	}
 }
