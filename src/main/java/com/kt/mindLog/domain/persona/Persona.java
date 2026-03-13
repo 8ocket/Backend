@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.kt.mindLog.domain.session.Session;
-import com.kt.mindLog.global.common.support.BaseEntity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +17,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "ai_personas")
 @NoArgsConstructor
-public class Persona extends BaseEntity {
+public class Persona{
+
+	@Id
+	protected Long id;
+
 	@OneToMany(mappedBy = "persona")
 	private List<Session> sessions = new ArrayList<>();
+
+	@Builder
+	public Persona(final Long id) {
+		this.id = id;
+	}
 }

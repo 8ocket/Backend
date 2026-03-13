@@ -3,6 +3,7 @@ package com.kt.mindLog.service.session;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kt.mindLog.domain.persona.Persona;
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
 import com.kt.mindLog.global.common.exception.ErrorCode;
@@ -26,7 +27,11 @@ public class SessionService {
 	@Transactional
 	public Flux<Object> createSession(final Long userId, final SessionCreateRequest request) {
 		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
-		var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
+
+		//TODO 임시 로직
+		var persona = Persona.builder().id(request.personaId()).build();
+		personaRepository.saveAndFlush(persona);
+		// var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
 
 		var session = Session.builder()
 			.user(user)
