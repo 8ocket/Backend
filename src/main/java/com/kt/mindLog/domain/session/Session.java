@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "counseling_session")
+@Table(name = "counseling_sessions")
 @NoArgsConstructor
 public class Session {
 
@@ -54,7 +54,7 @@ public class Session {
 	private Persona persona;
 
 	@OneToMany(mappedBy = "session")
-	private List<SessionMessage> messages = new ArrayList<>();
+	private List<SessionMessages> messages = new ArrayList<>();
 
 	@Builder
 	public Session(User user, Persona persona) {

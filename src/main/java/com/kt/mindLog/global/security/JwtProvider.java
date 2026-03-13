@@ -22,10 +22,10 @@ public class JwtProvider {
 
 	private final JwtProperties jwtProperties;
 
-	public String createToken(final Long userId, final Role role, final Date expired) {
+	public String createToken(final String userId, final Role role, final Date expired) {
 		return Jwts.builder()
 			.id(UUID.randomUUID().toString())
-			.subject(userId.toString())
+			.subject(userId)
 			.claim("role", role.toString())
 			.issuer("8ocket")
 			.expiration(expired)
@@ -57,7 +57,7 @@ public class JwtProvider {
 			.parseSignedClaims(token)
 			.getPayload();
 
-		var id = Long.valueOf(claim.getSubject());
+		var id = String.valueOf(claim.getSubject());
 		var role = Role.valueOf(claim.get("role").toString());
 
 		return new CustomUser(id, role);

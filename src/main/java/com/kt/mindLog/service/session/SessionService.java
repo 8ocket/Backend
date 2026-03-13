@@ -25,7 +25,7 @@ public class SessionService {
 	private final SessionMessageService sessionMessageService;
 
 	@Transactional
-	public Flux<Object> createSession(final Long userId, final SessionCreateRequest request) {
+	public Flux<Object> createSession(final String userId, final SessionCreateRequest request) {
 		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
 		//TODO 임시 로직

@@ -3,6 +3,8 @@ package com.kt.mindLog.domain.persona;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import com.kt.mindLog.domain.session.Session;
 
 import jakarta.persistence.Entity;
@@ -20,13 +22,13 @@ import lombok.NoArgsConstructor;
 public class Persona{
 
 	@Id
-	protected Long id;
+	private String id;
 
 	@OneToMany(mappedBy = "persona")
 	private List<Session> sessions = new ArrayList<>();
 
 	@Builder
-	public Persona(final Long id) {
+	public Persona(final String id) {
 		this.id = id;
 	}
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.kt.mindLog.domain.session.SessionMessage;
+import com.kt.mindLog.domain.session.SessionMessages;
 import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.dto.session.response.CrisisCheck;
 import com.kt.mindLog.global.common.exception.ErrorCode;
@@ -19,6 +19,7 @@ import com.kt.mindLog.global.property.SessionProperties;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.service.redis.RedisService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,17 @@ import tools.jackson.databind.ObjectMapper;
 public class SessionMessageService {
 
 	private final UserRepository userRepository;
-	private final ObjectMapper objectMapper;
-	private final SessionProperties sessionProperties;
-	private final WebClient webClient;
 	private final SessionMessageRepository sessionMessageRepository;
 	private final SessionRepository sessionRepository;
 
+	private final ObjectMapper objectMapper;
+	private final WebClient webClient;
+	private final SessionProperties sessionProperties;
 
-	public Flux<Object> receiveSSE(final String contents, final String sessionId, final Long userId) {
+	private final RedisService redisService;
+
+
+	public Flux<Object> receiveSSE(final String contents, final String sessionId, final String userId) {
 		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
 		return webClient.post()
@@ -100,7 +104,7 @@ public class SessionMessageService {
 	@Transactional
 	protected void saveContents(final Role role, final String contents, final String sessionId) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
-		sessionMessageRepository.save(SessionMessage.builder()
+		sessionMessageRepository.save(SessionMessages.builder()
 			.role(role)
 			.content(contents)
 			.session(session)

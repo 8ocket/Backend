@@ -28,7 +28,8 @@ public class SessionController {
 	private final SessionMessageService sessionMessageService;
 
 	@PostMapping(value ="/{sessionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Object> receiveSSE(@Login CustomUser user, @Valid @RequestBody SessionReceiveRequest content, @PathVariable String sessionId) {
+	public Flux<Object> receiveSSE(@Login CustomUser user, @Valid @RequestBody SessionReceiveRequest content,
+		@PathVariable String sessionId) {
 		return sessionMessageService.receiveSSE(content.content(), sessionId, user.getId());
 	}
 
