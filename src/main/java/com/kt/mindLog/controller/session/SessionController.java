@@ -28,12 +28,12 @@ public class SessionController {
 	private final SessionMessageService sessionMessageService;
 
 	@PostMapping(value ="/{sessionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<ServerSentEvent<?>> receiveSSE(@Login CustomUser user, @RequestBody SessionReceiveRequest contents, @PathVariable String sessionId) {
-		return sessionMessageService.receiveSSE(contents.contents(), sessionId, user.getId());
+	public Flux<Object> receiveSSE(@Login CustomUser user, @Valid @RequestBody SessionReceiveRequest content, @PathVariable String sessionId) {
+		return sessionMessageService.receiveSSE(content.content(), sessionId, user.getId());
 	}
 
-	@PostMapping()
-	public Flux<ServerSentEvent<?>> createSession(@Login CustomUser user, @Valid @RequestBody SessionCreateRequest request) {
+	@PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Object> createSession(@Login CustomUser user, @Valid @RequestBody SessionCreateRequest request) {
 		return sessionService.createSession(user.getId(), request);
 	}
 }

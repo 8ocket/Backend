@@ -42,3 +42,6 @@ google:
 session:
   baseurl: ${SESSION_BASE_URL}
   uri: ${SESSION_URI}
+
+server:
+  port: 8080

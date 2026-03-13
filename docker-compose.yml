@@ -5,7 +5,18 @@
       environment:
         POSTGRES_USER: admin
         POSTGRES_PASSWORD: 1234
-        POSTGRES_DB: mindLog
+        POSTGRES_DB: mindLogDB
       ports:
         - "5432:5432"
+      platform: linux/arm64
+
+    dev-postgres:
+      image: postgres:18
+      container_name: mindlog-postgres
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: 1234
+        POSTGRES_DB: mindLog
+      ports:
+        - "5433:5432"
       platform: linux/arm64

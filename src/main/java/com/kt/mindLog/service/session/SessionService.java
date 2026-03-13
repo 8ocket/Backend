@@ -1,6 +1,5 @@
 package com.kt.mindLog.service.session;
 
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,7 @@ public class SessionService {
 	private final SessionMessageService sessionMessageService;
 
 	@Transactional
-	public Flux<ServerSentEvent<?>> createSession(final Long userId, final SessionCreateRequest request) {
+	public Flux<Object> createSession(final Long userId, final SessionCreateRequest request) {
 		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 		var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
 
@@ -37,6 +36,6 @@ public class SessionService {
 		sessionRepository.save(session);
 		log.info("success to create session : userId = {}, sessionId = {}", userId, session.getId());
 
-		return sessionMessageService.receiveSSE(request.firstContent(), session.getId(), userId);
+		return sessionMessageService.receiveSSE(request.firstContent(), session.getId() ,userId);
 	}
 }

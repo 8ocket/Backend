@@ -39,13 +39,13 @@ public class SessionMessageService {
 	private final SessionRepository sessionRepository;
 
 
-	public Flux<ServerSentEvent<?>> receiveSSE(final String contents, final String sessionId, final Long userId) {
+	public Flux<Object> receiveSSE(final String contents, final String sessionId, final Long userId) {
 		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
 		return webClient.post()
 			.uri(sessionProperties.getUri(), sessionId)
 			.contentType(MediaType.APPLICATION_JSON)
-			.bodyValue(contents)
+			.bodyValue(Map.of("content", contents))
 			.accept(MediaType.TEXT_EVENT_STREAM)
 			.retrieve()
 			.onStatus(HttpStatusCode::isError, response ->
@@ -55,76 +55,56 @@ public class SessionMessageService {
 			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
 			.timeout(Duration.ofMinutes(2))
 			.doFirst(() -> saveContents(Role.USER, contents, sessionId))
-			.doOnNext(event -> {
-				if ("error".equals(event.event())) {
-					log.error("AI error: {}", event.data());
-				} else if ("ai_complete".equals(event.event())) {
-					var content = parseJson(event.data(), "content");
-					log.info("content: {}", content);
-					saveContents(Role.ASSISTANT, content, sessionId);
-				} else {
-					log.info("event: {}, data: {}", event.event(), event.data());
-				}
-			})
-			.handle(this::handleEvent)
+			.doOnNext(this::logEvent)
+			.handle((event, sink) -> handleEvent(event, sink, sessionId))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}
 
+	private void logEvent(ServerSentEvent<String> event) {
+		if ("error".equals(event.event())) {
+			log.error("AI error: {}", event.data());
+		} else {
+			log.info("event: {}, data: {}", event.event(), event.data());
+		}
+	}
 
-	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<ServerSentEvent<?>> sink) {
+	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<Object> sink, String sessionId) {
 		switch (event.event()) {
-
-			case "ai_chunk" -> sink.next(event);
+			case "ai_chunk", "session_title" -> sink.next(event);
 
 			case "crisis_check" -> {
 				CrisisCheck crisis = objectMapper.readValue(event.data(), CrisisCheck.class);
-
-				if(crisis.detected()) {
-					sink.next(
-						ServerSentEvent.builder(Map.of("content", crisis.suggestedResponse()))
-							.event("crisis_check")
-							.build()
-					);
+				if (crisis.detected()) {
+					sink.next(ServerSentEvent.builder(Map.of("content", crisis.suggestedResponse()))
+						.event("crisis_check")
+						.build());
 				}
+			}
+
+			case "ai_complete" -> {
+				saveContents(Role.ASSISTANT, parseJson(event.data(), "content"), sessionId);
+				sink.next(ServerSentEvent.builder().event("ai_complete").build());
 			}
 
 			case "error", "done" -> {
 				sink.next(event);
 				sink.complete();
 			}
-
-			case "ai_complete" -> {
-				sink.next(ServerSentEvent.builder()
-					.event("ai_complete")
-					.build());
-			}
-
-			case "session_title" -> sink.next(event);
-
-			default -> {}
 		}
 	}
 
-	private String parseJson(final String contents, final String text) {
-		var object = objectMapper.readTree(contents);
-		String data = object.get(text).asText();
-		return data;
+	private String parseJson(final String contents, final String key) {
+		return objectMapper.readTree(contents).get(key).asText();
 	}
 
 	@Transactional
 	protected void saveContents(final Role role, final String contents, final String sessionId) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
-
-		//TODO content 암호화
-		//TODO redis 저장
-
-		var message = SessionMessage.builder()
+		sessionMessageRepository.save(SessionMessage.builder()
 			.role(role)
 			.content(contents)
 			.session(session)
-			.build();
-
-		sessionMessageRepository.save(message);
+			.build());
 		log.info("success to save sessionId: {}", sessionId);
 	}
 }
