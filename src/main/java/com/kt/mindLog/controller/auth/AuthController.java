@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kt.mindLog.domain.enums.LoginType;
+import com.kt.mindLog.domain.user.LoginType;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.service.auth.AuthService;
 import com.kt.mindLog.service.user.JwtService;

@@ -2,11 +2,6 @@ package com.kt.mindLog.domain.user;
 
 import java.time.LocalDateTime;
 
-import com.kt.mindLog.domain.enums.Gender;
-import com.kt.mindLog.domain.enums.LoginType;
-import com.kt.mindLog.domain.enums.Occupation;
-import com.kt.mindLog.domain.enums.Role;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

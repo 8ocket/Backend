@@ -1,4 +1,4 @@
-package com.kt.mindLog.domain.enums;
+package com.kt.mindLog.domain.user;
 
 public enum LoginType {
 	KAKAO, GOOGLE, NAVER, LOCAL

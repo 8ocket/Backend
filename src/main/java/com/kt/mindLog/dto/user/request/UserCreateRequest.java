@@ -1,7 +1,7 @@
 package com.kt.mindLog.dto.user.request;
 
-import com.kt.mindLog.domain.enums.Gender;
-import com.kt.mindLog.domain.enums.Occupation;
+import com.kt.mindLog.domain.user.Gender;
+import com.kt.mindLog.domain.user.Occupation;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

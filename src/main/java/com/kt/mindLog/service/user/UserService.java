@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.kt.mindLog.domain.enums.LoginType;
+import com.kt.mindLog.domain.user.LoginType;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
