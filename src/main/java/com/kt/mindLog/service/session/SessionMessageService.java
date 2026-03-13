@@ -104,6 +104,10 @@ public class SessionMessageService {
 	@Transactional
 	protected void saveContents(final Role role, final String contents, final String sessionId) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
+
+		redisService.pushMessage(sessionId, role, contents);
+		//TODO 상담 메세지 암호화
+
 		sessionMessageRepository.save(SessionMessages.builder()
 			.role(role)
 			.content(contents)

@@ -23,13 +23,13 @@ public class RedisService {
 	private static final String SESSION_PREFIX = "session:";
 	private static final String MESSAGE_SUFFIX = ":messages";
 
-	public int pushMessage(String sessionId, Role role, String content) {
+	public void pushMessage(String sessionId, Role role, String content) {
 		String key = buildKey(sessionId);
 
 		RedisMessageRequest message = new RedisMessageRequest(role.toString().toLowerCase(), content);
 		log.info("success to push message: sessionId:{},content:{}", sessionId, content);
 
-		return executeOperation(() ->
+		executeOperation(() ->
 			redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(message))
 		);
 	}
