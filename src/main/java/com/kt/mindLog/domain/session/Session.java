@@ -3,6 +3,7 @@ package com.kt.mindLog.domain.session;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
@@ -30,12 +31,15 @@ import lombok.NoArgsConstructor;
 public class Session {
 
 	@Id
-	@UuidGenerator
-	private String id;
+	@UuidGenerator(style = UuidGenerator.Style.VERSION_7)
+	@Column(name = "session_id")
+	private UUID id;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private SessionStatus status;
+
+	private LocalDateTime startedAt;
 
 	private LocalDateTime endedAt;
 

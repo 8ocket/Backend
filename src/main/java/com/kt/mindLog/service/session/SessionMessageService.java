@@ -2,6 +2,7 @@ package com.kt.mindLog.service.session;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -43,7 +44,7 @@ public class SessionMessageService {
 	private final RedisService redisService;
 
 
-	public Flux<Object> receiveSSE(final String contents, final String sessionId, final String userId) {
+	public Flux<Object> receiveSSE(final String contents, final UUID sessionId, final UUID userId) {
 		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
 		return webClient.post()
@@ -72,7 +73,7 @@ public class SessionMessageService {
 		}
 	}
 
-	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<Object> sink, String sessionId) {
+	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<Object> sink, UUID sessionId) {
 		switch (event.event()) {
 			case "ai_chunk", "session_title" -> sink.next(event);
 
@@ -102,17 +103,19 @@ public class SessionMessageService {
 	}
 
 	@Transactional
-	protected void saveContents(final Role role, final String contents, final String sessionId) {
+	protected void saveContents(final Role role, final String contents, final UUID sessionId) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
-		redisService.pushMessage(sessionId, role, contents);
+		int sequence = redisService.pushMessage(sessionId, role, contents);
 		//TODO 상담 메세지 암호화
 
 		sessionMessageRepository.save(SessionMessages.builder()
 			.role(role)
 			.content(contents)
 			.session(session)
+			.sequenceNum(sequence)
 			.build());
-		log.info("success to save sessionId: {}", sessionId);
+
+		log.info("success to save session message");
 	}
 }

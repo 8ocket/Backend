@@ -1,6 +1,7 @@
 package com.kt.mindLog.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,10 +12,10 @@ import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 	Optional<User> findByEmailAndLoginType(String email, LoginType loginType);
 
-	default User findByIdOrThrow(String id, ErrorCode errorCode) {
+	default User findByIdOrThrow(UUID id, ErrorCode errorCode) {
 		return findById(id).orElseThrow(() -> new CustomException(errorCode));
 	}
 }

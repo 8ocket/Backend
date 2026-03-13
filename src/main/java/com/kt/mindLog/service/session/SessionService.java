@@ -1,5 +1,7 @@
 package com.kt.mindLog.service.session;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +27,9 @@ public class SessionService {
 	private final SessionMessageService sessionMessageService;
 
 	@Transactional
-	public Flux<Object> createSession(final String userId, final SessionCreateRequest request) {
+	public Flux<Object> createSession(final UUID userId, final SessionCreateRequest request) {
 		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
-
-		//TODO 임시 로직
-		var persona = Persona.builder().id(request.personaId()).build();
-		personaRepository.saveAndFlush(persona);
-		// var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
+		var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
 
 		var session = Session.builder()
 			.user(user)

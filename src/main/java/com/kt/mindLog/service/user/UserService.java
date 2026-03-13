@@ -1,6 +1,7 @@
 package com.kt.mindLog.service.user;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,7 @@ public class UserService {
 
 
 	@Transactional
-	public void createUserInfo(final String userId, final MultipartFile profile, final UserCreateRequest request) {
+	public void createUserInfo(final UUID userId, final MultipartFile profile, final UserCreateRequest request) {
 
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
