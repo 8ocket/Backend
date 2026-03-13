@@ -15,11 +15,11 @@ import lombok.Getter;
 
 @Getter
 public class CustomUser implements UserDetails {
-	private final Long id;
+	private final String id;
 	private final Role role;
 
 	@Builder
-	public CustomUser(Long id, Role role) {
+	public CustomUser(String id, Role role) {
 		this.id = id;
 		this.role = role;
 	}

@@ -2,6 +2,8 @@ package com.kt.mindLog.domain.auth;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import com.kt.mindLog.domain.user.User;
 
 import jakarta.persistence.Column;
@@ -21,8 +23,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtToken {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@UuidGenerator
+	private String id;
 
 	@Column(nullable = false, length = 512, unique = true)
 	private String refreshToken;

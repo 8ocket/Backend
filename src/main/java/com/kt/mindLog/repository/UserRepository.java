@@ -11,10 +11,10 @@ import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 	Optional<User> findByEmailAndLoginType(String email, LoginType loginType);
 
-	default User findByIdOrThrow(Long id, ErrorCode errorCode) {
+	default User findByIdOrThrow(String id, ErrorCode errorCode) {
 		return findById(id).orElseThrow(() -> new CustomException(errorCode));
 	}
 }

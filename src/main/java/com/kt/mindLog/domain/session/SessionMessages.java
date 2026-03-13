@@ -2,6 +2,8 @@ package com.kt.mindLog.domain.session;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import com.kt.mindLog.domain.user.Role;
 
 import jakarta.persistence.Column;
@@ -9,8 +11,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -21,10 +21,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class SessionMessage {
+public class SessionMessages {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@UuidGenerator
+    private String id;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
@@ -39,7 +39,7 @@ public class SessionMessage {
 	private Session session;
 
 	@Builder
-	public SessionMessage(Role role, String content, Session session) {
+	public SessionMessages(Role role, String content, Session session) {
 		this.role = role;
 		this.content = content;
 		this.session = session;

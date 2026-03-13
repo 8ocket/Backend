@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.kt.mindLog.domain.auth.JwtToken;
 
 @Repository
-public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
+public interface JwtTokenRepository extends JpaRepository<JwtToken, String> {
 	Optional<JwtToken> findByRefreshToken(String token);
 }
