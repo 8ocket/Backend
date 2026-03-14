@@ -2,6 +2,7 @@ package com.kt.mindLog.global.security;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,11 +16,11 @@ import lombok.Getter;
 
 @Getter
 public class CustomUser implements UserDetails {
-	private final String id;
+	private final UUID id;
 	private final Role role;
 
 	@Builder
-	public CustomUser(String id, Role role) {
+	public CustomUser(UUID id, Role role) {
 		this.id = id;
 		this.role = role;
 	}

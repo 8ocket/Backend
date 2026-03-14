@@ -1,6 +1,7 @@
 package com.kt.mindLog.domain.session;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
@@ -14,6 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,15 +23,21 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
+@Table(name = "session_messages")
 public class SessionMessages {
 	@Id
-	@UuidGenerator
-    private String id;
+	@UuidGenerator(style = UuidGenerator.Style.VERSION_7)
+	@Column(name = "message_id")
+    private UUID id;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	private String content;
+
+	private Integer sequenceNum;
+
+	private boolean isMeaningful;
 
 	@Column(updatable = false)
 	private LocalDateTime createdAt;
@@ -39,10 +47,11 @@ public class SessionMessages {
 	private Session session;
 
 	@Builder
-	public SessionMessages(Role role, String content, Session session) {
+	public SessionMessages(Role role, String content, Session session,  Integer sequenceNum) {
 		this.role = role;
 		this.content = content;
 		this.session = session;
+		this.sequenceNum = sequenceNum;
 		this.createdAt = LocalDateTime.now();
 	}
 }

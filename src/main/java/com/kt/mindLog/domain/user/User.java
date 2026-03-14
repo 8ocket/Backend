@@ -1,6 +1,7 @@
 package com.kt.mindLog.domain.user;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
@@ -8,8 +9,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -23,8 +22,9 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-	@UuidGenerator
-	private String id;
+	@UuidGenerator(style = UuidGenerator.Style.VERSION_7)
+	@Column(name = "user_id")
+	private UUID id;
 
 	@Column(length = 30)
 	private String email;
@@ -56,6 +56,8 @@ public class User {
 	private LocalDateTime createdAt;
 
 	private LocalDateTime lastLoginAt;
+
+	private String passwordHash;
 
 	@Builder
 	private User(String email, LoginType loginType) {

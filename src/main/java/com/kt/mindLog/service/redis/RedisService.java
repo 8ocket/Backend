@@ -1,6 +1,7 @@
 package com.kt.mindLog.service.redis;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -23,18 +24,17 @@ public class RedisService {
 	private static final String SESSION_PREFIX = "session:";
 	private static final String MESSAGE_SUFFIX = ":messages";
 
-	public void pushMessage(String sessionId, Role role, String content) {
+	public int pushMessage(UUID sessionId, Role role, String content) {
 		String key = buildKey(sessionId);
 
 		RedisMessageRequest message = new RedisMessageRequest(role.toString().toLowerCase(), content);
-		log.info("success to push message: sessionId:{},content:{}", sessionId, content);
+		Long index = redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(message));
+		log.info("success to push message : sessionId={}, content={}", sessionId, content);
 
-		executeOperation(() ->
-			redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(message))
-		);
+		return index == null ? 1 : index.intValue();
 	}
 
-	public List<RedisMessageRequest> getMessages(String sessionId) {
+	public List<RedisMessageRequest> getMessages(UUID sessionId) {
 		String key = buildKey(sessionId);
 
 		List<Object> list = redisTemplate.opsForList().range(key, 0, -1);
@@ -46,7 +46,7 @@ public class RedisService {
 			.toList();
 	}
 
-	private String buildKey(String sessionId) {
+	private String buildKey(UUID sessionId) {
 		return SESSION_PREFIX + sessionId + MESSAGE_SUFFIX;
 	}
 
