@@ -39,6 +39,8 @@ public class Session {
 	@Column(nullable = false)
 	private SessionStatus status;
 
+	private String title;
+
 	private LocalDateTime startedAt;
 
 	private LocalDateTime endedAt;
@@ -67,5 +69,10 @@ public class Session {
 		this.status = SessionStatus.ACTIVE;
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
+		this.startedAt = LocalDateTime.now();
+	}
+
+	public void updateTitle(final String title) {
+		this.title = title;
 	}
 }

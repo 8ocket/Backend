@@ -3,6 +3,7 @@ package com.kt.mindLog.service.session;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -75,7 +76,7 @@ public class SessionMessageService {
 
 	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<Object> sink, UUID sessionId) {
 		switch (event.event()) {
-			case "ai_chunk", "session_title" -> sink.next(event);
+			case "ai_chunk" -> sink.next(event);
 
 			case "crisis_check" -> {
 				CrisisCheck crisis = objectMapper.readValue(event.data(), CrisisCheck.class);
@@ -103,13 +104,13 @@ public class SessionMessageService {
 	}
 
 	@Transactional
-	protected void saveContents(final Role role, final String contents, final UUID sessionId) {
-		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
+	protected UUID saveContents(final Role role, final String contents, final UUID sessionId) {
 
+		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 		int sequence = redisService.pushMessage(sessionId, role, contents);
 		//TODO 상담 메세지 암호화
 
-		sessionMessageRepository.save(SessionMessages.builder()
+		var message = sessionMessageRepository.saveAndFlush(SessionMessages.builder()
 			.role(role)
 			.content(contents)
 			.session(session)
@@ -117,5 +118,59 @@ public class SessionMessageService {
 			.build());
 
 		log.info("success to save session message");
+		return message.getId();
+	}
+
+
+	public UUID receiveFirstMessage(final String contents, final UUID sessionId, final UUID userId) {
+		AtomicReference<UUID> messageIdRef = new AtomicReference<>();
+
+		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+
+		webClient.post()
+			.uri(sessionProperties.getUri(), sessionId)
+			.contentType(MediaType.APPLICATION_JSON)
+			.bodyValue(Map.of("content", contents))
+			.accept(MediaType.TEXT_EVENT_STREAM)
+			.retrieve()
+			.onStatus(HttpStatusCode::isError, response ->
+				response.bodyToMono(String.class)
+
+					.map(body -> new RuntimeException("AI 서버 오류: " + body))
+			)
+			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
+			.timeout(Duration.ofMinutes(2))
+			.doFirst(() -> saveContents(Role.USER, contents, sessionId))
+			.doOnNext(this::logEvent)
+			.doOnNext(event -> {
+				switch (event.event()) {
+					case "session_title" -> saveTitle(sessionId, event.data());
+
+					case "ai_complete" -> {
+						UUID id = saveContents(
+							Role.ASSISTANT,
+							parseJson(event.data(), "content"),
+							sessionId
+						);
+						messageIdRef.set(id);
+					}
+				}
+			})
+			.doOnError(e -> log.error("스트림 오류", e))
+			.takeUntil(event -> "done".equals(event.event()))
+			.blockLast();
+
+		return messageIdRef.get();
+	}
+
+	@Transactional
+	protected void saveTitle(UUID sessionId, String contents) {
+
+		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
+		String title = parseJson(contents, "title");
+		session.updateTitle(title);
+
+		sessionRepository.save(session);
+		log.info("success to save session title");
 	}
 }

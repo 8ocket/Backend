@@ -19,10 +19,6 @@ import lombok.Getter;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public abstract class BaseEntity {
-	@Id
-	@UuidGenerator
-	protected String id;
-
 	@CreatedDate
 	@Column(updatable = false)
 	protected LocalDateTime createdAt;

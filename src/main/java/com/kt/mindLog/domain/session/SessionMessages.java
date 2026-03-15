@@ -33,6 +33,7 @@ public class SessionMessages {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
+	@Column(columnDefinition = "TEXT")
 	private String content;
 
 	private Integer sequenceNum;
