@@ -64,5 +64,6 @@ public class UserService {
 		);
 
 		userRepository.save(user);
+		log.info("success to update user information");
 	}
 }

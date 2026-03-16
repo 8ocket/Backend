@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
 import com.kt.mindLog.dto.session.request.SessionReceiveRequest;
+import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.security.CustomUser;
 import com.kt.mindLog.service.session.SessionMessageService;
@@ -20,6 +21,7 @@ import com.kt.mindLog.service.session.SessionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,8 +37,8 @@ public class SessionController {
 		return sessionMessageService.receiveSSE(content.content(), sessionId, user.getId());
 	}
 
-	@PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Object> createSession(@Login CustomUser user, @Valid @RequestBody SessionCreateRequest request) {
-		return sessionService.createSession(user.getId(), request);
+	@PostMapping("")
+	public SessionResponse createSession(@Login CustomUser user, @Valid @RequestBody SessionCreateRequest request) {
+		return sessionService.saveSession(user.getId(), request);
 	}
 }
