@@ -31,3 +31,18 @@
         interval: 10s
         timeout: 3s
         retries: 5
+
+    app:
+      build: .
+      container_name: mindlog-backend
+      ports:
+        - "8080:8080"
+      env_file:
+        - .env
+      networks:
+        - mindlog-network
+
+  networks:
+    mindlog-network:
+      external: true
+      name: mindlog_ai_mindlog-network
