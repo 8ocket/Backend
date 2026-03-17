@@ -17,6 +17,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.kt.mindLog.global.property.CorsProperties;
+import com.kt.mindLog.global.security.JwtAccessDeniedHandler;
+import com.kt.mindLog.global.security.JwtAuthenticationEntryPoint;
 import com.kt.mindLog.global.security.JwtFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -53,6 +55,10 @@ public class SecurityConfig {
 				}
 			)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling( exceptionHandling -> exceptionHandling
+				.authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+				.accessDeniedHandler(new JwtAccessDeniedHandler())
+			)
 			.csrf(AbstractHttpConfigurer::disable);
 
 		return http.build();
