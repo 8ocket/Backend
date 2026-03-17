@@ -1,5 +1,7 @@
 package com.kt.mindLog.global.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,9 +12,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.kt.mindLog.global.property.CorsProperties;
 import com.kt.mindLog.global.security.JwtFilter;
-import com.kt.mindLog.global.security.JwtProvider;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
+	private final CorsProperties corsProperties;
 
 	private static final String[] GET_PERMIT_ALL = {"/actuator/**", "/v1/auth/**"};
 	private static final String[] POST_PERMIT_ALL = {"/internal/v1/sessions/**", "/v1/sessions/**"};
@@ -30,8 +36,10 @@ public class SecurityConfig {
 	private static final String[] PUT_PERMIT_ALL = {"/"};
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, JwtProvider jwtProvider) throws Exception {
-		http.sessionManagement(
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.sessionManagement(
 				session ->
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
@@ -48,5 +56,22 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable);
 
 		return http.build();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.setAllowedOriginPatterns(List.of(
+			corsProperties.getLocal(),
+			corsProperties.getDev(),
+			corsProperties.getProd()
+		));
+		config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
 	}
 }

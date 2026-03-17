@@ -48,5 +48,10 @@ session:
   baseurl: ${SESSION_BASE_URL}
   uri: ${SESSION_URI}
 
+cors:
+  local: ${CORS_LOCAL_URL}
+  dev: ${CORS_DEV_URL}
+  prod: ${CORS_PROD_URL}
+
 server:
   port: 8080
