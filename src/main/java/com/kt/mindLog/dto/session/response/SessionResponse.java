@@ -11,6 +11,7 @@ public record SessionResponse (
 	@JsonProperty("persona_id")
 	String personaId,
 	String status,
+	String title,
 	@JsonProperty("started_at")
 	LocalDateTime startedAt,
 	@JsonProperty("first_message")
@@ -21,6 +22,7 @@ public record SessionResponse (
 			session.getId().toString(),
 			session.getPersona().getId().toString(),
 			session.getStatus().toString(),
+			session.getTitle(),
 			session.getStartedAt(),
 			messageResponse
 		);
