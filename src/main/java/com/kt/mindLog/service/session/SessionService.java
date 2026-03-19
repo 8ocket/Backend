@@ -27,16 +27,16 @@ public class SessionService {
 	private final UserRepository userRepository;
 	private final PersonaRepository personaRepository;
 	private final SessionMessageService sessionMessageService;
-	private final ApplicationEventPublisher applicationEventPublisher;
 	private final SessionMessageRepository sessionMessageRepository;
 
 	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {
-		var session = createSession(userId, request);
+		var newSession = createSession(userId, request);
 
 		var messageId = sessionMessageService
-			.receiveFirstMessage(request.firstContent(), session.getId(), userId);
+			.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 
 		var message = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()), ErrorCode.NOT_FOUND_SESSION_MESSAGE);
+		var session = sessionRepository.findByIdOrThrow(newSession.getId(), ErrorCode.NOT_FOUND_SESSION);
 
 		return SessionResponse.from(
 			session,

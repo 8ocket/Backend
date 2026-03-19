@@ -29,7 +29,6 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		log.info("JWT FILTER START");
 		var header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if (header == null || !header.startsWith(TOKEN_PREFIX)) {
@@ -48,7 +47,6 @@ public class JwtFilter extends OncePerRequestFilter {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
 			request.setAttribute("CustomUser", CustomUser.builder().id(user.getId()).role(user.getRole()).build());
-			log.info("JWT FILTER END");
 		} catch (Exception e) {
 			log.error("JWT Filter Error", e);
 			throw e;
