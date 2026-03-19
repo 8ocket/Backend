@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -163,14 +164,14 @@ public class SessionMessageService {
 		return messageIdRef.get();
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	protected void saveTitle(UUID sessionId, String contents) {
 
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 		String title = parseJson(contents, "title");
 		session.updateTitle(title);
 
-		sessionRepository.save(session);
+		sessionRepository.saveAndFlush(session);
 		log.info("success to save session title");
 	}
 }

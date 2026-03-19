@@ -40,6 +40,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
+			.httpBasic(AbstractHttpConfigurer::disable)
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.sessionManagement(
 				session ->
@@ -51,6 +52,7 @@ public class SecurityConfig {
 					request.requestMatchers(HttpMethod.POST, POST_PERMIT_ALL).permitAll();
 					request.requestMatchers(HttpMethod.PATCH, PATCH_PERMIT_ALL).permitAll();
 					request.requestMatchers(HttpMethod.PUT, PUT_PERMIT_ALL).permitAll();
+					request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
 					request.anyRequest().authenticated();
 				}
 			)
