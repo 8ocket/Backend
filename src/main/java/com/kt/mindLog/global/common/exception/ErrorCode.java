@@ -26,15 +26,22 @@ public enum ErrorCode {
 	EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	INVALID_JWT_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
 
-	//user
+	// user
 	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),
 
-	//session
+	// session
 	NOT_FOUND_SESSION(HttpStatus.BAD_REQUEST, "존재하지 않는 세션입니다."),
 	NOT_FOUND_SESSION_MESSAGE(HttpStatus.BAD_REQUEST, "존재하지 않는 상담 내용입니다."),
 
-	//persona
+	// persona
 	NOT_FOUND_PERSONA(HttpStatus.BAD_REQUEST, "존재하지 않는 페르소나입니다."),
+
+	// Amazon S3
+	EMPTY_FILE(HttpStatus.BAD_REQUEST, "파일이 비어 있습니다."),
+	INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다."),
+	INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
+	FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기는 5MB를 초과 할 수 없습니다."),
+	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다.")
 	;
 
 	private final HttpStatus status;
