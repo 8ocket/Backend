@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.kt.mindLog.global.common.exception.CustomException;
@@ -17,8 +17,10 @@ import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class S3Service {
 	private final AmazonS3 amazonS3;
@@ -44,9 +46,13 @@ public class S3Service {
 
 			amazonS3.putObject(
 				new PutObjectRequest(bucket, fileName, profile.getInputStream(), metadata)
-					.withCannedAcl(CannedAccessControlList.PublicRead)
 			);
+		} catch (AmazonS3Exception e) {
+			log.error("S3 upload failed. Status Code: {}, Error Message: {}", e.getStatusCode(), e.getMessage());
+			throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
+
 		} catch (IOException e) {
+			log.error("File upload IO exception: {}", e.getMessage(), e);
 			throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
 		}
 
@@ -55,7 +61,7 @@ public class S3Service {
 
 	private void validateFile(MultipartFile profile) {
 		// 빈 파일 여부 검증
-		Preconditions.validate(profile.isEmpty(), ErrorCode.EMPTY_FILE);
+		Preconditions.validate(!profile.isEmpty(), ErrorCode.EMPTY_FILE);
 
 		// 이미지 파일 타입 검증
 		Preconditions.validate(
