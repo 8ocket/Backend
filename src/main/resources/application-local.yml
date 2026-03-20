@@ -17,3 +17,6 @@ session:
 
 server:
   port: 8080
+
+kakao:
+  redirect-uri: ${KAKAO_LOCAL_REDIRECT_URI}
