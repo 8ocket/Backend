@@ -1,9 +1,8 @@
 package com.kt.mindLog.repository.session;
 
+import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,5 +16,9 @@ public interface SessionRepository extends JpaRepository<Session,UUID> {
 	}
 
 	@EntityGraph(attributePaths = "persona")
-	Page<Session> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+	Optional<Session> findByIdAndUserId(UUID id, UUID userId);
+
+	default Session findByIdAndUserIdOrThrow(UUID id, UUID userId, ErrorCode errorCode) {
+		return findByIdAndUserId(id, userId).orElseThrow(() -> new CustomException(errorCode));
+	}
 }

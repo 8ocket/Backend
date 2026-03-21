@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
 import com.kt.mindLog.dto.session.request.SessionReceiveRequest;
+import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
 import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.annotation.Login;
@@ -53,5 +54,10 @@ public class SessionController {
 		@RequestParam(required = false) List<UUID> personaIds,
 		Paging paging) {
 		return sessionService.getSessionList(user.getId(), paging.toPageable(), startDate, endDate, personaIds);
+	}
+
+	@GetMapping("/{sessionId}")
+	public SessionDetailResponse getSessionDetail(@Login CustomUser user, @PathVariable UUID sessionId) {
+		return sessionService.getSessionDetail(user.getId(), sessionId);
 	}
 }

@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
+import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
+import com.kt.mindLog.dto.session.response.SessionMessageListResponse;
 import com.kt.mindLog.dto.session.response.SessionMessageResponse;
 import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
@@ -84,5 +86,18 @@ public class SessionService {
 		Pagination pagination = Pagination.from(sessions);
 
 		return SessionListResponses.from(sessions.toList(), pagination);
+	}
+
+	public SessionDetailResponse getSessionDetail(final UUID userId, final UUID sessionId) {
+		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		var session = sessionRepository.findByIdAndUserIdOrThrow(sessionId, userId, ErrorCode.NOT_FOUND_SESSION);
+		var sessionMessages = sessionMessageRepository.findBySessionIdOrderByCreatedAtDesc(session.getId())
+			.stream()
+			.map(SessionMessageListResponse::from)
+			.toList();
+
+		var hasSummary = session.getSummary() != null;
+
+		return SessionDetailResponse.from(session, sessionMessages, hasSummary);
 	}
 }
