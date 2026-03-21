@@ -12,8 +12,11 @@ spring:
 jwt:
   secret-key: to-test-in-local-jwt-secret-key-it-will-be-changed
 
-session:
-  baseurl: http://localhost:8000
+kakao:
+  redirect-uri: ${KAKAO_LOCAL_REDIRECT_URI}
 
-server:
-  port: 8080
+google:
+  redirect-uri: ${GOOGLE_LOCAL_REDIRECT_URI}
+
+session:
+  baseurl: ${SESSION_LOCAL_BASE_URL}

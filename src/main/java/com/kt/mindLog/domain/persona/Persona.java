@@ -40,6 +40,8 @@ public class Persona{
 	@Column(columnDefinition = "TEXT")
 	private String toneSettings;
 
+	private String personaImageUrl;
+
 	private Integer unlockCredits;
 
 	private boolean isDefault;
@@ -53,11 +55,12 @@ public class Persona{
 
 	@Builder
 	private Persona(String personaType, String personaName, String description, String toneSettings,
-		Integer unlockCredits, boolean isDefault) {
+		String personaImageUrl, Integer unlockCredits, boolean isDefault) {
 		this.personaType = personaType;
 		this.personaName = personaName;
 		this.description = description;
 		this.toneSettings = toneSettings;
+		this.personaImageUrl = personaImageUrl;
 		this.unlockCredits = unlockCredits;
 		this.isDefault = isDefault;
 		this.isActive = true;

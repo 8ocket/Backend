@@ -20,7 +20,7 @@ import com.kt.mindLog.dto.session.response.CrisisCheck;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.SessionProperties;
 import com.kt.mindLog.repository.SessionMessageRepository;
-import com.kt.mindLog.repository.SessionRepository;
+import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.service.redis.RedisService;
 
