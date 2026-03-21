@@ -13,6 +13,7 @@ import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.service.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final JwtService jwtService;
+	private final S3Service s3Service;
 
 	@Transactional
 	public LoginResponse login(final String email, final LoginType loginType) {
@@ -52,8 +54,7 @@ public class UserService {
 
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
-		//TODO profile image 업로드 처리
-		String profileImageUrl = "";
+		String profileImageUrl = s3Service.uploadProfileImage(profile);
 
 		user.updateUserInfo(
 			request.nickname(),
