@@ -1,22 +1,24 @@
 package com.kt.mindLog.global.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.kt.mindLog.global.property.AwsProperties;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@RequiredArgsConstructor
 public class S3Config {
 
-	@Value("${cloud.aws.region.static}")
-	private String region;
+	private final AwsProperties awsProperties;
 
 	@Bean
 	public AmazonS3 amazonS3() {
 		return AmazonS3ClientBuilder.standard()
-			.withRegion(region)
+			.withRegion(awsProperties.getRegion())
 			.build();
 	}
 }
