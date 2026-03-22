@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,6 +62,10 @@ public class Session {
 
 	@OneToMany(mappedBy = "session")
 	private List<SessionMessages> messages = new ArrayList<>();
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "summary_id", nullable = true)
+	private SessionSummary summary;
 
 	@Builder
 	public Session(User user, Persona persona) {

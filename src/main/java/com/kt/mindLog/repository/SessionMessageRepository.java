@@ -1,5 +1,6 @@
 package com.kt.mindLog.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,6 @@ public interface SessionMessageRepository extends JpaRepository<SessionMessages,
 	default SessionMessages findByIdOrThrow(UUID id, ErrorCode errorCode) {
 		return findById(id).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	List<SessionMessages> findBySessionIdOrderByCreatedAtDesc(UUID sessionId);
 }
