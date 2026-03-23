@@ -33,19 +33,19 @@ public class S3Service {
 
 	private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "webp");
 
-	public String uploadProfileImage(MultipartFile profile) {
+	public String uploadImage(MultipartFile file, S3Path path) {
 
-		validateFile(profile);
+		validateFile(file);
 
-		String fileName = "profile/" + UUID.randomUUID() + "_" + profile.getOriginalFilename();
+		String fileName = path.name().toLowerCase() + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
 
 		try {
 			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentLength(profile.getSize());
-			metadata.setContentType(profile.getContentType());
+			metadata.setContentLength(file.getSize());
+			metadata.setContentType(file.getContentType());
 
 			amazonS3.putObject(
-				new PutObjectRequest(bucket, fileName, profile.getInputStream(), metadata)
+				new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
 			);
 		} catch (AmazonS3Exception e) {
 			log.error("S3 upload failed. Status Code: {}, Error Message: {}", e.getStatusCode(), e.getMessage());
@@ -59,21 +59,21 @@ public class S3Service {
 		return amazonS3.getUrl(bucket, fileName).toString();
 	}
 
-	private void validateFile(MultipartFile profile) {
+	private void validateFile(MultipartFile file) {
 		// 빈 파일 여부 검증
-		Preconditions.validate(!profile.isEmpty(), ErrorCode.EMPTY_FILE);
+		Preconditions.validate(!file.isEmpty(), ErrorCode.EMPTY_FILE);
 
 		// 이미지 파일 타입 검증
 		Preconditions.validate(
-			profile.getContentType() != null && profile.getContentType().startsWith("image"),
+			file.getContentType() != null && file.getContentType().startsWith("image"),
 			ErrorCode.INVALID_FILE_TYPE
 		);
 
 		// 파일 크기 검증
-		Preconditions.validate(profile.getSize() <= maxFileSize, ErrorCode.FILE_SIZE_EXCEEDED);
+		Preconditions.validate(file.getSize() <= maxFileSize, ErrorCode.FILE_SIZE_EXCEEDED);
 
 		// 확장자 검증
-		String extension = extractExtenstion(profile.getOriginalFilename());
+		String extension = extractExtenstion(file.getOriginalFilename());
 		Preconditions.validate(
 			ALLOWED_EXTENSIONS.contains(extension.toLowerCase()),
 			ErrorCode.INVALID_FILE_EXTENSION

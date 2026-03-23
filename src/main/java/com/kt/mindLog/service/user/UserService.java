@@ -13,6 +13,7 @@ import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.service.s3.S3Path;
 import com.kt.mindLog.service.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public class UserService {
 
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
-		String profileImageUrl = s3Service.uploadProfileImage(profile);
+		String profileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
 
 		user.updateUserInfo(
 			request.nickname(),
