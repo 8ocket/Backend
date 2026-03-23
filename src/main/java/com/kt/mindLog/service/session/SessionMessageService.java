@@ -14,12 +14,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.kt.mindLog.domain.session.CrisisLogs;
 import com.kt.mindLog.domain.session.SessionMessages;
 import com.kt.mindLog.domain.user.Role;
+import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.session.response.CrisisCheck;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.SessionProperties;
 import com.kt.mindLog.repository.SessionMessageRepository;
+import com.kt.mindLog.repository.session.CrisisLogRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.service.redis.RedisService;
@@ -38,6 +41,7 @@ public class SessionMessageService {
 	private final UserRepository userRepository;
 	private final SessionMessageRepository sessionMessageRepository;
 	private final SessionRepository sessionRepository;
+	private final CrisisLogRepository crisisLogRepository;
 
 	private final ObjectMapper objectMapper;
 	private final WebClient webClient;
@@ -47,7 +51,8 @@ public class SessionMessageService {
 
 
 	public Flux<Object> receiveSSE(final String contents, final UUID sessionId, final UUID userId) {
-		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		AtomicReference<UUID> messageIdRef = new AtomicReference<>();
 
 		return webClient.post()
 			.uri(sessionProperties.getUri(), sessionId)
@@ -61,9 +66,9 @@ public class SessionMessageService {
 			)
 			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
 			.timeout(Duration.ofMinutes(2))
-			.doFirst(() -> saveContents(Role.USER, contents, sessionId))
+			.doFirst(() -> messageIdRef.set(saveContents(Role.USER, contents, sessionId)))
 			.doOnNext(this::logEvent)
-			.handle((event, sink) -> handleEvent(event, sink, sessionId))
+			.handle((event, sink) -> handleEvent(event, sink, sessionId, user, messageIdRef))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}
 
@@ -71,20 +76,22 @@ public class SessionMessageService {
 		if ("error".equals(event.event())) {
 			log.error("AI error: {}", event.data());
 		} else {
-			log.info("event: {}, data: {}", event.event(), event.data());
+			log.info("event: {}, data: {}", event.event(), event.data()); //TODO 최종 배포 시 삭제
 		}
 	}
 
-	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<Object> sink, UUID sessionId) {
+	private void handleEvent(ServerSentEvent<String> event, SynchronousSink<Object> sink, UUID sessionId, User user, AtomicReference<UUID> messageIdRef) {
 		switch (event.event()) {
 			case "ai_chunk" -> sink.next(event);
 
 			case "crisis_check" -> {
 				CrisisCheck crisis = objectMapper.readValue(event.data(), CrisisCheck.class);
-				if (crisis.detected()) {
+				if (crisis.level() >= 2) {
 					sink.next(ServerSentEvent.builder(Map.of("content", crisis.suggestedResponse()))
 						.event("crisis_check")
 						.build());
+
+					saveCrisis(sessionId, crisis, user, messageIdRef.get());
 				}
 			}
 
@@ -165,7 +172,7 @@ public class SessionMessageService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	protected void saveTitle(UUID sessionId, String contents) {
+	protected void saveTitle(final UUID sessionId, final String contents) {
 
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 		String title = parseJson(contents, "title");
@@ -173,5 +180,24 @@ public class SessionMessageService {
 
 		sessionRepository.saveAndFlush(session);
 		log.info("success to save session title");
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	protected void saveCrisis(final UUID sessionId, final CrisisCheck crisisCheck, final User user, UUID messageId) {
+		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
+		var messages = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()),
+			ErrorCode.NOT_FOUND_SESSION_MESSAGE);
+
+		var crisis = CrisisLogs.builder()
+			.level(crisisCheck.level())
+			.keywords(crisisCheck.keywords())
+			.message(crisisCheck.suggestedResponse())
+			.session(session)
+			.user(user)
+			.messages(messages)
+			.build();
+
+		crisisLogRepository.saveAndFlush(crisis);
+		log.info("success to save crisis log");
 	}
 }
