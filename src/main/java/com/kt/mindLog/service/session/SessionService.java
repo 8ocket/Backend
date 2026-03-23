@@ -2,6 +2,7 @@ package com.kt.mindLog.service.session;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.session.Session;
+import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
+import com.kt.mindLog.dto.session.response.ActiveSessionResponse;
 import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
@@ -99,5 +102,13 @@ public class SessionService {
 		var hasSummary = session.getSummary() != null;
 
 		return SessionDetailResponse.from(session, sessionMessages, hasSummary);
+	}
+
+	public ActiveSessionResponse getActiveSession(final UUID userId) {
+		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+
+		Optional<Session> session = sessionRepository.findFirstByUserIdAndStatusOrderByCreatedAtDesc(userId, SessionStatus.ACTIVE);
+
+		return session.map(ActiveSessionResponse::from).orElse(null);
 	}
 }
