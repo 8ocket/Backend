@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kt.mindLog.domain.session.Session;
+import com.kt.mindLog.dto.sessionMessage.response.SessionMessageResponse;
 
 public record SessionResponse (
 	@JsonProperty("session_id")

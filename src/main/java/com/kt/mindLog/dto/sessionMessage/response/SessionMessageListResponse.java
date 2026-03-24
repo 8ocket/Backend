@@ -1,4 +1,4 @@
-package com.kt.mindLog.dto.session.response;
+package com.kt.mindLog.dto.sessionMessage.response;
 
 import java.time.LocalDateTime;
 

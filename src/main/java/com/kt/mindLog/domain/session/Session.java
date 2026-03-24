@@ -84,4 +84,13 @@ public class Session {
 	public void updateTitle(final String title) {
 		this.title = title;
 	}
+
+	public void updateStatus(final SessionStatus sessionStatus) {
+		this.status = sessionStatus;
+		this.endedAt = LocalDateTime.now();
+	}
+
+	public void updateTime() {
+		this.updatedAt = LocalDateTime.now();
+	}
 }

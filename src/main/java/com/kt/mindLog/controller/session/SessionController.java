@@ -66,4 +66,9 @@ public class SessionController {
 	public ActiveSessionResponse getActiveSession(@Login CustomUser user) {
 		return sessionService.getActiveSession(user.getId());
 	}
+
+	@PostMapping(value = "/{sessionId}/finalize", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Object> finalizeSession(@Login CustomUser user, @PathVariable UUID sessionId) {
+		return sessionMessageService.finalizeSession(sessionId, user.getId());
+	}
 }

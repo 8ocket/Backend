@@ -1,6 +1,9 @@
 package com.kt.mindLog.service.session;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,9 +19,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.session.CrisisLogs;
 import com.kt.mindLog.domain.session.SessionMessages;
+import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.domain.user.User;
-import com.kt.mindLog.dto.session.response.CrisisCheck;
+import com.kt.mindLog.dto.session.response.SessionEmotionResponse;
+import com.kt.mindLog.dto.sessionMessage.response.CrisisCheck;
+import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.SessionProperties;
 import com.kt.mindLog.repository.SessionMessageRepository;
@@ -55,7 +61,7 @@ public class SessionMessageService {
 		AtomicReference<UUID> messageIdRef = new AtomicReference<>();
 
 		return webClient.post()
-			.uri(sessionProperties.getUri(), sessionId)
+			.uri(sessionProperties.getMessageUri(), sessionId)
 			.contentType(MediaType.APPLICATION_JSON)
 			.bodyValue(Map.of("content", contents))
 			.accept(MediaType.TEXT_EVENT_STREAM)
@@ -125,6 +131,9 @@ public class SessionMessageService {
 			.sequenceNum(sequence)
 			.build());
 
+		session.updateTime();
+		sessionRepository.save(session);
+
 		log.info("success to save session message");
 		return message.getId();
 	}
@@ -136,7 +145,7 @@ public class SessionMessageService {
 		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
 		webClient.post()
-			.uri(sessionProperties.getUri(), sessionId)
+			.uri(sessionProperties.getMessageUri(), sessionId)
 			.contentType(MediaType.APPLICATION_JSON)
 			.bodyValue(Map.of("content", contents))
 			.accept(MediaType.TEXT_EVENT_STREAM)
@@ -199,5 +208,68 @@ public class SessionMessageService {
 
 		crisisLogRepository.saveAndFlush(crisis);
 		log.info("success to save crisis log");
+	}
+
+	public Flux<Object> finalizeSession(final UUID sessionId, final UUID userId) {
+		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+
+		return webClient.post()
+			.uri(sessionProperties.getFinalizeUri(), sessionId)
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.TEXT_EVENT_STREAM)
+			.retrieve()
+			.onStatus(HttpStatusCode::isError, response ->
+				response.bodyToMono(String.class)
+					.map(body -> new RuntimeException("AI 서버 오류: " + body))
+			)
+			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
+			.timeout(Duration.ofMinutes(2))
+			.doOnNext(this::logEvent)
+			.handle((event, sink) -> {
+				switch (event.event()) {
+					case "status" -> sink.next(event);
+
+					case "session_title" -> saveTitle(sessionId, event.data());
+
+					case "ai_complete" -> {
+						var summary = objectMapper.readValue(event.data(), SessionSummaryResponse.class);
+
+						List<Map<String, Object>> emotions = new ArrayList<>();
+
+						for (SessionEmotionResponse response : summary.emotions()) {
+							Map<String, Object> emotionMap = new HashMap<>();
+							emotionMap.put("emotion_type", response.emotionType());
+							emotionMap.put("intensity", response.intensity());
+							emotionMap.put("source_keyword", response.sourceKeyword());
+
+							emotions.add(emotionMap);
+						}
+
+						sink.next(ServerSentEvent.builder()
+							.event("ai_complete")
+							.data(Map.of(
+								"session_id", sessionId.toString(),
+								"summary", summary.summary(),
+								"emotions", emotions,
+								"card_image_url", summary.card().get("image_url").asText()
+							))
+							.build());
+
+						updateSessionStatus(sessionId, SessionStatus.COMPLETED);
+
+						//TODO 마음기록카드 저장 + 요약 정보 저장 + 감정 저장 + 카드 저장
+						updateSessionStatus(sessionId, SessionStatus.SAVED);
+					}
+				}
+			})
+			.doOnError(e -> log.error("스트림 오류", e));
+	}
+
+	@Transactional
+	protected void updateSessionStatus(final UUID sessionId, final SessionStatus sessionStatus) {
+		var session =  sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
+
+		session.updateStatus(sessionStatus);
+		sessionRepository.saveAndFlush(session);
 	}
 }
