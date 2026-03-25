@@ -45,7 +45,8 @@ public enum ErrorCode {
 	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다."),
 
 	//summary
-	INVALID_SESSION_SUMMARY(HttpStatus.BAD_REQUEST, "이미 분석 완료된 상담 세션입니다.")
+	INVALID_SESSION_SUMMARY(HttpStatus.BAD_REQUEST, "이미 분석 완료된 상담 세션입니다."),
+	NOT_FOUND_SUMMARY(HttpStatus.BAD_REQUEST, "해당 세션 요약 컨텍스트을 찾을 수 없습니다."),
 	;
 
 	private final HttpStatus status;

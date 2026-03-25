@@ -1,12 +1,13 @@
 package com.kt.mindLog.service.redis;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.kt.mindLog.domain.summary.SessionContextSummary;
 import com.kt.mindLog.domain.user.Role;
+import com.kt.mindLog.dto.redis.request.RedisHistoryRequest;
 import com.kt.mindLog.dto.redis.request.RedisMessageRequest;
 
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,11 @@ public class RedisService {
 
 	private static final String SESSION_PREFIX = "session:";
 	private static final String MESSAGE_SUFFIX = ":messages";
+	private static final String USER_SUFFIX = "user:";
+	private static final String HISTORY_SUFFIX = ":recent_contexts";
 
-	public int pushMessage(UUID sessionId, Role role, String content) {
-		String key = buildKey(sessionId);
+	public int pushMessage(final UUID sessionId, final Role role, final String content) {
+		String key = buildMessageKey(sessionId);
 
 		RedisMessageRequest message = new RedisMessageRequest(role.toString().toLowerCase(), content);
 		Long index = redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(message));
@@ -34,29 +37,18 @@ public class RedisService {
 		return index == null ? 1 : index.intValue();
 	}
 
-	public List<RedisMessageRequest> getMessages(UUID sessionId) {
-		String key = buildKey(sessionId);
-
-		List<Object> list = redisTemplate.opsForList().range(key, 0, -1);
-
-		if (list == null) return List.of();
-
-		return list.stream()
-			.map(o -> objectMapper.readValue((String) o, RedisMessageRequest.class))
-			.toList();
-	}
-
-	private String buildKey(UUID sessionId) {
+	private String buildMessageKey(final UUID sessionId) {
 		return SESSION_PREFIX + sessionId + MESSAGE_SUFFIX;
 	}
 
-	private int executeOperation(Runnable operation) {
-		try {
-			operation.run();
-			return 1;
-		} catch (Exception e) {
-			log.error("Redis 작업 오류: " + e.getMessage());
-			return 0;
-		}
+	public void pushHistory(final UUID userId, final SessionContextSummary summary) {
+		String key = buildUserKey(userId);
+
+		RedisHistoryRequest history = RedisHistoryRequest.from(summary);
+		redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(history));
+	}
+
+	private String buildUserKey(UUID userId) {
+		return USER_SUFFIX + userId + HISTORY_SUFFIX;
 	}
 }
