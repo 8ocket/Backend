@@ -24,6 +24,7 @@ import com.kt.mindLog.global.common.request.Paging;
 import com.kt.mindLog.global.security.CustomUser;
 import com.kt.mindLog.service.session.SessionMessageService;
 import com.kt.mindLog.service.session.SessionService;
+import com.kt.mindLog.service.session.SessionStreamService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +36,12 @@ import reactor.core.publisher.Flux;
 public class SessionController {
 
 	private final SessionService sessionService;
-	private final SessionMessageService sessionMessageService;
+	private final SessionStreamService sessionStreamService;
 
 	@PostMapping(value ="/{sessionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Object> receiveSSE(@Login CustomUser user, @Valid @RequestBody SessionReceiveRequest content,
 		@PathVariable UUID sessionId) {
-		return sessionMessageService.receiveSSE(content.content(), sessionId, user.getId());
+		return sessionStreamService.receiveSSE(content.content(), sessionId, user.getId());
 	}
 
 	@PostMapping("")
@@ -69,6 +70,6 @@ public class SessionController {
 
 	@PostMapping(value = "/{sessionId}/finalize", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Object> finalizeSession(@Login CustomUser user, @PathVariable UUID sessionId) {
-		return sessionMessageService.finalizeSession(sessionId, user.getId());
+		return sessionStreamService.finalizeSession(sessionId, user.getId());
 	}
 }

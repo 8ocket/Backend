@@ -41,13 +41,13 @@ public class SessionService {
 	private final SessionMessageRepository sessionMessageRepository;
 	private final SessionRepositoryCustom sessionRepositoryCustom;
 
-	private final SessionMessageService sessionMessageService;
+	private final SessionStreamService sessionStreamService;
 
 
 	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {
 		var newSession = createSession(userId, request);
 
-		var messageId = sessionMessageService
+		var messageId = sessionStreamService
 			.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 
 		var message = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()), ErrorCode.NOT_FOUND_SESSION_MESSAGE);
