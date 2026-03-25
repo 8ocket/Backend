@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.kt.mindLog.domain.persona.Persona;
+import com.kt.mindLog.domain.summary.SessionContextSummary;
+import com.kt.mindLog.domain.summary.SessionSummary;
 import com.kt.mindLog.domain.user.User;
 
 import jakarta.persistence.Column;
@@ -92,5 +94,9 @@ public class Session {
 
 	public void updateTime() {
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void updateSummary(final SessionSummary summary) {
+		this.summary = summary;
 	}
 }
