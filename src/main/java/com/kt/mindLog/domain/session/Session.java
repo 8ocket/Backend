@@ -64,8 +64,12 @@ public class Session {
 	private List<SessionMessages> messages = new ArrayList<>();
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "summary_id", nullable = true)
+	@JoinColumn(name = "summary_id")
 	private SessionSummary summary;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "session_id")
+	private SessionContextSummary contextSummary;
 
 	@Builder
 	public Session(User user, Persona persona) {
@@ -79,5 +83,14 @@ public class Session {
 
 	public void updateTitle(final String title) {
 		this.title = title;
+	}
+
+	public void updateStatus(final SessionStatus sessionStatus) {
+		this.status = sessionStatus;
+		this.endedAt = LocalDateTime.now();
+	}
+
+	public void updateTime() {
+		this.updatedAt = LocalDateTime.now();
 	}
 }

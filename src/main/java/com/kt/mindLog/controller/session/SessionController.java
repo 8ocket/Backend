@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
 import com.kt.mindLog.dto.session.request.SessionReceiveRequest;
+import com.kt.mindLog.dto.session.response.ActiveSessionResponse;
 import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
 import com.kt.mindLog.dto.session.response.SessionResponse;
@@ -59,5 +60,15 @@ public class SessionController {
 	@GetMapping("/{sessionId}")
 	public SessionDetailResponse getSessionDetail(@Login CustomUser user, @PathVariable UUID sessionId) {
 		return sessionService.getSessionDetail(user.getId(), sessionId);
+	}
+
+	@GetMapping("/active")
+	public ActiveSessionResponse getActiveSession(@Login CustomUser user) {
+		return sessionService.getActiveSession(user.getId());
+	}
+
+	@PostMapping(value = "/{sessionId}/finalize", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Object> finalizeSession(@Login CustomUser user, @PathVariable UUID sessionId) {
+		return sessionMessageService.finalizeSession(sessionId, user.getId());
 	}
 }

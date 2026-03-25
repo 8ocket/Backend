@@ -9,5 +9,6 @@ import lombok.RequiredArgsConstructor;
 @ConfigurationProperties(prefix = "session")
 public class SessionProperties {
 	private final String baseurl;
-	private final String uri;
+	private final String messageUri;
+	private final String finalizeUri;
 }

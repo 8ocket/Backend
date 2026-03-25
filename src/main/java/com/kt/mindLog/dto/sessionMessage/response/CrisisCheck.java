@@ -1,11 +1,11 @@
-package com.kt.mindLog.dto.session.response;
+package com.kt.mindLog.dto.sessionMessage.response;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record CrisisCheck (
-	boolean detected,
+	int level,
 	List<String> keywords,
 	@JsonProperty("suggested_response")
 	String suggestedResponse
