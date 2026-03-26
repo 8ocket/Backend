@@ -1,5 +1,6 @@
 package com.kt.mindLog.repository.session;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,4 +25,6 @@ public interface SessionRepository extends JpaRepository<Session,UUID> {
 	}
 
 	Optional<Session> findFirstByUserIdAndStatusOrderByCreatedAtDesc(UUID userId, SessionStatus status);
+
+	List<Session> findTop15ByUserIdAndStatusOrderByCreatedAtDesc(UUID userId,  SessionStatus status);
 }

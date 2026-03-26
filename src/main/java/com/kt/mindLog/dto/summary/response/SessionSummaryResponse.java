@@ -3,7 +3,6 @@ package com.kt.mindLog.dto.summary.response;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kt.mindLog.dto.session.response.SessionEmotionResponse;
 
 import tools.jackson.databind.JsonNode;
 
