@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
@@ -23,8 +22,7 @@ import com.kt.mindLog.dto.sessionMessage.response.SessionMessageResponse;
 import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.response.Pagination;
-import com.kt.mindLog.global.property.SessionProperties;
-import com.kt.mindLog.repository.persona.PersonaRepository;
+import com.kt.mindLog.repository.PersonaRepository;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
@@ -32,7 +30,6 @@ import com.kt.mindLog.repository.session.SessionRepositoryCustom;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -45,10 +42,6 @@ public class SessionService {
 	private final SessionRepositoryCustom sessionRepositoryCustom;
 
 	private final SessionMessageService sessionMessageService;
-
-	private final ObjectMapper objectMapper;
-	private final WebClient webClient;
-	private final SessionProperties sessionProperties;
 
 
 	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {

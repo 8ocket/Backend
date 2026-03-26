@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.kt.mindLog.domain.persona.Persona;
-import com.kt.mindLog.repository.persona.PersonaRepository;
+import com.kt.mindLog.repository.PersonaRepository;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
