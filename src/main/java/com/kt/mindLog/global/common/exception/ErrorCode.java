@@ -28,6 +28,7 @@ public enum ErrorCode {
 
 	// user
 	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),
+	INVALID_USER(HttpStatus.UNAUTHORIZED, "접근 권한이 없는 회원입니다."),
 
 	// session
 	NOT_FOUND_SESSION(HttpStatus.BAD_REQUEST, "존재하지 않는 세션입니다."),
@@ -36,6 +37,7 @@ public enum ErrorCode {
 
 	// persona
 	NOT_FOUND_PERSONA(HttpStatus.BAD_REQUEST, "존재하지 않는 페르소나입니다."),
+	INVALID_PERSONA(HttpStatus.BAD_REQUEST, "이미 존재하는 페르소나 이름입니다."),
 
 	// Amazon S3
 	EMPTY_FILE(HttpStatus.BAD_REQUEST, "파일이 비어 있습니다."),

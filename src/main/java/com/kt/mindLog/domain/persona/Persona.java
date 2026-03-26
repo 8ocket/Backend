@@ -1,17 +1,12 @@
 package com.kt.mindLog.domain.persona;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
-
-import com.kt.mindLog.domain.session.Session;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,20 +45,20 @@ public class Persona{
 
 	private LocalDateTime createdAt;
 
-	@OneToMany(mappedBy = "persona")
-	private List<Session> sessions = new ArrayList<>();
-
 	@Builder
-	private Persona(String personaType, String personaName, String description, String toneSettings,
-		String personaImageUrl, Integer unlockCredits, boolean isDefault) {
+	public Persona(String personaType, String personaName, String description, String toneSettings,
+		Integer unlockCredits, boolean isDefault) {
 		this.personaType = personaType;
 		this.personaName = personaName;
 		this.description = description;
 		this.toneSettings = toneSettings;
-		this.personaImageUrl = personaImageUrl;
 		this.unlockCredits = unlockCredits;
 		this.isDefault = isDefault;
 		this.isActive = true;
 		this.createdAt = LocalDateTime.now();
+	}
+
+	public void updatePersonaImageUrl(String personaImageUrl) {
+		this.personaImageUrl = personaImageUrl;
 	}
 }

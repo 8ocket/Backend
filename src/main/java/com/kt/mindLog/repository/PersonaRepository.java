@@ -12,4 +12,6 @@ public interface PersonaRepository extends JpaRepository<Persona, UUID> {
 	default Persona findByIdOrThrow(UUID id, ErrorCode errorCode) {
 		return findById(id).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	boolean existsByPersonaName(String personaName);
 }

@@ -44,8 +44,8 @@ public class SessionService {
 	private final SummaryContextRepository summaryContextRepository;
 	private final SessionRepositoryCustom sessionRepositoryCustom;
 
-	private final SessionStreamService sessionStreamService;
-	private final RedisService redisService;
+	private final SessionMessageService sessionMessageService;
+
 
 	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {
 		getHistory(userId);
