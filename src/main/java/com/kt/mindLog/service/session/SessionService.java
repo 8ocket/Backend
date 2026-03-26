@@ -24,7 +24,7 @@ import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.response.Pagination;
 import com.kt.mindLog.global.property.SessionProperties;
-import com.kt.mindLog.repository.PersonaRepository;
+import com.kt.mindLog.repository.persona.PersonaRepository;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;

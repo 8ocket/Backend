@@ -1,4 +1,4 @@
-package com.kt.mindLog.repository;
+package com.kt.mindLog.repository.persona;
 
 import java.util.UUID;
 

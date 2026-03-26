@@ -2,7 +2,6 @@ package com.kt.mindLog.service.persona;
 
 import java.util.UUID;
 
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,8 +11,8 @@ import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.dto.persona.request.PersonaCreateRequest;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
-import com.kt.mindLog.global.security.CustomUser;
-import com.kt.mindLog.repository.PersonaRepository;
+import com.kt.mindLog.repository.persona.PersonaRepository;
+import com.kt.mindLog.repository.persona.UserPersonaRepository;
 import com.kt.mindLog.service.s3.S3Path;
 import com.kt.mindLog.service.s3.S3Service;
 
@@ -26,6 +25,8 @@ import tools.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class PersonaService {
 	private final PersonaRepository personaRepository;
+	private final UserPersonaRepository userPersonaRepository;
+
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;
 
