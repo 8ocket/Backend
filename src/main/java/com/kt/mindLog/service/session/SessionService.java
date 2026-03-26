@@ -27,6 +27,8 @@ import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepositoryCustom;
+import com.kt.mindLog.repository.summary.SummaryContextRepository;
+import com.kt.mindLog.service.redis.RedisService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +41,17 @@ public class SessionService {
 	private final UserRepository userRepository;
 	private final PersonaRepository personaRepository;
 	private final SessionMessageRepository sessionMessageRepository;
+	private final SummaryContextRepository summaryContextRepository;
 	private final SessionRepositoryCustom sessionRepositoryCustom;
 
 	private final SessionMessageService sessionMessageService;
 
 
 	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {
+		getHistory(userId);
 		var newSession = createSession(userId, request);
 
-		var messageId = sessionMessageService
+		var messageId = sessionStreamService
 			.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 
 		var message = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()), ErrorCode.NOT_FOUND_SESSION_MESSAGE);
@@ -112,5 +116,16 @@ public class SessionService {
 		Optional<Session> session = sessionRepository.findFirstByUserIdAndStatusOrderByCreatedAtDesc(userId, SessionStatus.ACTIVE);
 
 		return session.map(ActiveSessionResponse::from).orElse(null);
+	}
+
+	private void getHistory(final UUID userId) {
+		List<Session> sessions = sessionRepository.findTop15ByUserIdAndStatusOrderByCreatedAtDesc(userId, SessionStatus.SAVED);
+
+		sessions.forEach(session -> {
+			var summary = summaryContextRepository.findBySessionIdOrThrow(session.getId(), ErrorCode.NOT_FOUND_SUMMARY);
+			redisService.pushHistory(userId, summary);
+		});
+
+		log.info("success to upload session history to redis : userId = {}", userId);
 	}
 }

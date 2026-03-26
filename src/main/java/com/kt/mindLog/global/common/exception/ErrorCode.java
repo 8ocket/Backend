@@ -33,6 +33,7 @@ public enum ErrorCode {
 	// session
 	NOT_FOUND_SESSION(HttpStatus.BAD_REQUEST, "존재하지 않는 세션입니다."),
 	NOT_FOUND_SESSION_MESSAGE(HttpStatus.BAD_REQUEST, "존재하지 않는 상담 내용입니다."),
+	INVALID_SESSION(HttpStatus.BAD_REQUEST, "만료된 상담입니다. 새로운 상담을 시작해주세요"),
 
 	// persona
 	NOT_FOUND_PERSONA(HttpStatus.BAD_REQUEST, "존재하지 않는 페르소나입니다."),
@@ -43,7 +44,11 @@ public enum ErrorCode {
 	INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다."),
 	INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
 	FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기는 5MB를 초과 할 수 없습니다."),
-	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다.")
+	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다."),
+
+	//summary
+	INVALID_SESSION_SUMMARY(HttpStatus.BAD_REQUEST, "이미 분석 완료된 상담 세션입니다."),
+	NOT_FOUND_SUMMARY(HttpStatus.BAD_REQUEST, "해당 세션 요약 컨텍스트을 찾을 수 없습니다."),
 	;
 
 	private final HttpStatus status;
