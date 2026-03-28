@@ -2,8 +2,10 @@ package com.kt.mindLog.service.user;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,4 +66,17 @@ public class JwtService {
 		return reissueToken;
 	}
 
+	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
+	public void deleteExpiredTokens() {
+		List<JwtToken> tokens = jwtTokenRepository.findAll();
+
+		tokens.forEach(jwtToken -> {
+			if (jwtToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+				jwtTokenRepository.delete(jwtToken);
+			}
+		});
+
+		log.info("deleted expired tokens");
+	}
 }
