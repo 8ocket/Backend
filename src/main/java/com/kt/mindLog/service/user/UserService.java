@@ -3,6 +3,7 @@ package com.kt.mindLog.service.user;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,9 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final JwtService jwtService;
 	private final S3Service s3Service;
+
+	@Value("${default.image.profile}")
+	private String defaultProfile;
 
 	@Transactional
 	public LoginResponse login(final String email, final LoginType loginType) {
@@ -54,8 +58,13 @@ public class UserService {
 	public void createUserInfo(final UUID userId, final MultipartFile profile, final UserCreateRequest request) {
 
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		String profileImageUrl = "";
 
-		String profileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
+		if (profile.isEmpty()) {
+			profileImageUrl = defaultProfile;
+		} else {
+			profileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
+		}
 
 		user.updateUserInfo(
 			request.nickname(),
