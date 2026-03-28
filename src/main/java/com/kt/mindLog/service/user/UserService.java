@@ -1,9 +1,11 @@
 package com.kt.mindLog.service.user;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +14,9 @@ import com.kt.mindLog.domain.user.LoginType;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
+import com.kt.mindLog.dto.user.response.UserProfileResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.service.s3.S3Path;
 import com.kt.mindLog.service.s3.S3Service;
@@ -76,5 +80,35 @@ public class UserService {
 
 		userRepository.save(user);
 		log.info("success to update user information");
+	}
+
+	@Transactional
+	public UserProfileResponse updateProfile(final  UUID userId, final MultipartFile profile, final String nickname) {
+		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		String newProfileImageUrl = user.getProfileImageUrl();
+		String newNickname = user.getNickname();
+
+		if (profile != null && !profile.isEmpty()) {
+			newProfileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
+		}
+
+		if (nickname != null && !nickname.isBlank()) {
+			Preconditions.validate(user.getNicknameChangeCount() < 3, ErrorCode.INVALID_NICKNAME_CHANGE);
+
+			newNickname = nickname;
+			user.updateNicknameCount();
+		}
+
+		user.updateUserProfile(newProfileImageUrl, newNickname);
+		return UserProfileResponse.updateProfile(userId, newProfileImageUrl, newNickname);
+	}
+
+	@Scheduled(cron = "0 0 0 1 * *")
+	@Transactional
+	public void resetNicknameChangeCount(){
+		List<User> users = userRepository.findAll();
+		users.forEach(User::resetNicknameCount);
+
+		log.info("reset nickname change count for all users");
 	}
 }

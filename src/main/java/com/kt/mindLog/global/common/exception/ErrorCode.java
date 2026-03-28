@@ -29,6 +29,7 @@ public enum ErrorCode {
 	// user
 	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),
 	INVALID_USER(HttpStatus.UNAUTHORIZED, "접근 권한이 없는 회원입니다."),
+	INVALID_NICKNAME_CHANGE(HttpStatus.BAD_REQUEST, "닉네임 교체는 매월 3회까지 가능합니다."),
 
 	// session
 	NOT_FOUND_SESSION(HttpStatus.BAD_REQUEST, "존재하지 않는 세션입니다."),
