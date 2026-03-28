@@ -1,5 +1,6 @@
 package com.kt.mindLog.controller.user;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.request.UserUpdateRequest;
 import com.kt.mindLog.dto.user.response.UserProfileResponse;
+import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.common.response.ApiResult;
 import com.kt.mindLog.global.security.CustomUser;
@@ -32,8 +34,13 @@ public class UserController {
 	}
 
 	@PatchMapping("/me/profile")
-	public UserProfileResponse updateProfile(@Login CustomUser user, @RequestPart("profile_image") MultipartFile profileImage,
+	public UserUpdateProfileResponse updateProfile(@Login CustomUser user, @RequestPart("profile_image") MultipartFile profileImage,
 		@RequestPart("contents") final UserUpdateRequest request) {
 		return userService.updateProfile(user.getId(), profileImage, request.nickname());
+	}
+
+	@GetMapping("/me/profile")
+	public UserProfileResponse getProfile(@Login CustomUser user) {
+		return userService.getProfile(user.getId());
 	}
 }

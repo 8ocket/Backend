@@ -15,6 +15,7 @@ import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.dto.user.response.UserProfileResponse;
+import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
@@ -83,7 +84,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserProfileResponse updateProfile(final  UUID userId, final MultipartFile profile, final String nickname) {
+	public UserUpdateProfileResponse updateProfile(final  UUID userId, final MultipartFile profile, final String nickname) {
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 		String newProfileImageUrl = user.getProfileImageUrl();
 		String newNickname = user.getNickname();
@@ -100,7 +101,12 @@ public class UserService {
 		}
 
 		user.updateUserProfile(newProfileImageUrl, newNickname);
-		return UserProfileResponse.updateProfile(userId, newProfileImageUrl, newNickname);
+		return UserUpdateProfileResponse.updateProfile(userId, newProfileImageUrl, newNickname);
+	}
+
+	public UserProfileResponse getProfile(final UUID userId) {
+		User user =  userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+		return UserProfileResponse.from(user);
 	}
 
 	@Scheduled(cron = "0 0 0 1 * *")

@@ -1,11 +1,7 @@
 package com.kt.mindLog.dto.user.response;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kt.mindLog.domain.user.User;
 
 public record UserProfileResponse(
 	@JsonProperty("user_id")
@@ -16,15 +12,15 @@ public record UserProfileResponse(
 
 	String nickname,
 
-	@JsonProperty("updated_at")
-	String updatedAt
+	@JsonProperty("nickname_change_count")
+	Integer nicknameCount
 ) {
-	public static UserProfileResponse updateProfile(final UUID userId, final String profileImageUrl, final String nickname) {
+	public static UserProfileResponse from(final User user) {
 		return new UserProfileResponse(
-			userId.toString(),
-			profileImageUrl,
-			nickname,
-			LocalDateTime.now().toString()
+			user.getId().toString(),
+			user.getProfileImageUrl(),
+			user.getNickname(),
+			user.getNicknameChangeCount()
 		);
 	}
 }
