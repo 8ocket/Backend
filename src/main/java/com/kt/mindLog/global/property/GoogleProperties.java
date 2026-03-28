@@ -12,4 +12,8 @@ public class GoogleProperties {
 	private final String clientId;
 	private final String clientSecret;
 	private final String redirectUri;
+
+	public String getRedirectUri() {
+		return "http://localhost:8080/v1/auth/google/callback";
+	}
 }
