@@ -1,6 +1,5 @@
 package com.kt.mindLog.service.user;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -112,9 +111,7 @@ public class UserService {
 	@Scheduled(cron = "0 0 0 1 * *")
 	@Transactional
 	public void resetNicknameChangeCount(){
-		List<User> users = userRepository.findAll();
-		users.forEach(User::resetNicknameCount);
-
+		userRepository.resetNicknameChangeCount();
 		log.info("reset nickname change count for all users");
 	}
 }

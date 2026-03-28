@@ -1,5 +1,6 @@
 package com.kt.mindLog.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ import com.kt.mindLog.domain.auth.JwtToken;
 @Repository
 public interface JwtTokenRepository extends JpaRepository<JwtToken, UUID> {
 	Optional<JwtToken> findByRefreshToken(String token);
+
+	void deleteByExpiresAtBefore(LocalDateTime now);
 }
