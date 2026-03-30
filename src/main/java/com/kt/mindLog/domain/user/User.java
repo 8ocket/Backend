@@ -59,26 +59,42 @@ public class User {
 
 	private String passwordHash;
 
+	private Integer nicknameChangeCount;
+
 	@Builder
-	private User(String email, LoginType loginType) {
+	private User(final String email, final LoginType loginType) {
 		this.email = email;
 		this.loginType = loginType;
 		this.role = Role.USER;
 		this.isActive = true;
 		this.createdAt = LocalDateTime.now();
 		this.lastLoginAt = LocalDateTime.now();
+		nicknameChangeCount = 0;
 	}
 
 	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
 	}
 
-	public void updateUserInfo(String nickname, String profileImageUrl,
-		Occupation occupation, Integer age, Gender gender) {
+	public void updateUserInfo(final String nickname, final String profileImageUrl,
+		final Occupation occupation, final Integer age, final Gender gender) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
 		this.occupation = occupation;
 		this.age = age;
 		this.gender = gender;
+	}
+
+	public void updateUserProfile(final String profileImageUrl, final String nickname) {
+		this.profileImageUrl = profileImageUrl;
+		this.nickname = nickname;
+	}
+
+	public void updateNicknameCount() {
+		this.nicknameChangeCount = this.nicknameChangeCount + 1;
+	}
+
+	public void resetNicknameCount() {
+		this.nicknameChangeCount = 0;
 	}
 }

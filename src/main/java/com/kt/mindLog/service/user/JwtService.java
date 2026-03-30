@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,4 +65,10 @@ public class JwtService {
 		return reissueToken;
 	}
 
+	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
+	public void deleteExpiredTokens() {
+		jwtTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
+		log.info("deleted expired tokens");
+	}
 }

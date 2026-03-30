@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.kt.mindLog.domain.user.LoginType;
@@ -18,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 	default User findByIdOrThrow(UUID id, ErrorCode errorCode) {
 		return findById(id).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	@Modifying
+	@Query("UPDATE User u SET u.nicknameChangeCount = 0")
+	void resetNicknameChangeCount();
 }

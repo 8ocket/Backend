@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class Initializer {
 	private final PersonaRepository personaRepository;
 
-	@Value("${TEST_PERSONA_IMAGE_URL}")
+	@Value("${DEFAULT_PERSONA_IMAGE}")
 	private String personaImageUrl;
 
 	@PostConstruct
