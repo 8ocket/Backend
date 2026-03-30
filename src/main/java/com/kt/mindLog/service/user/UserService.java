@@ -94,6 +94,7 @@ public class UserService {
 
 		if (nickname != null && !nickname.isBlank()) {
 			Preconditions.validate(user.getNicknameChangeCount() < 3, ErrorCode.INVALID_NICKNAME_CHANGE);
+			Preconditions.validate(!user.getNickname().equals(nickname), ErrorCode.SAME_NICKNAME_NOT_ALLOWED);
 
 			newNickname = nickname;
 			user.updateNicknameCount();
