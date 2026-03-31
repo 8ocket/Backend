@@ -18,6 +18,7 @@ import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.s3.S3Path;
 import com.kt.mindLog.service.s3.S3Service;
 
@@ -32,6 +33,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final JwtService jwtService;
 	private final S3Service s3Service;
+	private final CreditService creditService;
 
 	@Value("${default.image.profile}")
 	private String defaultProfile;
@@ -43,7 +45,7 @@ public class UserService {
 
 		if (findUser.isPresent()) {
 			findUser.get().updateLastLoginAt();
-			//TODO 3 credit 부여
+			creditService.earnAttendanceBonus(findUser.get());
 			return jwtService.createJwtTokens(findUser.get(), false);
 		}
 
@@ -78,7 +80,7 @@ public class UserService {
 			request.gender()
 		);
 
-		// TODO: 150 크레딧 지급 로직 추가
+		creditService.earnSignupBonus(user);
 
 		userRepository.save(user);
 		log.info("success to update user information");
