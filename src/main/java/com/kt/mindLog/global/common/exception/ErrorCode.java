@@ -17,11 +17,7 @@ public enum ErrorCode {
 	GOOGLE_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "구글 액세스 토큰 발급에 실패했습니다."),
 	GOOGLE_USER_INFO_ERROR(HttpStatus.BAD_REQUEST, "구글 유저 정보를 정상적으로 가져오지 못했습니다."),
 
-	// NAVER OAuth
-	NAVER_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "네이버 액세스 토큰 발급에 실패했습니다."),
-	NAVER_USER_INFO_ERROR(HttpStatus.BAD_REQUEST, "네이버 유저 정보를 정상적으로 가져오지 못했습니다."),
-
-	//auth
+	// auth
 	INVALID_JWT_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 접근입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	INVALID_JWT_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
@@ -48,9 +44,13 @@ public enum ErrorCode {
 	FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기는 5MB를 초과 할 수 없습니다."),
 	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다."),
 
-	//summary
+	// summary
 	INVALID_SESSION_SUMMARY(HttpStatus.BAD_REQUEST, "이미 분석 완료된 상담 세션입니다."),
-	NOT_FOUND_SUMMARY(HttpStatus.BAD_REQUEST, "해당 세션 요약 컨텍스트을 찾을 수 없습니다."),
+	NOT_FOUND_SUMMARY(HttpStatus.BAD_REQUEST, "해당 세션 요약 컨텍스트를 찾을 수 없습니다."),
+
+	// credit
+	ATTENDANCE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "출석 체크는 하루에 1회만 가능합니다."),
+	INSUFFICIENT_CREDIT(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.")
 	;
 
 	private final HttpStatus status;
