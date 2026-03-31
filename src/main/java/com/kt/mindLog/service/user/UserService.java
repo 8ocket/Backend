@@ -78,6 +78,8 @@ public class UserService {
 			request.gender()
 		);
 
+		// TODO: 150 크레딧 지급 로직 추가
+
 		userRepository.save(user);
 		log.info("success to update user information");
 	}

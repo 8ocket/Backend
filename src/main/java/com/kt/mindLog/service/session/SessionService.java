@@ -1,6 +1,7 @@
 package com.kt.mindLog.service.session;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepositoryCustom;
 import com.kt.mindLog.repository.summary.SummaryContextRepository;
+import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.redis.RedisService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,9 +48,21 @@ public class SessionService {
 
 	private final SessionStreamService sessionStreamService;
 	private final RedisService redisService;
+	private final CreditService creditService;
 
 	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {
 		getHistory(userId);
+
+		LocalDate today = LocalDate.now();
+
+		boolean alreadyHasSessionToday = sessionRepository.existsByUserIdAndCreatedAtBetween(
+			userId, today.atStartOfDay(), today.atTime(LocalTime.MAX)
+		);
+
+		if (alreadyHasSessionToday) {
+			creditService.useCreditForExtraSession(userId);
+		}
+
 		var newSession = createSession(userId, request);
 
 		var messageId = sessionStreamService
@@ -56,6 +70,8 @@ public class SessionService {
 
 		var message = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()), ErrorCode.NOT_FOUND_SESSION_MESSAGE);
 		var session = sessionRepository.findByIdOrThrow(newSession.getId(), ErrorCode.NOT_FOUND_SESSION);
+
+		creditService.earnCreditForSession(userId, newSession.getId());
 
 		return SessionResponse.from(
 			session,
