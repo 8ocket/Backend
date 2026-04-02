@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.report.Report;
 import com.kt.mindLog.domain.session.Session;
+import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
 import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.response.EmotionScoresResponse;
@@ -63,8 +64,8 @@ public class ReportService {
 			endDate = LocalDate.now();
 		}
 
-		var sessions = sessionRepository.findByUserIdAndCreatedAtBetweenOrderByEndedAtAsc(userId,
-			request.periodStart().atStartOfDay(), endDate.atStartOfDay());
+		var sessions = sessionRepository.findByUserIdAndStatusAndCreatedAtBetweenOrderByEndedAtAsc(userId,
+			SessionStatus.SAVED, request.periodStart().atStartOfDay(), endDate.atStartOfDay());
 
 		Preconditions.validate(sessions.size() >= request.reportType().getMinSessions(),
 			ErrorCode.INSUFFICIENT_SESSIONS);
@@ -72,6 +73,8 @@ public class ReportService {
 
 		Preconditions.validate(!reportRepository.existsByUserIdAndPeriodStartAndPeriodEnd(userId, request.periodStart(), endDate),
 			ErrorCode.REPORT_ALREADY_EXISTS);
+
+		saveReport(userId, request, endDate, sessions.size());
 
 		return sessions;
 	}
@@ -103,8 +106,8 @@ public class ReportService {
 			.build();
 
 		reportRepository.save(report);
-		log.info("success to save ai-report");
+		log.info("success to create ai-report");
 
-		//TODO 리포트 성공적으로 생성 후 + 크레딧 차감
+		//TODO 리포트 성공적으로 생성 후 status 변경 + 크레딧 차감
 	}
 }
