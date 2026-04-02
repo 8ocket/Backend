@@ -49,10 +49,11 @@ google:
   client-secret: ${GOOGLE_CLIENT_SECRET}
   redirect-uri: ${GOOGLE_PROD_REDIRECT_URI}
 
-session:
+stream:
   baseurl: ${SESSION_BASE_URL}
   message-uri: ${SESSION_MESSAGE_URI}
   finalize-uri: ${SESSION_FINALIZE_URI}
+  report-uri: ${REPORT_URI}
 
 cors:
   local: ${CORS_LOCAL_URL}

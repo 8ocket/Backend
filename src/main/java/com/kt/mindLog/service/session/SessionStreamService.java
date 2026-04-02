@@ -1,17 +1,12 @@
 package com.kt.mindLog.service.session;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
@@ -23,7 +18,6 @@ import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
-import com.kt.mindLog.global.property.SessionProperties;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.service.sse.SSEService;
@@ -42,7 +36,7 @@ public class SessionStreamService {
 	private final SessionRepository sessionRepository;
 
 	private final ObjectMapper objectMapper;
-	private final SessionProperties sessionProperties;
+	private final StreamProperties streamProperties;
 
 	private final SSEService sseService;
 	private final SessionMessageService messageService;
@@ -52,7 +46,7 @@ public class SessionStreamService {
 		var user = validateUserAndSession(userId, sessionId);
 		AtomicReference<UUID> messageIdRef = new AtomicReference<>();
 
-		return sseService.streamSSE(sessionProperties.getMessageUri(), sessionId, Map.of("content", contents))
+		return sseService.streamSSE(streamProperties.getMessageUri(), sessionId, Map.of("content", contents))
 			.doFirst(() -> messageIdRef.set(messageService.saveContents(Role.USER, contents, sessionId)))
 			.handle((event, sink) -> handleMessageEvent(event, sink, sessionId, user, messageIdRef))
 			.doOnError(e -> log.error("스트림 오류", e));
@@ -91,7 +85,7 @@ public class SessionStreamService {
 		validateUser(userId);
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
-		return sseService.streamSSE(sessionProperties.getMessageUri(), sessionId, Map.of("content", contents))
+		return sseService.streamSSE(streamProperties.getMessageUri(), sessionId, Map.of("content", contents))
 			.doFirst(() -> messageService.saveContents(Role.USER, contents, sessionId))
 			.handle((event, sink) ->  handleFirstMessageEvent(event, sink, session))
 			.doOnError(e -> log.error("스트림 오류", e));
@@ -140,7 +134,7 @@ public class SessionStreamService {
 		}
 		Preconditions.validate(session.getStatus().equals(SessionStatus.ACTIVE), ErrorCode.INVALID_SESSION);
 
-		return sseService.streamSSE(sessionProperties.getFinalizeUri(), sessionId, null)
+		return sseService.streamSSE(streamProperties.getFinalizeUri(), sessionId, null)
 			.handle((event, sink) -> handleFinalizeEvent(event, sink, sessionId))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}

@@ -58,9 +58,10 @@ public enum ErrorCode {
 	INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "결제 진행 중 상태가 아닙니다."),
 
 	//report
-	INVALID_REPORT_PERIOD(HttpStatus.BAD_REQUEST, "기간은 최대 31"),
 	INSUFFICIENT_SESSIONS(HttpStatus.BAD_REQUEST, "최소 상담 기록 횟수가 부족합니다"),
 	REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일 기간에 대해 생성한 AI 리포트가 이미 존재합니다"),
+	NOT_FOUND_REPORT(HttpStatus.BAD_REQUEST, "존재하지 않는 AI 리포트입니다"),
+
 	;
 
 	private final HttpStatus status;

@@ -66,4 +66,8 @@ public class Report {
 		this.isViewed = false;
 		this.user = user;
 	}
+
+	public void updateReportStatus(final ReportStatus status) {
+		this.status = status;
+	}
 }

@@ -2,10 +2,8 @@ package com.kt.mindLog.service.report;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +26,7 @@ import com.kt.mindLog.repository.summary.EmotionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Service
@@ -39,25 +38,30 @@ public class ReportService {
 	private final EmotionRepository emotionRepository;
 	private final UserRepository userRepository;
 
+	private final ReportStreamService reportStreamService;
 
-	public void createReport(final UUID userId, final ReportCreateRequest request) {
-		var sessions = validateReport(userId, request);
+
+	public Flux<Object> createReport(final UUID userId, final ReportCreateRequest request) {
+		//TODO credit 검증
+
+		var periodEnd = validatePeriodEnd(request);
+		var sessions = validateReport(userId, request, periodEnd);
 		var scores = calculateScore(sessions);
+
+		var reportId = saveReport(userId, request, periodEnd, sessions.size());
 
 		var reportRequest = AiReportCreateRequest.builder()
 			.userId(userId.toString())
 			.reportType(request.reportType().toString().toLowerCase())
 			.periodStart(request.periodStart())
-			.periodEnd(request.periodEnd())
+			.periodEnd(periodEnd)
 			.emotionScores(scores)
 			.build();
 
-		// ai 에 요청
+		return reportStreamService.receiveSSE(reportRequest, reportId);
 	}
 
-	//유효 기간 내 세션 목록 조회
-	private List<Session> validateReport(final UUID userId, final ReportCreateRequest request) {
-
+	private LocalDate validatePeriodEnd(final ReportCreateRequest request) {
 		var endDate = LocalDate.now();
 
 		if(ChronoUnit.DAYS.between(request.periodStart(), request.periodEnd()) > request.reportType().getMaxDays()) {
@@ -68,17 +72,21 @@ public class ReportService {
 			endDate = LocalDate.now();
 		}
 
+		return endDate;
+	}
+
+	//유효 기간 내 세션 목록 조회
+	private List<Session> validateReport(final UUID userId, final ReportCreateRequest request, final LocalDate periodEnd) {
+
 		var sessions = sessionRepository.findByUserIdAndStatusAndCreatedAtBetweenOrderByEndedAtAsc(userId,
-			SessionStatus.SAVED, request.periodStart().atStartOfDay(), endDate.atStartOfDay());
+			SessionStatus.SAVED, request.periodStart().atStartOfDay(), periodEnd.atStartOfDay());
 
 		Preconditions.validate(sessions.size() >= request.reportType().getMinSessions(),
 			ErrorCode.INSUFFICIENT_SESSIONS);
 
 
-		Preconditions.validate(!reportRepository.existsByUserIdAndPeriodStartAndPeriodEnd(userId, request.periodStart(), endDate),
+		Preconditions.validate(!reportRepository.existsByUserIdAndPeriodStartAndPeriodEnd(userId, request.periodStart(), periodEnd),
 			ErrorCode.REPORT_ALREADY_EXISTS);
-
-		saveReport(userId, request, endDate, sessions.size());
 
 		return sessions;
 	}
@@ -104,7 +112,7 @@ public class ReportService {
 
 
 	@Transactional
-	protected void saveReport(final UUID userId, final ReportCreateRequest request, final LocalDate periodEnd, final Integer sessionCount) {
+	protected UUID saveReport(final UUID userId, final ReportCreateRequest request, final LocalDate periodEnd, final Integer sessionCount) {
 		var user = userRepository.findByIdOrThrow(userId,  ErrorCode.NOT_FOUND_USER);
 
 		var report = Report.builder()
@@ -118,6 +126,6 @@ public class ReportService {
 		reportRepository.save(report);
 		log.info("success to create ai-report");
 
-		//TODO 리포트 성공적으로 생성 후 status 변경 + 크레딧 차감
+		return report.getId();
 	}
 }
