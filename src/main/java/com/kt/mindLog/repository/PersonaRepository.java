@@ -1,5 +1,6 @@
 package com.kt.mindLog.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,10 @@ public interface PersonaRepository extends JpaRepository<Persona, UUID> {
 	}
 
 	boolean existsByPersonaName(String personaName);
+
+	Optional<Persona> findByIsDefault(boolean isDefault);
+
+	default Persona findByIsDefaultOrThrow(boolean isDefault, ErrorCode errorCode) {
+		return findByIsDefault(isDefault).orElseThrow(() -> new CustomException(errorCode));
+	}
 }

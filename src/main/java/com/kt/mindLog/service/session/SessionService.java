@@ -63,7 +63,7 @@ public class SessionService {
 			creditService.useCreditForExtraSession(userId);
 		}
 
-		var newSession = createSession(userId, request);
+		var newSession = createSession(userId);
 
 		var messageId = sessionStreamService
 			.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
@@ -80,13 +80,13 @@ public class SessionService {
 	}
 
 	@Transactional
-	public Session createSession(final UUID userId, final SessionCreateRequest request) {
+	public Session createSession(final UUID userId) {
 		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
-		var persona = personaRepository.findByIdOrThrow(request.personaId(), ErrorCode.NOT_FOUND_PERSONA);
+		var defaultPersona = personaRepository.findByIsDefaultOrThrow(true, ErrorCode.NOT_FOUND_PERSONA);
 
 		var session = Session.builder()
 			.user(user)
-			.persona(persona)
+			.persona(defaultPersona)
 			.build();
 
 		sessionRepository.save(session);
