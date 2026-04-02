@@ -24,11 +24,4 @@ public interface EmotionRepository extends JpaRepository<Emotion, UUID> {
 		LIMIT 1
 		""")
 	EmotionType findTopEmotionType(Session session);
-
-	@Query("""
-		SELECT COALESCE(SUM(e.intensity), 0)
-		FROM Emotion e
-		WHERE e.session.id = :sessionId
-		""")
-	Integer sumIntensityBySessionId(UUID sessionId);
 }

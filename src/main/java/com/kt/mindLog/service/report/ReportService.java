@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kt.mindLog.domain.report.Report;
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
+import com.kt.mindLog.domain.summary.Emotion;
+import com.kt.mindLog.domain.summary.NegativeEmotionType;
+import com.kt.mindLog.domain.summary.PositiveEmotionType;
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
 import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.response.EmotionScoresResponse;
@@ -81,15 +85,21 @@ public class ReportService {
 
 	//감정 점수 계산
 	private List<EmotionScoresResponse> calculateScore(final List<Session> sessions) {
-		List<EmotionScoresResponse> scores = new ArrayList<>();
+		return sessions.stream()
+			.map(session -> EmotionScoresResponse.from(session, calculateEmotionScore(session)))
+			.toList();
+	}
 
-		sessions.forEach(session -> {
-			var score = emotionRepository.sumIntensityBySessionId(session.getId());
+	private int calculateEmotionScore(final Session session) {
+		return emotionRepository.findBySessionId(session.getId()).stream()
+			.mapToInt(this::getSignedIntensity)
+			.sum();
+	}
 
-			scores.add(EmotionScoresResponse.from(session,  score));
-		});
-
-		return scores;
+	private int getSignedIntensity(final Emotion emotion) {
+		if (PositiveEmotionType.contains(emotion.getEmotionType())) return emotion.getIntensity();
+		if (NegativeEmotionType.contains(emotion.getEmotionType())) return -emotion.getIntensity();
+		return 0;
 	}
 
 
