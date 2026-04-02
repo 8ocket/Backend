@@ -45,11 +45,9 @@ public class SessionStreamService {
 	private final WebClient webClient;
 	private final SessionProperties sessionProperties;
 
-	private final SummaryService summaryService;
 	private final SessionMessageService messageService;
 
-
-	//SSE
+	//SSE (공통)
 	private Flux<ServerSentEvent<String>> streamSse(final String uri, final UUID sessionId, final Object body) {
 		var request = webClient.post()
 			.uri(uri, sessionId)
@@ -198,15 +196,8 @@ public class SessionStreamService {
 					.build());
 
 				String imageUrl = summary.card().get("image_url").asText();
-				messageService.updateSessionStatus(sessionId, SessionStatus.COMPLETED);
 
-				//TODO 데이터 암호화
-				summaryService.saveSummary(sessionId, summary.summary());
-				summaryService.saveSessionContext(sessionId, summary.contextSummary());
-				summaryService.saveEmotionCard(sessionId, imageUrl);
-				summaryService.saveEmotions(sessionId, summary.emotions());
-
-				messageService.updateSessionStatus(sessionId, SessionStatus.SAVED);
+				messageService.saveSessionSummary(sessionId, summary, imageUrl);
 			}
 		}
 	}
