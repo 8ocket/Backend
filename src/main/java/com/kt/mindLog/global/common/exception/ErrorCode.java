@@ -55,7 +55,12 @@ public enum ErrorCode {
 	// payment
 	NOT_FOUND_PAYMENT(HttpStatus.BAD_REQUEST, "결제 정보를 찾을 수 없습니다."),
 	ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
-	INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "결제 진행 중 상태가 아닙니다.")
+	INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "결제 진행 중 상태가 아닙니다."),
+
+	//report
+	INVALID_REPORT_PERIOD(HttpStatus.BAD_REQUEST, "기간은 최대 31"),
+	INSUFFICIENT_SESSIONS(HttpStatus.BAD_REQUEST, "최소 상담 기록 횟수가 부족합니다"),
+	REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일 기간에 대해 생성한 AI 리포트가 이미 존재합니다"),
 	;
 
 	private final HttpStatus status;

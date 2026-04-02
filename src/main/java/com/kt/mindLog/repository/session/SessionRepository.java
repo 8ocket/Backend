@@ -32,4 +32,6 @@ public interface SessionRepository extends JpaRepository<Session,UUID> {
 	List<Session> findTop15ByUserIdAndStatusOrderByCreatedAtDesc(UUID userId,  SessionStatus status);
 
 	boolean existsByUserIdAndCreatedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
+
+	List<Session> findByUserIdAndCreatedAtBetweenOrderByEndedAtAsc(UUID userId, LocalDateTime periodStart, LocalDateTime periodEnd);
 }

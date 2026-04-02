@@ -51,7 +51,6 @@ public class Session {
 	@Column(updatable = false)
 	private LocalDateTime createdAt;
 
-	@Column(updatable = false)
 	private LocalDateTime updatedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
