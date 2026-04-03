@@ -7,12 +7,14 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 
+@Repository
 public interface SessionRepository extends JpaRepository<Session,UUID> {
 	default Session findByIdOrThrow(UUID id, ErrorCode errorCode) {
 		return findById(id).orElseThrow(() -> new CustomException(errorCode));

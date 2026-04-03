@@ -13,9 +13,11 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.domain.user.User;
+import com.kt.mindLog.dto.session.response.FirstSessionResponse;
 import com.kt.mindLog.dto.sessionMessage.response.CrisisCheck;
 import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
@@ -110,31 +112,44 @@ public class SessionStreamService {
 
 
 	//첫 메세지 통신
-	public UUID receiveFirstMessage(final String contents, final UUID sessionId, final UUID userId) {
+	public Flux<Object> receiveFirstMessage(final String contents, final UUID sessionId, final UUID userId) {
 		validateUser(userId);
-		AtomicReference<UUID> messageIdRef = new AtomicReference<>();
+		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
-		streamSse(sessionProperties.getMessageUri(), sessionId, Map.of("content", contents))
+		return streamSse(sessionProperties.getMessageUri(), sessionId, Map.of("content", contents))
 			.doFirst(() -> messageService.saveContents(Role.USER, contents, sessionId))
-			.doOnNext(event -> handleFirstMessageEvent(event, sessionId, messageIdRef))
-			.doOnError(e -> log.error("스트림 오류", e))
-			.takeUntil(event -> "done".equals(event.event()))
-			.blockLast();
-
-		return messageIdRef.get();
+			.handle((event, sink) ->  handleFirstMessageEvent(event, sink, session))
+			.doOnError(e -> log.error("스트림 오류", e));
 	}
 
-	private void handleFirstMessageEvent(final ServerSentEvent<String> event, final UUID sessionId, final AtomicReference<UUID> messageIdRef) {
+	private void handleFirstMessageEvent(final ServerSentEvent<String> event, final SynchronousSink<Object> sink,
+		final Session session) {
 		switch (event.event()) {
-			case "session_title" -> messageService.saveTitle(sessionId, event.data());
+			case "session_title" -> {
+				messageService.saveTitle(session.getId(), event.data());
+				sink.next(event);
+			}
+
+			case "ai_chunk" -> sink.next(event);
 
 			case "ai_complete" -> {
-				UUID id = messageService.saveContents(
+				messageService.saveContents(
 					Role.ASSISTANT,
 					parseJson(event.data(), "content"),
-					sessionId
+					session.getId()
 				);
-				messageIdRef.set(id);
+
+				var firstResponse = FirstSessionResponse.from(session);
+
+				sink.next(ServerSentEvent.builder()
+					.event("ai_complete")
+					.data(objectMapper.writeValueAsString(firstResponse))
+					.build());
+			}
+
+			case "error", "done" -> {
+				sink.next(event);
+				sink.complete();
 			}
 		}
 	}

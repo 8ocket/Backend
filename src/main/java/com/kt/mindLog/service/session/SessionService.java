@@ -19,8 +19,6 @@ import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
 import com.kt.mindLog.dto.sessionMessage.response.SessionMessageListResponse;
-import com.kt.mindLog.dto.sessionMessage.response.SessionMessageResponse;
-import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.response.Pagination;
 import com.kt.mindLog.repository.PersonaRepository;
@@ -34,6 +32,7 @@ import com.kt.mindLog.service.redis.RedisService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Service
@@ -50,7 +49,7 @@ public class SessionService {
 	private final RedisService redisService;
 	private final CreditService creditService;
 
-	public SessionResponse saveSession(final UUID userId, final SessionCreateRequest request) {
+	public Flux<Object> saveSession(final UUID userId, final SessionCreateRequest request) {
 		getHistory(userId);
 
 		LocalDate today = LocalDate.now();
@@ -65,18 +64,9 @@ public class SessionService {
 
 		var newSession = createSession(userId);
 
-		var messageId = sessionStreamService
-			.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
-
-		var message = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()), ErrorCode.NOT_FOUND_SESSION_MESSAGE);
-		var session = sessionRepository.findByIdOrThrow(newSession.getId(), ErrorCode.NOT_FOUND_SESSION);
-
 		creditService.earnCreditForSession(userId, newSession.getId());
 
-		return SessionResponse.from(
-			session,
-			SessionMessageResponse.from(message
-			));
+		return sessionStreamService.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 	}
 
 	@Transactional

@@ -44,8 +44,8 @@ public class SessionController {
 		return sessionStreamService.receiveSSE(content.content(), sessionId, user.getId());
 	}
 
-	@PostMapping("")
-	public SessionResponse createSession(@Login CustomUser user, @Valid @RequestBody SessionCreateRequest request) {
+	@PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Object> createSession(@Login CustomUser user, @Valid @RequestBody SessionCreateRequest request) {
 		return sessionService.saveSession(user.getId(), request);
 	}
 
