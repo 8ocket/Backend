@@ -9,8 +9,6 @@ import com.kt.mindLog.dto.sessionMessage.response.SessionMessageResponse;
 public record SessionResponse (
 	@JsonProperty("session_id")
 	String sessionId,
-	@JsonProperty("persona_id")
-	String personaId,
 	String status,
 	String title,
 	@JsonProperty("started_at")
@@ -21,7 +19,6 @@ public record SessionResponse (
 	public static SessionResponse from(Session session, SessionMessageResponse messageResponse) {
 		return new SessionResponse(
 			session.getId().toString(),
-			session.getPersona().getId().toString(),
 			session.getStatus().toString(),
 			session.getTitle(),
 			session.getStartedAt(),
