@@ -18,16 +18,16 @@ import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.credit.CreditRepository;
-import com.kt.mindLog.repository.session.SessionRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreditService {
 	private final CreditRepository creditRepository;
 	private final UserRepository userRepository;
-	private final SessionRepository sessionRepository;
 
 	private static final int SIGNUP_BONUS = 150;
 	private static final int ATTENDANCE_BONUS = 3;
@@ -41,6 +41,7 @@ public class CreditService {
 			TransactionType.SIGNUP_BONUS,
 			SIGNUP_BONUS,
 			SIGNUP_BONUS,
+			0,
 			"회원가입 보너스 지급"
 		);
 
@@ -61,7 +62,10 @@ public class CreditService {
 				endOfToday
 			);
 
-		Preconditions.validate(!alreadyChecked, ErrorCode.ATTENDANCE_ALREADY_COMPLETED);
+		if (alreadyChecked) {
+			log.info("이미 출석 체크 완료 userId={}", user.getId());
+			return;
+		}
 
 		int currentFree = creditRepository.sumFreeCreditByUserId(user.getId());
 		int currentPaid = creditRepository.sumPaidCreditByUserId(user.getId());
@@ -74,6 +78,7 @@ public class CreditService {
 			TransactionType.ATTENDANCE_CHECK,
 			ATTENDANCE_BONUS,
 			balanceAfter,
+			currentPaid,
 			"출석체크 보너스 지급"
 		);
 
@@ -97,6 +102,7 @@ public class CreditService {
 			TransactionType.SAVE_SESSION,
 			SAVE_SESSION,
 			balanceAfter,
+			currentPaid,
 			"세션 저장 보너스 지급"
 		);
 
@@ -114,7 +120,7 @@ public class CreditService {
 		int total = currentFree + currentPaid;
 
 		// 크레딧 체크
-		Preconditions.validate(!(total < EXTRA_SESSION), ErrorCode.INSUFFICIENT_CREDIT);
+		Preconditions.validate(total >= EXTRA_SESSION, ErrorCode.INSUFFICIENT_CREDIT);
 
 		// 무료 크레딧 최대 사용
 		int freeUsed = Math.min(currentFree, EXTRA_SESSION);
@@ -130,6 +136,7 @@ public class CreditService {
 			freeUsed,
 			paidUsed,
 			balanceAfter,
+			currentPaid - paidUsed,
 			"추가 상담 크레딧 차감"
 		);
 
@@ -153,5 +160,50 @@ public class CreditService {
 			CreditProductResponse.of("중형", 500, 4900),
 			CreditProductResponse.of("대형", 1200, 10900)
 		);
+	}
+
+	public void validateRefundable(UUID paymentId) {
+		List<Credit> credits = creditRepository.findByPaymentId(paymentId);
+
+		for (Credit credit : credits) {
+			boolean isUsed = credit.getRemainingPaidCredit() < credit.getPaidCredit();
+
+			Preconditions.validate(!isUsed, ErrorCode.ALREADY_USED_CREDIT);
+		}
+	}
+
+	public void revokePaidCredits(UUID paymentId) {
+		List<Credit> credits = creditRepository.findByPaymentId(paymentId);
+
+		if (credits.isEmpty()) return;
+
+		UUID userId = credits.get(0).getUser().getId();
+
+		int currentPaid = creditRepository.sumPaidCreditByUserId(userId);
+		int currentFree = creditRepository.sumFreeCreditByUserId(userId);
+
+		for (Credit credit : credits) {
+			int usedPaid = credit.getPaidCredit() - credit.getRemainingPaidCredit();
+			Preconditions.validate(usedPaid == 0, ErrorCode.ALREADY_USED_CREDIT);
+
+			int refundAmount = credit.getRemainingPaidCredit();
+
+			currentPaid -= refundAmount;
+			int balanceAfter = currentFree + currentPaid;
+
+			Credit refund = Credit.builder()
+				.user(credit.getUser())
+				.payment(credit.getPayment())
+				.transactionType(TransactionType.REFUND)
+				.amount(-refundAmount)
+				.paidCredit(-refundAmount)
+				.freeCredit(0)
+				.remainingPaidCredit(0)
+				.balanceAfter(balanceAfter)
+				.description("유료 크레딧 환불")
+				.build();
+
+			creditRepository.save(refund);
+		}
 	}
 }

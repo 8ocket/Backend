@@ -34,6 +34,7 @@ public class PaymentService {
 
 		// 토스 환불
 		// tossClient.refund(payment.getPaymentKey());
+		// TODO: 토스 페이먼츠 연동
 
 		// 크레딧 회수
 		creditService.revokePaidCredits(paymentId);
