@@ -7,6 +7,9 @@ import org.hibernate.annotations.UuidGenerator;
 
 import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.domain.user.User;
+import com.kt.mindLog.global.common.exception.CustomException;
+import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.common.support.Preconditions;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -49,11 +53,39 @@ public class Payment {
 	@Column(nullable = false)
 	private PaymentStatus status;
 
-	private String failReason;
-
 	private LocalDateTime approvedAt;
 
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
+
+	public boolean isCanceled() {
+		return this.status == PaymentStatus.CANCELED;
+	}
+
+	public void complete() {
+		if (this.status != PaymentStatus.IN_PROGRESS) {
+			throw new CustomException(ErrorCode.INVALID_PAYMENT_STATUS);
+		}
+		this.status = PaymentStatus.DONE;
+	}
+
+	public void fail() {
+		this.status = PaymentStatus.FAILED;
+	}
+
+	public void cancel() {
+		this.status = PaymentStatus.CANCELED;
+	}
+
+	@Builder
+	private Payment(User user, String orderId, String paymentKey, int amount, String orderName) {
+		this.user = user;
+		this.orderId = orderId;
+		this.paymentKey = paymentKey;
+		this.amount = amount;
+		this.orderName = orderName;
+		this.status = PaymentStatus.READY;
+		this.createdAt = LocalDateTime.now();
+	}
 
 }
