@@ -12,8 +12,4 @@ public class KakaoProperties {
 	private final String clientId;
 	private final String clientSecret;
 	private final String redirectUri;
-
-	public String getRedirectUri() {
-		return "http://localhost:8080/v1/auth/kakao/callback";
-	}
 }
