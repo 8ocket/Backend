@@ -171,6 +171,8 @@ public class SessionStreamService {
 
 				messageService.saveSessionSummary(sessionId, summary, imageUrl);
 			}
+
+			case "done" -> sink.complete();
 		}
 	}
 

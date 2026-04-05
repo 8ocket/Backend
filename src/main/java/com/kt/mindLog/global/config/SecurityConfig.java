@@ -2,6 +2,7 @@ package com.kt.mindLog.global.config;
 
 import java.util.List;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,12 +16,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 import com.kt.mindLog.global.property.CorsProperties;
 import com.kt.mindLog.global.security.JwtAccessDeniedHandler;
 import com.kt.mindLog.global.security.JwtAuthenticationEntryPoint;
 import com.kt.mindLog.global.security.JwtFilter;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -33,7 +36,7 @@ public class SecurityConfig {
 	private final CorsProperties corsProperties;
 
 	private static final String[] GET_PERMIT_ALL = {"/actuator/**", "/v1/auth/**"};
-	private static final String[] POST_PERMIT_ALL = {"/internal/v1/sessions/**", "/v1/sessions/**", "/internal/v1/reports/**"};
+	private static final String[] POST_PERMIT_ALL = {"/internal/v1/sessions/**", "/v1/sessions/**"};
 	private static final String[] PATCH_PERMIT_ALL = {"/"};
 	private static final String[] PUT_PERMIT_ALL = {"/"};
 
@@ -53,7 +56,7 @@ public class SecurityConfig {
 					request.requestMatchers(HttpMethod.PATCH, PATCH_PERMIT_ALL).permitAll();
 					request.requestMatchers(HttpMethod.PUT, PUT_PERMIT_ALL).permitAll();
 					request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
-					request.requestMatchers("/error").permitAll();
+					request.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll();
 					request.anyRequest().authenticated();
 				}
 			)

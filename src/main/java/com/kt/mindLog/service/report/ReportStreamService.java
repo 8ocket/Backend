@@ -41,19 +41,31 @@ public class ReportStreamService {
 			case "status" -> sink.next(event);
 
 			case "ai_complete" -> {
-				var report = objectMapper.readValue(event.data(), ReportResponse.class);
-				reportPersistenceService.saveReport(report, reportId);
-				//TODO credit 차감
 
-				sink.next(ServerSentEvent.builder()
-					.event("ai_complete")
-					.data(Map.of(
-						"report_id", reportId,
-						"created_at", LocalDate.now()
-					))
-					.build());
+				try {
+					var report = objectMapper.readValue(event.data(), ReportResponse.class);
+					reportPersistenceService.saveReport(report, reportId);
+					//TODO credit 차감
 
-				sink.complete();
+					sink.next(ServerSentEvent.builder()
+						.event("ai_complete")
+						.data(Map.of(
+							"report_id", reportId,
+							"created_at", LocalDate.now()
+						))
+						.build());
+				} catch (Exception e) {
+					log.error("리포트 생성 실패 | reportId={}", reportId, e);
+
+					sink.next(ServerSentEvent.builder()
+						.event("server_error")
+						.data(Map.of(
+							"content", "failed to create report"
+						))
+						.build());
+				} finally {
+					sink.complete();
+				}
 			}
 
 			case "error", "done" -> {

@@ -33,6 +33,6 @@ public class ReportTopic {
 	private String pattern;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "context_id", nullable = false)
-	private ReportContext context;
+	@JoinColumn(name = "report_id", nullable = false)
+	private Report report;
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,9 +31,18 @@ public class ReportSuggestion {
 
 	private Integer priority;
 
+	@Column(nullable = true)
 	private String extraMetadata;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "report_id", nullable = false)
 	private Report report;
+
+	@Builder
+	public ReportSuggestion(String suggestionType, String content, Integer priority, Report report) {
+		this.suggestionType = suggestionType;
+		this.content = content;
+		this.priority = priority;
+		this.report = report;
+	}
 }
