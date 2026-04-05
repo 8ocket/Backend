@@ -1,4 +1,9 @@
 package com.kt.mindLog.dto.attendance.response;
 
-public record AttendanceResponse() {
+import java.time.LocalDate;
+import java.util.List;
+
+public record AttendanceResponse(
+	List<LocalDate> attendanceDates
+) {
 }
