@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "emotion_graph_item")
+@Table(name = "report_emotion_graphs")
 @NoArgsConstructor
 public class ReportEmotionGraph {
 	@Id
@@ -36,6 +36,6 @@ public class ReportEmotionGraph {
 	private DateTime recordedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "context_id", nullable = false)
-	private ReportContext context;
+	@JoinColumn(name = "report_id", nullable = false)
+	private Report report;
 }

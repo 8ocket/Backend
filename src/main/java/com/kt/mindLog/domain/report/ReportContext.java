@@ -34,13 +34,4 @@ public class ReportContext {
 
 	private String tendency;
 
-	@OneToMany(mappedBy = "context")
-	private List<ReportEmotionGraph>  emotionGraphs = new ArrayList<>();
-
-	@OneToMany(mappedBy = "context")
-	private List<ReportTopic> topics = new ArrayList<>();
-
-	@OneToMany(mappedBy = "context")
-	private List<ReportSuggestion> suggestions = new ArrayList<>();
-
 }

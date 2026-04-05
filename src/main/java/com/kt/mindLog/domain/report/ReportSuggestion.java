@@ -24,13 +24,15 @@ public class ReportSuggestion {
 	@Column(name = "suggestion_id")
 	private UUID id;
 
-	private String type;
+	private String suggestionType;
 
 	private String content;
 
 	private Integer priority;
 
+	private String extraMetadata;
+
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "context_id", nullable = false)
-	private ReportContext context;
+	@JoinColumn(name = "report_id", nullable = false)
+	private Report report;
 }

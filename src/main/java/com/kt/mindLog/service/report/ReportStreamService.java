@@ -31,7 +31,7 @@ public class ReportStreamService {
 
 	public Flux<Object> receiveSSE(final AiReportCreateRequest contents, final UUID reportId) {
 
-		return sseService.streamSSE(streamProperties.getReportUri(), null, contents)
+		return sseService.streamSSE(streamProperties.getReportUri()+"/generate", null, contents)
 			.handle((event, sink) -> handleMessageEvent(event, sink, reportId))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}
@@ -42,7 +42,6 @@ public class ReportStreamService {
 
 			case "ai_complete" -> {
 				var report = objectMapper.readValue(event.data(), ReportResponse.class);
-
 				reportPersistenceService.saveReport(report, reportId);
 				//TODO credit 차감
 
@@ -53,6 +52,8 @@ public class ReportStreamService {
 						"created_at", LocalDate.now()
 					))
 					.build());
+
+				sink.complete();
 			}
 
 			case "error", "done" -> {

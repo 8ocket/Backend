@@ -2,6 +2,8 @@ package com.kt.mindLog.domain.report;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
@@ -16,6 +18,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,6 +56,15 @@ public class Report {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@OneToMany(mappedBy = "report")
+	private List<ReportEmotionGraph> emotionGraphs = new ArrayList<>();
+
+	@OneToMany(mappedBy = "report")
+	private List<ReportTopic> topics = new ArrayList<>();
+
+	@OneToMany(mappedBy = "report")
+	private List<ReportSuggestion> suggestions = new ArrayList<>();
 
 	@Builder
 	public Report(final ReportType reportType, final LocalDate periodStart, final LocalDate periodEnd,

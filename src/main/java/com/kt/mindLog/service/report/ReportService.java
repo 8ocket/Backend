@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.report.Report;
+import com.kt.mindLog.domain.report.ReportStatus;
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.domain.summary.Emotion;
@@ -79,14 +80,14 @@ public class ReportService {
 	private List<Session> validateReport(final UUID userId, final ReportCreateRequest request, final LocalDate periodEnd) {
 
 		var sessions = sessionRepository.findByUserIdAndStatusAndCreatedAtBetweenOrderByEndedAtAsc(userId,
-			SessionStatus.SAVED, request.periodStart().atStartOfDay(), periodEnd.atStartOfDay());
+			SessionStatus.SAVED, request.periodStart().atStartOfDay(), periodEnd.atStartOfDay().plusDays(1));
 
 		Preconditions.validate(sessions.size() >= request.reportType().getMinSessions(),
 			ErrorCode.INSUFFICIENT_SESSIONS);
 
 
-		Preconditions.validate(!reportRepository.existsByUserIdAndPeriodStartAndPeriodEnd(userId, request.periodStart(), periodEnd),
-			ErrorCode.REPORT_ALREADY_EXISTS);
+		Preconditions.validate(!reportRepository.existsByUserIdAndStatusAndPeriodStartAndPeriodEnd(userId,
+				ReportStatus.GENERATED, request.periodStart(), periodEnd), ErrorCode.REPORT_ALREADY_EXISTS);
 
 		return sessions;
 	}

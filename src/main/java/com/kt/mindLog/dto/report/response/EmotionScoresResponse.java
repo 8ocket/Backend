@@ -9,7 +9,7 @@ public record EmotionScoresResponse(
 	@JsonProperty("session_id")
 	String sessionId,
 
-	@JsonProperty("report_type")
+	@JsonProperty("score")
 	Integer score,
 
 	@JsonProperty("recorded_at")

@@ -15,5 +15,5 @@ kakao:
 google:
   redirect-uri: ${GOOGLE_LOCAL_REDIRECT_URI}
 
-session:
+stream:
   baseurl: ${SESSION_LOCAL_BASE_URL}

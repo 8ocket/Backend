@@ -3,6 +3,7 @@ package com.kt.mindLog.dto.report.response;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,6 +21,6 @@ public record ReportEmotionGraphResponse(
 	String inflectionType,
 
 	@JsonProperty("recorded_at")
-	DateTime recordedAt
+	String recordedAt
 ) {
 }

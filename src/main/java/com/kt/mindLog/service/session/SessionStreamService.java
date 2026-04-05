@@ -18,6 +18,7 @@ import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
+import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.service.sse.SSEService;

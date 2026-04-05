@@ -65,6 +65,8 @@ public class Emotion {
 	@JoinColumn(name = "message_id", nullable = false)
 	private SessionMessages message;
 
+	private Integer messageIndex;
+
 	@Builder
 	public Emotion(EmotionType emotionType, Integer intensity, String keyword, String trigger, EmotionTrajectory trajectory,
 		User user, Session session, SessionMessages message) {

@@ -1,5 +1,6 @@
 package com.kt.mindLog.controller.report;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import com.kt.mindLog.service.report.ReportService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class ReportController {
 	private final ReportService reportService;
 
-	@PostMapping("")
-	public void createReport(@Login CustomUser user, @Valid @RequestBody ReportCreateRequest request) {
-		reportService.createReport(user.getId(), request);
+	@PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<Object> createReport(@Login CustomUser user, @Valid @RequestBody ReportCreateRequest request) {
+		return reportService.createReport(user.getId(), request);
 	}
 }

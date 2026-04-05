@@ -38,7 +38,7 @@ public class SSEService {
 					.map(bodyStr -> new RuntimeException("AI 서버 오류: " + bodyStr))
 			)
 			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
-			.timeout(Duration.ofMinutes(2))
+			.timeout(Duration.ofMinutes(5))
 			.doOnNext(this::logEvent);
 	}
 
