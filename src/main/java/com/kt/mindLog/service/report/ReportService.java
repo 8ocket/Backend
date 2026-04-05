@@ -20,6 +20,7 @@ import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.request.EmotionScoresRequest;
 import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
 import com.kt.mindLog.dto.report.response.GraphsResponse;
+import com.kt.mindLog.dto.report.response.ReportResponse;
 import com.kt.mindLog.dto.report.response.SuggestionsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
@@ -138,9 +139,14 @@ public class ReportService {
 		return report.getId();
 	}
 
+	public List<ReportResponse> getReports(final UUID userId) {
+		return reportRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+			.map(ReportResponse::from)
+			.toList();
+	}
+
 	public EmotionGraphResponse getEmotionGraphs(final UUID reportId) {
-		var graphs = reportGraphRepository.findByReportId(reportId)
-			.stream()
+		var graphs = reportGraphRepository.findByReportId(reportId).stream()
 			.map(GraphsResponse::from)
 			.toList();
 
@@ -148,8 +154,7 @@ public class ReportService {
 	}
 
 	public List<SuggestionsResponse> getSuggestions(final UUID reportId) {
-		return reportSuggestionRepository.findByReportId(reportId)
-			.stream()
+		return reportSuggestionRepository.findByReportId(reportId).stream()
 			.map(SuggestionsResponse::from)
 			.toList();
 	}

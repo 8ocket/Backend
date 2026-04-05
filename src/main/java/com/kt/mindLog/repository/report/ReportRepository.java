@@ -1,6 +1,7 @@
 package com.kt.mindLog.repository.report;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
 	default Report findByIdOrThrow(UUID reportId, ErrorCode errorCode) {
 		return findById(reportId).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	List<Report> findByUserIdOrderByCreatedAtDesc(UUID userId);
 }
