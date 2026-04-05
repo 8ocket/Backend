@@ -95,6 +95,10 @@ public class Session {
 		this.summary = summary;
 	}
 
+	public void updateSessionExpired() {
+		this.status = SessionStatus.EXPIRED;
+	}
+
 	public void clearSummary() {
 		this.summary = null;
 	}

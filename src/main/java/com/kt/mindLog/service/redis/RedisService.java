@@ -5,10 +5,12 @@ import java.util.UUID;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.domain.summary.SessionContextSummary;
 import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.dto.redis.request.RedisHistoryRequest;
 import com.kt.mindLog.dto.redis.request.RedisMessageRequest;
+import com.kt.mindLog.repository.session.SessionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final ObjectMapper objectMapper;
+	private final SessionRepository sessionRepository;
 
 	private static final String SESSION_PREFIX = "session:";
 	private static final String MESSAGE_SUFFIX = ":messages";
@@ -46,9 +49,26 @@ public class RedisService {
 
 		RedisHistoryRequest history = RedisHistoryRequest.from(summary, decryptContent);
 		redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(history));
+		RedisHistoryRequest history = RedisHistoryRequest.from(summary);
+
+		if (!redisTemplate.hasKey(key)) {
+			redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(history));
+		}
 	}
 
 	private String buildUserKey(UUID userId) {
 		return USER_SUFFIX + userId + HISTORY_SUFFIX;
+	}
+
+	public void deleteMessage(final UUID sessionId) {
+		String messageKey = buildMessageKey(sessionId);
+		redisTemplate.delete(messageKey);
+	}
+
+	public void deleteHistory(final UUID userId) {
+		if (!sessionRepository.existsByStatus(SessionStatus.ACTIVE)){
+			String historyKey = buildUserKey(userId);
+			redisTemplate.delete(historyKey);
+		}
 	}
 }

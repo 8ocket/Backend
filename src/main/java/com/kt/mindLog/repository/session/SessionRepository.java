@@ -33,6 +33,10 @@ public interface SessionRepository extends JpaRepository<Session,UUID> {
 
 	boolean existsByUserIdAndCreatedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
 
+	List<Session> findByStatusIsNotAndCreatedAtBefore(SessionStatus status, LocalDateTime createdAtAfter);
+
+	boolean existsByStatus(SessionStatus status);
+
 	List<Session> findByUserIdAndStatusAndCreatedAtBetweenOrderByEndedAtAsc(UUID userId, SessionStatus status,
 		LocalDateTime periodStart, LocalDateTime periodEnd);
 }

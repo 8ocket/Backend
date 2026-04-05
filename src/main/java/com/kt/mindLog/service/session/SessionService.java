@@ -1,6 +1,7 @@
 package com.kt.mindLog.service.session;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,6 +151,21 @@ public class SessionService {
 		});
 
 		log.info("success to upload session history to redis : userId = {}", userId);
+	}
+
+	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
+	protected void checkExpiredSessions() {
+		var expiredSessions = sessionRepository.findByStatusIsNotAndCreatedAtBefore(
+			SessionStatus.SAVED, LocalDateTime.now().minusDays(2));
+
+		expiredSessions.forEach(Session::updateSessionExpired);
+		expiredSessions.forEach(session -> {
+			redisService.deleteMessage(session.getId());
+			redisService.deleteHistory(session.getUser().getId());
+		});
+
+		log.info("check expired sessions success");
 	}
 
 	@Transactional
