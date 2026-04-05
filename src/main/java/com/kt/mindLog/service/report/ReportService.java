@@ -17,10 +17,13 @@ import com.kt.mindLog.domain.summary.NegativeEmotionType;
 import com.kt.mindLog.domain.summary.PositiveEmotionType;
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
 import com.kt.mindLog.dto.report.request.ReportCreateRequest;
-import com.kt.mindLog.dto.report.response.EmotionScoresResponse;
+import com.kt.mindLog.dto.report.request.EmotionScoresRequest;
+import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
+import com.kt.mindLog.dto.report.response.GraphsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.summary.EmotionRepository;
@@ -38,6 +41,8 @@ public class ReportService {
 	private final SessionRepository sessionRepository;
 	private final EmotionRepository emotionRepository;
 	private final UserRepository userRepository;
+
+	private final ReportEmotionGraphRepository reportGraphRepository;
 
 	private final ReportStreamService reportStreamService;
 
@@ -93,9 +98,9 @@ public class ReportService {
 	}
 
 	//감정 점수 계산
-	private List<EmotionScoresResponse> calculateScore(final List<Session> sessions) {
+	private List<EmotionScoresRequest> calculateScore(final List<Session> sessions) {
 		return sessions.stream()
-			.map(session -> EmotionScoresResponse.from(session, calculateEmotionScore(session)))
+			.map(session -> EmotionScoresRequest.from(session, calculateEmotionScore(session)))
 			.toList();
 	}
 
@@ -128,5 +133,14 @@ public class ReportService {
 		log.info("success to create ai-report");
 
 		return report.getId();
+	}
+
+	public EmotionGraphResponse getEmotionGraphs(final UUID userId, final UUID reportId) {
+		var graphs = reportGraphRepository.findByReportId(reportId)
+			.stream()
+			.map(GraphsResponse::from)
+			.toList();
+
+		return new EmotionGraphResponse(graphs.size(), graphs);
 	}
 }

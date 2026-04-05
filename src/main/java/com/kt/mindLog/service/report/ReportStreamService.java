@@ -7,7 +7,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
-import com.kt.mindLog.dto.report.response.ReportResponse;
+import com.kt.mindLog.dto.report.response.AiReportResponse;
 import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.service.sse.SSEService;
 
@@ -43,7 +43,7 @@ public class ReportStreamService {
 			case "ai_complete" -> {
 
 				try {
-					var report = objectMapper.readValue(event.data(), ReportResponse.class);
+					var report = objectMapper.readValue(event.data(), AiReportResponse.class);
 					reportPersistenceService.saveReport(report, reportId);
 					//TODO credit 차감
 

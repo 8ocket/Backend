@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kt.mindLog.dto.report.response.EmotionScoresResponse;
 
 import lombok.Builder;
 
@@ -23,6 +22,6 @@ public record AiReportCreateRequest(
 	LocalDate periodEnd,
 
 	@JsonProperty("emotion_scores")
-	List<EmotionScoresResponse> emotionScores
+	List<EmotionScoresRequest> emotionScores
 ) {
 }

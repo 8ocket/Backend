@@ -1,11 +1,11 @@
-package com.kt.mindLog.dto.report.response;
+package com.kt.mindLog.dto.report.request;
 
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kt.mindLog.domain.session.Session;
 
-public record EmotionScoresResponse(
+public record EmotionScoresRequest(
 	@JsonProperty("session_id")
 	String sessionId,
 
@@ -15,8 +15,8 @@ public record EmotionScoresResponse(
 	@JsonProperty("recorded_at")
 	LocalDateTime recordedAt
 ) {
-	public static EmotionScoresResponse from(Session session, Integer score) {
-		return new EmotionScoresResponse(
+	public static EmotionScoresRequest from(Session session, Integer score) {
+		return new EmotionScoresRequest(
 			session.getId().toString(),
 			score,
 			session.getEndedAt()

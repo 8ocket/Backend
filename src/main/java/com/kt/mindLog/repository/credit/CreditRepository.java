@@ -1,6 +1,7 @@
 package com.kt.mindLog.repository.credit;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +24,5 @@ public interface CreditRepository extends JpaRepository<Credit, UUID> {
 	@Query("SELECT COALESCE(SUM(c.paidCredit), 0) FROM Credit c WHERE c.user.id = :userId")
 	int sumPaidCreditByUserId(UUID userId);
 
-
+	List<Credit> findByPaymentId(UUID paymentId);
 }

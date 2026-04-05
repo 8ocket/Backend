@@ -1,8 +1,6 @@
 package com.kt.mindLog.service.report;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +11,9 @@ import com.kt.mindLog.domain.report.Report;
 import com.kt.mindLog.domain.report.ReportEmotionGraph;
 import com.kt.mindLog.domain.report.ReportStatus;
 import com.kt.mindLog.domain.report.ReportSuggestion;
-import com.kt.mindLog.dto.report.response.ReportEmotionGraphResponse;
-import com.kt.mindLog.dto.report.response.ReportResponse;
-import com.kt.mindLog.dto.report.response.ReportSuggestionResponse;
+import com.kt.mindLog.dto.report.response.AiReportEmotionGraphResponse;
+import com.kt.mindLog.dto.report.response.AiReportResponse;
+import com.kt.mindLog.dto.report.response.AiReportSuggestionResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
@@ -33,7 +31,7 @@ public class ReportPersistenceService {
 	private final ReportSuggestionRepository reportSuggestionRepository;
 
 	@Transactional
-	public void saveReport(ReportResponse response, UUID reportId) {
+	public void saveReport(AiReportResponse response, UUID reportId) {
 		var report = reportRepository.findByIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
 
 		//TODO report response data 저장 (AI와 논의 후 진행)
@@ -45,7 +43,7 @@ public class ReportPersistenceService {
 	}
 
 
-	private void saveGraphs(List<ReportEmotionGraphResponse> responses, Report report) {
+	private void saveGraphs(List<AiReportEmotionGraphResponse> responses, Report report) {
 
 		var graphs = responses.stream()
 				.map(response -> ReportEmotionGraph.builder()
@@ -61,7 +59,7 @@ public class ReportPersistenceService {
 		log.info("success to save ai-report graphs");
 	}
 
-	private void saveSuggestions(List<ReportSuggestionResponse> responses, Report report) {
+	private void saveSuggestions(List<AiReportSuggestionResponse> responses, Report report) {
 
 		var suggestions = responses.stream()
 			.map(response -> ReportSuggestion.builder()

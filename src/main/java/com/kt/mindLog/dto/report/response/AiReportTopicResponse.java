@@ -1,6 +1,6 @@
 package com.kt.mindLog.dto.report.response;
 
-public record ReportTopicResponse(
+public record AiReportTopicResponse(
 	String name,
 	String category,
 	// Integer count,

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record ReportResponse(
+public record AiReportResponse(
 
 	@JsonProperty("session_count")
 	Integer sessionCount,
@@ -21,10 +21,10 @@ public record ReportResponse(
 	String tendency,
 
 	@JsonProperty("emotion_graphs")
-	List<ReportEmotionGraphResponse> emotionGraphs,
+	List<AiReportEmotionGraphResponse> emotionGraphs,
 
-	List<ReportTopicResponse> topics,
+	List<AiReportTopicResponse> topics,
 
-	List<ReportSuggestionResponse> suggestions
+	List<AiReportSuggestionResponse> suggestions
 ) {
 }
