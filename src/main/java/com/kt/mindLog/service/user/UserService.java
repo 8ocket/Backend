@@ -18,6 +18,7 @@ import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.service.attendance.AttendanceService;
 import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.s3.S3Path;
 import com.kt.mindLog.service.s3.S3Service;
@@ -34,6 +35,7 @@ public class UserService {
 	private final JwtService jwtService;
 	private final S3Service s3Service;
 	private final CreditService creditService;
+	private final AttendanceService attendanceService;
 
 	@Value("${default.image.profile}")
 	private String defaultProfile;
@@ -46,6 +48,7 @@ public class UserService {
 		if (findUser.isPresent()) {
 			findUser.get().updateLastLoginAt();
 			creditService.earnAttendanceBonus(findUser.get());
+			attendanceService.saveAttendance(findUser.get().getId());
 			return jwtService.createJwtTokens(findUser.get(), false);
 		}
 
