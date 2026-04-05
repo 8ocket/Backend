@@ -47,37 +47,32 @@ public class ReportPersistenceService {
 
 	private void saveGraphs(List<ReportEmotionGraphResponse> responses, Report report) {
 
-		List<ReportEmotionGraph> reportEmotionGraphs = new ArrayList<>();
+		var graphs = responses.stream()
+				.map(response -> ReportEmotionGraph.builder()
+							.sessionId(response.sessionId())
+							.avgScore(response.avgScore())
+							.inflectionType(response.inflectionType())
+							.recordedAt(LocalDateTime.parse(response.recordedAt()))
+							.report(report)
+							.build()
+				).toList();
 
-		responses.forEach(response -> {
-			reportEmotionGraphs.add(ReportEmotionGraph.builder()
-				.sessionId(response.sessionId())
-				.avgScore(response.avgScore())
-				.inflectionType(response.inflectionType())
-				.recordedAt(LocalDateTime.parse(response.recordedAt()))
-				.report(report)
-				.build()
-			);
-		});
-
-		reportGraphRepository.saveAll(reportEmotionGraphs);
+		reportGraphRepository.saveAll(graphs);
 		log.info("success to save ai-report graphs");
 	}
 
 	private void saveSuggestions(List<ReportSuggestionResponse> responses, Report report) {
-		List<ReportSuggestion> reportSuggestions = new ArrayList<>();
 
-		responses.forEach(response -> {
-			reportSuggestions.add(ReportSuggestion.builder()
+		var suggestions = responses.stream()
+			.map(response -> ReportSuggestion.builder()
 				.suggestionType(response.type())
 				.content(response.content())
 				.priority(response.priority())
 				.report(report)
 				.build()
-			);
-		});
+			).toList();
 
-		reportSuggestionRepository.saveAll(reportSuggestions);
+		reportSuggestionRepository.saveAll(suggestions);
 		log.info("success to save ai-report suggestions");
 	}
 }
