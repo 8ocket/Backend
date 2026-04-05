@@ -14,7 +14,7 @@ import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.JwtProperties;
-import com.kt.mindLog.global.security.JwtProvider;
+import com.kt.mindLog.global.security.jwt.JwtProvider;
 import com.kt.mindLog.repository.JwtTokenRepository;
 
 import lombok.RequiredArgsConstructor;

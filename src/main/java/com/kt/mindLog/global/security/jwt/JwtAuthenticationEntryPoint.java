@@ -1,4 +1,4 @@
-package com.kt.mindLog.global.security;
+package com.kt.mindLog.global.security.jwt;
 
 import java.io.IOException;
 

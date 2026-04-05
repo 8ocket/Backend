@@ -1,4 +1,4 @@
-package com.kt.mindLog.global.security;
+package com.kt.mindLog.global.security.auth;
 
 import java.util.Collection;
 

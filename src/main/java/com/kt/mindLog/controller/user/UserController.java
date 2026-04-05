@@ -13,7 +13,7 @@ import com.kt.mindLog.dto.user.response.UserProfileResponse;
 import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.common.response.ApiResult;
-import com.kt.mindLog.global.security.CustomUser;
+import com.kt.mindLog.global.security.auth.CustomUser;
 import com.kt.mindLog.service.user.UserService;
 
 import jakarta.validation.Valid;

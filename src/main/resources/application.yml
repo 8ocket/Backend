@@ -78,3 +78,6 @@ toss:
   base-url: ${TOSS_BASE_URL}
   client-key: ${TOSS_CLIENT_KEY}
   secret-key: ${TOSS_SECRET_KEY}
+
+encryption:
+  secret-key: ${ENCRYPT_SECRET_KEY}

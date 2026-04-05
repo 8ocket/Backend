@@ -21,6 +21,7 @@ import com.kt.mindLog.dto.session.response.SessionListResponses;
 import com.kt.mindLog.dto.sessionMessage.response.SessionMessageListResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.response.Pagination;
+import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.PersonaRepository;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
@@ -48,6 +49,7 @@ public class SessionService {
 	private final SessionStreamService sessionStreamService;
 	private final RedisService redisService;
 	private final CreditService creditService;
+	private final EncryptionConverter encryptionConverter;
 
 	public Flux<Object> saveSession(final UUID userId, final SessionCreateRequest request) {
 		getHistory(userId);
@@ -58,13 +60,13 @@ public class SessionService {
 			userId, today.atStartOfDay(), today.atTime(LocalTime.MAX)
 		);
 
-		if (alreadyHasSessionToday) {
-			creditService.useCreditForExtraSession(userId);
-		}
+		// if (alreadyHasSessionToday) {
+		// 	creditService.useCreditForExtraSession(userId);
+		// }
 
 		var newSession = createSession(userId);
 
-		creditService.earnCreditForSession(userId, newSession.getId());
+		// creditService.earnCreditForSession(userId, newSession.getId());
 
 		return sessionStreamService.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 	}
@@ -106,14 +108,18 @@ public class SessionService {
 	public SessionDetailResponse getSessionDetail(final UUID userId, final UUID sessionId) {
 		userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 		var session = sessionRepository.findByIdAndUserIdOrThrow(sessionId, userId, ErrorCode.NOT_FOUND_SESSION);
-		var sessionMessages = sessionMessageRepository.findBySessionIdOrderByCreatedAtDesc(session.getId())
-			.stream()
-			.map(SessionMessageListResponse::from)
+		var sessionMessages = sessionMessageRepository.findBySessionIdOrderByCreatedAtDesc(session.getId());
+
+		var messages = sessionMessages.stream()
+			.map(message -> {
+				var decryptContent = encryptionConverter.convertToEntityAttribute(message.getContent());
+				return SessionMessageListResponse.from(message, decryptContent);
+			})
 			.toList();
 
 		var hasSummary = session.getSummary() != null;
 
-		return SessionDetailResponse.from(session, sessionMessages, hasSummary);
+		return SessionDetailResponse.from(session, messages, hasSummary);
 	}
 
 	public ActiveSessionResponse getActiveSession(final UUID userId) {

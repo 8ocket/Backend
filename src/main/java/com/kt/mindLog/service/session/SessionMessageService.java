@@ -14,6 +14,7 @@ import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.sessionMessage.response.CrisisCheck;
 import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.CrisisLogRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
@@ -37,17 +38,19 @@ public class SessionMessageService {
 
 	private final RedisService redisService;
 	private final SummaryService summaryService;
+	private final EncryptionConverter encryptionConverter;
 
 	@Transactional
 	protected UUID saveContents(final Role role, final String contents, final UUID sessionId) {
 
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 		int sequence = redisService.pushMessage(sessionId, role, contents);
-		//TODO 상담 메세지 암호화
+
+		var encryptContents = encryptionConverter.convertToDatabaseColumn(contents);
 
 		var message = sessionMessageRepository.saveAndFlush(SessionMessages.builder()
 			.role(role)
-			.content(contents)
+			.content(encryptContents)
 			.session(session)
 			.sequenceNum(sequence)
 			.build());
@@ -76,10 +79,13 @@ public class SessionMessageService {
 		var messages = sessionMessageRepository.findByIdOrThrow(UUID.fromString(messageId.toString()),
 			ErrorCode.NOT_FOUND_SESSION_MESSAGE);
 
+		var encryptKeywords = encryptionConverter.convertToDatabaseColumn(String.valueOf(crisisCheck.keywords()));
+		var encryptSuggestion = encryptionConverter.convertToDatabaseColumn(crisisCheck.suggestedResponse());
+
 		var crisis = CrisisLogs.builder()
 			.level(crisisCheck.level())
-			.keywords(crisisCheck.keywords())
-			.message(crisisCheck.suggestedResponse())
+			.keywords(encryptKeywords)
+			.message(encryptSuggestion)
 			.session(session)
 			.user(user)
 			.messages(messages)

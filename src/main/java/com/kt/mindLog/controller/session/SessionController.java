@@ -18,11 +18,9 @@ import com.kt.mindLog.dto.session.request.SessionReceiveRequest;
 import com.kt.mindLog.dto.session.response.ActiveSessionResponse;
 import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
-import com.kt.mindLog.dto.session.response.SessionResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.common.request.Paging;
-import com.kt.mindLog.global.security.CustomUser;
-import com.kt.mindLog.service.session.SessionMessageService;
+import com.kt.mindLog.global.security.auth.CustomUser;
 import com.kt.mindLog.service.session.SessionService;
 import com.kt.mindLog.service.session.SessionStreamService;
 

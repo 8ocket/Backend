@@ -22,6 +22,7 @@ public enum ErrorCode {
 	EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	INVALID_JWT_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
 	INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 리프레시 토큰입니다."),
+	INVALID_CRYPTO_KEY(HttpStatus.BAD_REQUEST, "암호화 키는 32바이트(256bit)여야 합니다."),
 
 	// user
 	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),

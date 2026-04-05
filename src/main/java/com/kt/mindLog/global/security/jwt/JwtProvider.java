@@ -1,4 +1,4 @@
-package com.kt.mindLog.global.security;
+package com.kt.mindLog.global.security.jwt;
 
 import java.util.Date;
 import java.util.UUID;
@@ -9,6 +9,7 @@ import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.JwtProperties;
+import com.kt.mindLog.global.security.auth.CustomUser;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

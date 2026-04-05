@@ -34,7 +34,7 @@ public class CrisisLogs {
 	private Integer level;
 
 	@Column(columnDefinition = "TEXT", name = "detected_keywords")
-	private List<String> keywords;
+	private String keywords;
 
 	@Column(columnDefinition = "TEXT", name = "response_message")
 	private String message;
@@ -57,7 +57,7 @@ public class CrisisLogs {
 	private SessionMessages messages;
 
 	@Builder
-	public CrisisLogs(Integer level, List<String> keywords, String message,
+	public CrisisLogs(Integer level, String keywords, String message,
 		User user, Session session, SessionMessages messages) {
 		this.level = level;
 		this.keywords = keywords;
