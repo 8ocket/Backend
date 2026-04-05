@@ -49,8 +49,13 @@ public enum ErrorCode {
 	NOT_FOUND_SUMMARY(HttpStatus.BAD_REQUEST, "해당 세션 요약 컨텍스트를 찾을 수 없습니다."),
 
 	// credit
-	ATTENDANCE_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "출석 체크는 하루에 1회만 가능합니다."),
-	INSUFFICIENT_CREDIT(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다.")
+	ALREADY_USED_CREDIT(HttpStatus.BAD_REQUEST, "이미 사용된 크레딧입니다."),
+	INSUFFICIENT_CREDIT(HttpStatus.BAD_REQUEST, "크레딧이 부족합니다."),
+
+	// payment
+	NOT_FOUND_PAYMENT(HttpStatus.BAD_REQUEST, "결제 정보를 찾을 수 없습니다."),
+	ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
+	INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "결제 진행 중 상태가 아닙니다.")
 	;
 
 	private final HttpStatus status;

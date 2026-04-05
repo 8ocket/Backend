@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "credits")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Credit {
 	@Id
 	@UuidGenerator(style = UuidGenerator.Style.VERSION_7)
@@ -56,13 +58,16 @@ public class Credit {
 	private int balanceAfter; // 거래 후 잔액 (무료 + 유료 크레딧)
 
 	@Column(nullable = false)
+	private int remainingPaidCredit = 0; // 남아있는 유료 크레딧 잔액
+
+	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
 	private String description;
 
 	@Builder
 	private Credit(User user, Payment payment, TransactionType transactionType, int freeCredit, int paidCredit,
-		int amount, int balanceAfter, String description) {
+		int amount, int balanceAfter, int remainingPaidCredit, String description) {
 		this.user = user;
 		this.payment = payment;
 		this.transactionType = transactionType;
@@ -70,6 +75,7 @@ public class Credit {
 		this.paidCredit = paidCredit;
 		this.amount = amount;
 		this.balanceAfter = balanceAfter;
+		this.remainingPaidCredit = remainingPaidCredit;
 		this.description = description;
 		this.createdAt = LocalDateTime.now();
 	}
@@ -79,6 +85,7 @@ public class Credit {
 		TransactionType transactionType,
 		int amount,
 		int balanceAfter,
+		int remainingPaidCredit,
 		String description
 	) {
 		return Credit.builder()
@@ -88,6 +95,7 @@ public class Credit {
 			.freeCredit(amount)
 			.paidCredit(0)
 			.balanceAfter(balanceAfter)
+			.remainingPaidCredit(remainingPaidCredit)
 			.description(description)
 			.build();
 	}
@@ -99,6 +107,7 @@ public class Credit {
 		int freeUsed, // 차감할 무료 크레딧
 		int paidUsed, // 차감할 유료 크레딧
 		int balanceAfter,
+		int remainingPaidCredit,
 		String description
 	){
 		return Credit.builder()
@@ -108,6 +117,7 @@ public class Credit {
 			.paidCredit(-paidUsed)
 			.amount(-amount)
 			.balanceAfter(balanceAfter)
+			.remainingPaidCredit(remainingPaidCredit)
 			.description(description)
 			.build();
 	}
@@ -123,10 +133,19 @@ public class Credit {
 			.payment(payment)
 			.transactionType(TransactionType.CHARGE)
 			.amount(amount)
+			.remainingPaidCredit(amount)
 			.freeCredit(0)
 			.paidCredit(amount)
 			.balanceAfter(balanceAfter)
 			.description("유료 크레딧 충전")
 			.build();
+	}
+
+	public void deductRemainingPaidCredit(int amount) {
+		this.remainingPaidCredit -= amount;
+	}
+
+	public void deductPaidCredit(int amount) {
+		this.paidCredit -= amount;
 	}
 }
