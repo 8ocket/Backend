@@ -71,4 +71,14 @@ public class JwtService {
 		jwtTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
 		log.info("deleted expired tokens");
 	}
+
+	@Transactional
+	public void logout(String refreshToken) {
+		if (refreshToken == null || refreshToken.isBlank()) {
+			throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+		}
+
+		jwtTokenRepository.deleteByRefreshToken(refreshToken);
+		log.info("logout success");
+	}
 }

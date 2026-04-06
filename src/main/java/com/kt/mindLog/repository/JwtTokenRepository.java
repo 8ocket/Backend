@@ -14,4 +14,6 @@ public interface JwtTokenRepository extends JpaRepository<JwtToken, UUID> {
 	Optional<JwtToken> findByRefreshToken(String token);
 
 	void deleteByExpiresAtBefore(LocalDateTime now);
+
+	void deleteByRefreshToken(String refreshToken);
 }

@@ -54,4 +54,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		filterChain.doFilter(request, response);
 	}
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		return request.getServletPath().equals("/v1/auth/logout");
+	}
 }
