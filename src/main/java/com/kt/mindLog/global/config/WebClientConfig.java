@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.kt.mindLog.global.property.SessionProperties;
+import com.kt.mindLog.global.property.StreamProperties;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebClientConfig {
 
-	private final SessionProperties sessionProperties;
+	private final StreamProperties streamProperties;
 
 	@Bean
 	public WebClient webClient() {
 		return WebClient.builder()
-			.baseUrl(sessionProperties.getBaseurl())
+			.baseUrl(streamProperties.getBaseurl())
 			.build();
 	}
 }

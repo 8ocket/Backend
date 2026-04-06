@@ -1,17 +1,12 @@
 package com.kt.mindLog.service.session;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
@@ -23,10 +18,10 @@ import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
-import com.kt.mindLog.global.property.SessionProperties;
+import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
-import com.kt.mindLog.service.summary.SummaryService;
+import com.kt.mindLog.service.sse.SSEService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,42 +37,17 @@ public class SessionStreamService {
 	private final SessionRepository sessionRepository;
 
 	private final ObjectMapper objectMapper;
-	private final WebClient webClient;
-	private final SessionProperties sessionProperties;
+	private final StreamProperties streamProperties;
 
-	private final SummaryService summaryService;
+	private final SSEService sseService;
 	private final SessionMessageService messageService;
-
-
-	//SSE
-	private Flux<ServerSentEvent<String>> streamSse(final String uri, final UUID sessionId, final Object body) {
-		var request = webClient.post()
-			.uri(uri, sessionId)
-			.contentType(MediaType.APPLICATION_JSON)
-			.accept(MediaType.TEXT_EVENT_STREAM);
-
-		if (body != null) {
-			request = (WebClient.RequestBodySpec)request.bodyValue(body);
-		}
-
-		return request
-			.retrieve()
-			.onStatus(HttpStatusCode::isError, response ->
-				response.bodyToMono(String.class)
-					.map(bodyStr -> new RuntimeException("AI 서버 오류: " + bodyStr))
-			)
-			.bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
-			.timeout(Duration.ofMinutes(2))
-			.doOnNext(this::logEvent);
-	}
-
 
 	//일반 메세지 통신
 	public Flux<Object> receiveSSE(final String contents, final UUID sessionId, final UUID userId) {
 		var user = validateUserAndSession(userId, sessionId);
 		AtomicReference<UUID> messageIdRef = new AtomicReference<>();
 
-		return streamSse(sessionProperties.getMessageUri(), sessionId, Map.of("content", contents))
+		return sseService.streamSSE(streamProperties.getMessageUri(), sessionId, Map.of("content", contents))
 			.doFirst(() -> messageIdRef.set(messageService.saveContents(Role.USER, contents, sessionId)))
 			.handle((event, sink) -> handleMessageEvent(event, sink, sessionId, user, messageIdRef))
 			.doOnError(e -> log.error("스트림 오류", e));
@@ -116,7 +86,7 @@ public class SessionStreamService {
 		validateUser(userId);
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
-		return streamSse(sessionProperties.getMessageUri(), sessionId, Map.of("content", contents))
+		return sseService.streamSSE(streamProperties.getMessageUri(), sessionId, Map.of("content", contents))
 			.doFirst(() -> messageService.saveContents(Role.USER, contents, sessionId))
 			.handle((event, sink) ->  handleFirstMessageEvent(event, sink, session))
 			.doOnError(e -> log.error("스트림 오류", e));
@@ -165,7 +135,7 @@ public class SessionStreamService {
 		}
 		Preconditions.validate(session.getStatus().equals(SessionStatus.ACTIVE), ErrorCode.INVALID_SESSION);
 
-		return streamSse(sessionProperties.getFinalizeUri(), sessionId, null)
+		return sseService.streamSSE(streamProperties.getFinalizeUri(), sessionId, null)
 			.handle((event, sink) -> handleFinalizeEvent(event, sink, sessionId))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}
@@ -198,24 +168,11 @@ public class SessionStreamService {
 					.build());
 
 				String imageUrl = summary.card().get("image_url").asText();
-				messageService.updateSessionStatus(sessionId, SessionStatus.COMPLETED);
 
-				//TODO 데이터 암호화
-				summaryService.saveSummary(sessionId, summary.summary());
-				summaryService.saveSessionContext(sessionId, summary.contextSummary());
-				summaryService.saveEmotionCard(sessionId, imageUrl);
-				summaryService.saveEmotions(sessionId, summary.emotions());
-
-				messageService.updateSessionStatus(sessionId, SessionStatus.SAVED);
+				messageService.saveSessionSummary(sessionId, summary, imageUrl);
 			}
-		}
-	}
 
-	private void logEvent(final ServerSentEvent<String> event) {
-		if ("error".equals(event.event())) {
-			log.error("AI error: {}", event.data());
-		} else {
-			log.info("event: {}, data: {}", event.event(), event.data()); // TODO 최종 배포 시 삭제
+			case "done" -> sink.complete();
 		}
 	}
 

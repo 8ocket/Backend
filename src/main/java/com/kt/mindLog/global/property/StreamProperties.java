@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "session")
-public class SessionProperties {
+@ConfigurationProperties(prefix = "stream")
+public class StreamProperties {
 	private final String baseurl;
 	private final String messageUri;
 	private final String finalizeUri;
+	private final String reportUri;
 }

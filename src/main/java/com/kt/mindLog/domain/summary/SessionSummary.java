@@ -42,6 +42,7 @@ public class SessionSummary extends BaseEntity {
 
 	private boolean isEdited;
 
+	@Column(nullable = true)
 	private String visibility;
 
 	@OneToOne(fetch = FetchType.LAZY)

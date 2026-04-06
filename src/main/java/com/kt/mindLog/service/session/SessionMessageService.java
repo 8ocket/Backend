@@ -8,14 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kt.mindLog.domain.session.CrisisLogs;
 import com.kt.mindLog.domain.session.SessionMessages;
 import com.kt.mindLog.domain.session.SessionStatus;
+import com.kt.mindLog.domain.summary.SessionSummary;
 import com.kt.mindLog.domain.user.Role;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.sessionMessage.response.CrisisCheck;
+import com.kt.mindLog.dto.summary.response.SessionSummaryResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.CrisisLogRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.service.redis.RedisService;
+import com.kt.mindLog.service.summary.SummaryService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ public class SessionMessageService {
 	private final ObjectMapper objectMapper;
 
 	private final RedisService redisService;
+	private final SummaryService summaryService;
 
 	@Transactional
 	protected UUID saveContents(final Role role, final String contents, final UUID sessionId) {
@@ -90,6 +94,19 @@ public class SessionMessageService {
 		var session =  sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
 		session.updateStatus(sessionStatus);
+	}
+
+	@Transactional
+	protected void saveSessionSummary(final UUID sessionId, final SessionSummaryResponse summary, final String imageUrl) {
+		updateSessionStatus(sessionId, SessionStatus.COMPLETED);
+
+		//TODO 데이터 암호화
+		summaryService.saveSummary(sessionId, summary.summary());
+		summaryService.saveSessionContext(sessionId, summary.contextSummary());
+		summaryService.saveEmotionCard(sessionId, imageUrl);
+		summaryService.saveEmotions(sessionId, summary.emotions());
+
+		updateSessionStatus(sessionId, SessionStatus.SAVED);
 	}
 
 	private String parseJson(final String contents, final String key) {

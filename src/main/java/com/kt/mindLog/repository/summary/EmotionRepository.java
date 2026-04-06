@@ -24,6 +24,4 @@ public interface EmotionRepository extends JpaRepository<Emotion, UUID> {
 		LIMIT 1
 		""")
 	EmotionType findTopEmotionType(Session session);
-
-	boolean existsBySessionId(UUID sessionId);
 }
