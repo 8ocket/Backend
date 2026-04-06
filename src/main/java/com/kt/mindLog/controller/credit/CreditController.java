@@ -16,8 +16,8 @@ import com.kt.mindLog.service.credit.CreditService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/credits")
 @RequiredArgsConstructor
+@RequestMapping("/v1/credits")
 public class CreditController {
 	private final CreditService creditService;
 

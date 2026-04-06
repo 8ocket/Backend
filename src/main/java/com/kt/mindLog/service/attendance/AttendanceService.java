@@ -1,6 +1,7 @@
 package com.kt.mindLog.service.attendance;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,8 +22,11 @@ public class AttendanceService {
 	private final AttendanceRepository attendanceRepository;
 	private final UserRepository userRepository;
 
-	public AttendanceResponse getAttendance(UUID userId) {
-		List<LocalDate> attendanceDates = attendanceRepository.findByAttendanceDatesByUserId(userId);
+	public AttendanceResponse getAttendance(UUID userId, YearMonth month) {
+		LocalDate start = month.atDay(1);
+		LocalDate end = month.atEndOfMonth();
+
+		List<LocalDate> attendanceDates = attendanceRepository.findByUserIdAndAttendanceDateBetween(userId, start, end);
 
 		return new AttendanceResponse(attendanceDates);
 	}

@@ -1,6 +1,9 @@
 package com.kt.mindLog.controller.attendance;
 
+import java.time.YearMonth;
+
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class AttendanceController {
 	private final AttendanceService attendanceService;
 
-	@GetMapping("/me")
-	public AttendanceResponse getAttendance(@Login CustomUser user) {
-		return attendanceService.getAttendance(user.getId());
+	@GetMapping("/me/{yearMonth}")
+	public AttendanceResponse getAttendance(@Login CustomUser user, @PathVariable YearMonth yearMonth) {
+		return attendanceService.getAttendance(user.getId(), yearMonth);
 	}
 }

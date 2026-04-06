@@ -9,7 +9,7 @@ public enum TransactionType {
 	SURVEY, // 설문 조사 응답 (+5)
 
 	// 사용
-	AI_WEEKLY_REPORT, // AI 심화 주간 리포트 (-150)
+	AI_WEEKLY_REPORT, // AI 심화 주간 리포트 (-150) > 생성 전에 크레딧 검증, 차감은 리포트 생성 이후에
 	AI_MONTHLY_REPORT, // AI 심화 월간 리포트 (-500)
 	EXTRA_SESSION, // 1일 1회 무료 상담 소진 이후 상담 생성 (-70)
 

@@ -14,6 +14,6 @@ import com.kt.mindLog.domain.attendance.Attendance;
 public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
 	boolean existsByUser_IdAndAttendanceDate(UUID userId, LocalDate attendanceDate);
 
-	@Query("SELECT a.attendanceDate FROM Attendance a WHERE a.user.id = :userId")
-	List<LocalDate> findByAttendanceDatesByUserId(UUID userId);
+	@Query("SELECT a.attendanceDate FROM Attendance a WHERE a.user.id = :userId AND a.attendanceDate BETWEEN :start AND :end")
+	List<LocalDate> findByUserIdAndAttendanceDateBetween(UUID userId, LocalDate start, LocalDate end);
 }

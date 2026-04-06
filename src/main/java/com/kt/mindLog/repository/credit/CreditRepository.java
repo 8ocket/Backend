@@ -25,4 +25,6 @@ public interface CreditRepository extends JpaRepository<Credit, UUID> {
 	int sumPaidCreditByUserId(UUID userId);
 
 	List<Credit> findByPaymentId(UUID paymentId);
+
+
 }

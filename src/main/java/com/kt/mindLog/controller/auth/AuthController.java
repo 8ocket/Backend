@@ -1,11 +1,14 @@
 package com.kt.mindLog.controller.auth;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.domain.user.LoginType;
+import com.kt.mindLog.dto.oauth.request.SocialLoginRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.service.auth.AuthService;
 import com.kt.mindLog.service.user.JwtService;
@@ -40,6 +43,24 @@ public class AuthController {
 
 		return userService.login(email, LoginType.GOOGLE);
 	}
+
+	// // KAKAO
+	// @PostMapping("/kakao/login")
+	// public LoginResponse kakaoLogin(@RequestBody SocialLoginRequest request) {
+	// 	String accessToken = authService.getAccessTokenFromKakao(request.code());
+	// 	String email = authService.getKakaoUserInfo(accessToken);
+	//
+	// 	return userService.login(email, LoginType.KAKAO);
+	// }
+	//
+	// // GOOGLE
+	// @PostMapping("/google/login")
+	// public LoginResponse googleLogin(@RequestBody SocialLoginRequest request) {
+	// 	String accessToken = authService.getAccessTokenFromKakao(request.code());
+	// 	String email = authService.getGoogleUserInfo(accessToken);
+	//
+	// 	return userService.login(email, LoginType.GOOGLE);
+	// }
 
 	@GetMapping("/refresh")
 	public LoginResponse reissue(@RequestParam String refreshToken) {
