@@ -1,4 +1,6 @@
 package com.kt.mindLog.dto.oauth.request;
 
-public record LogoutRequest() {
+public record LogoutRequest(
+	String refreshToken
+) {
 }
