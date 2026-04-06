@@ -32,7 +32,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, prometheus
 
 jwt:
   secret-key: ${KT_JWT_SECRET}
@@ -73,3 +73,8 @@ default:
   image:
     profile: ${DEFAULT_PROFILE_IMAGE}
     persona: ${DEFAULT_PERSONA_IMAGE}
+
+toss:
+  base-url: ${TOSS_BASE_URL}
+  client-key: ${TOSS_CLIENT_KEY}
+  secret-key: ${TOSS_SECRET_KEY}

@@ -1,7 +1,5 @@
 package com.kt.mindLog.dto.credit;
 
-import java.util.List;
-
 public record CreditProductResponse(
 	String name,
 	int creditAmount,
