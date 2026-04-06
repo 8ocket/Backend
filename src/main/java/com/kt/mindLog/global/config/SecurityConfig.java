@@ -36,7 +36,7 @@ public class SecurityConfig {
 	private final CorsProperties corsProperties;
 
 	private static final String[] GET_PERMIT_ALL = {"/actuator/**", "/v1/auth/**"};
-	private static final String[] POST_PERMIT_ALL = {"/internal/v1/sessions/**", "/v1/sessions/**"};
+	private static final String[] POST_PERMIT_ALL = {"/internal/v1/sessions/**", "/v1/sessions/**", "/v1/auth/logout"};
 	private static final String[] PATCH_PERMIT_ALL = {"/"};
 	private static final String[] PUT_PERMIT_ALL = {"/"};
 
