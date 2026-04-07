@@ -18,10 +18,12 @@ import com.kt.mindLog.domain.summary.PositiveEmotionType;
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
 import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.request.EmotionScoresRequest;
+import com.kt.mindLog.dto.report.response.AiReportTopicResponse;
 import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
 import com.kt.mindLog.dto.report.response.GraphsResponse;
 import com.kt.mindLog.dto.report.response.ReportResponse;
 import com.kt.mindLog.dto.report.response.SuggestionsResponse;
+import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
@@ -29,6 +31,7 @@ import com.kt.mindLog.repository.report.ReportAnalysisRepository;
 import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
 import com.kt.mindLog.repository.report.ReportSuggestionRepository;
+import com.kt.mindLog.repository.report.ReportTopicRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.summary.EmotionRepository;
 
@@ -49,6 +52,7 @@ public class ReportService {
 	private final ReportEmotionGraphRepository reportGraphRepository;
 	private final ReportSuggestionRepository reportSuggestionRepository;
 	private final ReportAnalysisRepository reportAnalysisRepository;
+	private final ReportTopicRepository reportTopicRepository;
 
 	private final ReportStreamService reportStreamService;
 
@@ -160,5 +164,14 @@ public class ReportService {
 		return reportSuggestionRepository.findByReportId(reportId).stream()
 			.map(SuggestionsResponse::from)
 			.toList();
+	}
+
+	public TopicsResponse getTopics(final UUID reportId) {
+		var topics = reportTopicRepository.findByReportId(reportId).stream()
+			.map(AiReportTopicResponse::from)
+			.toList();
+
+		var evaluation = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return TopicsResponse.of(topics, evaluation.getTopicEvaluation());
 	}
 }
