@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.mindLog.domain.credit.Credit;
 import com.kt.mindLog.domain.credit.TransactionType;
+import com.kt.mindLog.domain.payment.Payment;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.credit.CreditProductResponse;
 import com.kt.mindLog.dto.credit.UserCreditResponse;
@@ -205,5 +206,24 @@ public class CreditService {
 
 			creditRepository.save(refund);
 		}
+	}
+
+	@Transactional
+	public void chargePaidCredit(User user, Payment payment) {
+		int creditAmount = payment.getProductType().getCredit();
+
+		int currentPaid = creditRepository.sumPaidCreditByUserId(user.getId());
+		int currentFree = creditRepository.sumFreeCreditByUserId(user.getId());
+
+		int balanceAfter = currentPaid + currentFree + creditAmount;
+
+		Credit charge = Credit.chargePaidCredit(
+			user,
+			payment,
+			creditAmount,
+			balanceAfter
+		);
+
+		creditRepository.save(charge);
 	}
 }

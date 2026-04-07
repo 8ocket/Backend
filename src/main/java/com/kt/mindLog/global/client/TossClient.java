@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.kt.mindLog.dto.payment.response.TossPaymentResponse;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -22,6 +24,19 @@ public class TossClient {
 			.bodyValue(Map.of("cancelReason", "고객 환불 요청"))
 			.retrieve()
 			.bodyToMono(Void.class)
+			.block();
+	}
+
+	public TossPaymentResponse confirm(String paymentKey, String orderId, int amount) {
+		return tossClient.post()
+			.uri("/v1/payments/confirm")
+			.bodyValue(Map.of(
+				"paymentKey", paymentKey,
+				"orderId", orderId,
+				"amount", amount
+			))
+			.retrieve()
+			.bodyToMono(TossPaymentResponse.class)
 			.block();
 	}
 }
