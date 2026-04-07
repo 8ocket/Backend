@@ -6,9 +6,14 @@ import java.util.UUID;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 
+import com.kt.mindLog.domain.report.Report;
+import com.kt.mindLog.domain.report.ReportType;
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
 import com.kt.mindLog.dto.report.response.AiReportResponse;
+import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.property.StreamProperties;
+import com.kt.mindLog.repository.report.ReportRepository;
+import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.sse.SSEService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +29,9 @@ public class ReportStreamService {
 
 	private final SSEService sseService;
 	private final ReportPersistenceService reportPersistenceService;
+	private final CreditService creditService;
+
+	private final ReportRepository reportRepository;
 
 	private final StreamProperties streamProperties;
 
@@ -45,7 +53,14 @@ public class ReportStreamService {
 				try {
 					var report = objectMapper.readValue(event.data(), AiReportResponse.class);
 					reportPersistenceService.saveReport(report, reportId);
-					//TODO credit 차감
+					// credit 차감
+					Report reportEntity = reportRepository.findByIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+
+					UUID userId = reportEntity.getUser().getId();
+
+					ReportType type = reportEntity.getReportType();
+
+					creditService.useCreditForReport(userId, type);
 
 					sink.next(ServerSentEvent.builder()
 						.event("ai_complete")
@@ -75,3 +90,4 @@ public class ReportStreamService {
 		}
 	}
 }
+

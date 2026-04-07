@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kt.mindLog.domain.credit.Credit;
 import com.kt.mindLog.domain.credit.TransactionType;
 import com.kt.mindLog.domain.payment.Payment;
+import com.kt.mindLog.domain.report.ReportType;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.credit.CreditProductResponse;
 import com.kt.mindLog.dto.credit.UserCreditResponse;
@@ -226,4 +227,46 @@ public class CreditService {
 
 		creditRepository.save(charge);
 	}
+
+	public void validateCreditForReport(UUID userId, ReportType type) {
+		int currentFree = creditRepository.sumFreeCreditByUserId(userId);
+		int currentPaid = creditRepository.sumPaidCreditByUserId(userId);
+		int total = currentFree + currentPaid;
+
+		Preconditions.validate(total >= type.getAmount(), ErrorCode.INSUFFICIENT_CREDIT);
+	}
+
+	@Transactional
+	public void useCreditForReport(UUID userId, ReportType type) {
+		int amount = type.getAmount();
+
+		// 사용자 크레딧 조회
+		int currentFree = creditRepository.sumFreeCreditByUserId(userId);
+		int currentPaid = creditRepository.sumPaidCreditByUserId(userId);
+
+		// 무료 크레딧 먼저 차감
+		int freeUsed = Math.min(currentFree, amount);
+		int paidUsed = amount - freeUsed;
+		int remainingPaidCredit = currentPaid - paidUsed;
+
+		// 차감 후 총 잔액
+		int balanceAfter = (currentFree - freeUsed) + remainingPaidCredit;
+
+		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+
+		Credit credit = Credit.useCredit(
+			user,
+			type.getTransactionType(),
+			amount,
+			freeUsed,
+			paidUsed,
+			balanceAfter,
+			remainingPaidCredit,
+			"AI 리포트 생성 차감"
+		);
+
+		creditRepository.save(credit);
+	}
+
+
 }

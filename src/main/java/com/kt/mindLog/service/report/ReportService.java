@@ -27,6 +27,7 @@ import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.summary.EmotionRepository;
+import com.kt.mindLog.service.credit.CreditService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +46,12 @@ public class ReportService {
 	private final ReportEmotionGraphRepository reportGraphRepository;
 
 	private final ReportStreamService reportStreamService;
+	private final CreditService creditService;
 
 
 	public Flux<Object> createReport(final UUID userId, final ReportCreateRequest request) {
-		//TODO credit 검증
+		// 크레딧 검증
+		creditService.validateCreditForReport(userId, request.reportType());
 
 		var periodEnd = validatePeriodEnd(request);
 		var sessions = validateReport(userId, request, periodEnd);
