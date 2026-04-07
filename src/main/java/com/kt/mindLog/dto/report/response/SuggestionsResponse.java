@@ -8,7 +8,7 @@ public record SuggestionsResponse(
 ) {
 	public static SuggestionsResponse from(ReportSuggestion reportSuggestion) {
 		return new SuggestionsResponse(
-			"null",
+			reportSuggestion.getTitle(),
 			reportSuggestion.getContent()
 		);
 	}

@@ -33,16 +33,15 @@ public class ReportSuggestion {
 
 	private String title;
 
-	// @Column(nullable = true)
-	// private String extraMetadata;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "report_id", nullable = false)
 	private Report report;
 
 	@Builder
-	public ReportSuggestion(String suggestionType, String content, Integer priority, Report report) {
+	public ReportSuggestion(final String suggestionType, final String title, final String content,
+		final Integer priority, final Report report) {
 		this.suggestionType = suggestionType;
+		this.title = title;
 		this.content = content;
 		this.priority = priority;
 		this.report = report;

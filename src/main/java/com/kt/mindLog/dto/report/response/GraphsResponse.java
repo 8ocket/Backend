@@ -14,21 +14,13 @@ public record GraphsResponse(
 	Integer avgScore,
 
 	@JsonProperty("recorded_at")
-	LocalDateTime recordedAt,
-
-	@JsonProperty("is_inflection_point")
-	boolean isInflectionPoint,
-
-	@JsonProperty("inflection_type")
-	String inflectionType
+	LocalDateTime recordedAt
 ) {
 	public static GraphsResponse from(ReportEmotionGraph graph) {
 		return new GraphsResponse(
 			graph.getSessionId(),
 			graph.getAvgScore(),
-			graph.getRecordedAt(),
-			graph.isInflectionPoint(),
-			graph.getInflectionType()
+			graph.getRecordedAt()
 		);
 	}
 }

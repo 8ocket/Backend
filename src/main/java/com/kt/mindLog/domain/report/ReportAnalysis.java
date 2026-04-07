@@ -11,7 +11,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,7 +41,18 @@ public class ReportAnalysis {
 
 	private LocalDateTime createdAt;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "report_id", nullable = false)
 	private Report report;
+
+	@Builder
+	public ReportAnalysis(final String currentStatus, final String tendencySummary, final String graphEvaluation,
+		final String topicEvaluation, final Report report) {
+		this.currentStatus = currentStatus;
+		this.tendencySummary = tendencySummary;
+		this.graphEvaluation = graphEvaluation;
+		this.topicEvaluation = topicEvaluation;
+		this.createdAt = LocalDateTime.now();
+		this.report = report;
+	}
 }

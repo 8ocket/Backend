@@ -25,6 +25,7 @@ import com.kt.mindLog.dto.report.response.SuggestionsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.repository.report.ReportAnalysisRepository;
 import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
 import com.kt.mindLog.repository.report.ReportSuggestionRepository;
@@ -47,6 +48,7 @@ public class ReportService {
 
 	private final ReportEmotionGraphRepository reportGraphRepository;
 	private final ReportSuggestionRepository reportSuggestionRepository;
+	private final ReportAnalysisRepository reportAnalysisRepository;
 
 	private final ReportStreamService reportStreamService;
 
@@ -150,7 +152,8 @@ public class ReportService {
 			.map(GraphsResponse::from)
 			.toList();
 
-		return new EmotionGraphResponse(graphs.size(), graphs);
+		var evaluation = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return new EmotionGraphResponse(graphs.size(), graphs, evaluation.getGraphEvaluation());
 	}
 
 	public List<SuggestionsResponse> getSuggestions(final UUID reportId) {
