@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "topic_item")
+@Table(name = "report_topics")
 @NoArgsConstructor
 public class ReportTopic {
 	@Id
@@ -27,8 +27,6 @@ public class ReportTopic {
 	private String name;
 
 	private String category;
-
-	private Integer count;
 
 	private String pattern;
 
