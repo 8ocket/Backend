@@ -23,6 +23,7 @@ import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
 import com.kt.mindLog.dto.report.response.GraphsResponse;
 import com.kt.mindLog.dto.report.response.ReportResponse;
 import com.kt.mindLog.dto.report.response.SuggestionsResponse;
+import com.kt.mindLog.dto.report.response.TendencyResponse;
 import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
@@ -156,8 +157,8 @@ public class ReportService {
 			.map(GraphsResponse::from)
 			.toList();
 
-		var evaluation = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
-		return new EmotionGraphResponse(graphs.size(), graphs, evaluation.getGraphEvaluation());
+		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return new EmotionGraphResponse(graphs.size(), graphs, analysis.getGraphEvaluation());
 	}
 
 	public List<SuggestionsResponse> getSuggestions(final UUID reportId) {
@@ -171,7 +172,12 @@ public class ReportService {
 			.map(AiReportTopicResponse::from)
 			.toList();
 
-		var evaluation = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
-		return TopicsResponse.of(topics, evaluation.getTopicEvaluation());
+		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return TopicsResponse.of(topics, analysis.getTopicEvaluation());
+	}
+
+	public TendencyResponse getTendency(final UUID reportId) {
+		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return TendencyResponse.from(analysis);
 	}
 }

@@ -16,6 +16,7 @@ import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
 import com.kt.mindLog.dto.report.response.ReportResponse;
 import com.kt.mindLog.dto.report.response.SuggestionsResponse;
+import com.kt.mindLog.dto.report.response.TendencyResponse;
 import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.security.CustomUser;
@@ -54,5 +55,10 @@ public class ReportController {
 	@GetMapping("/{reportId}/suggestions")
 	public List<SuggestionsResponse> getSuggestions(@PathVariable UUID reportId) {
 		return reportService.getSuggestions(reportId);
+	}
+
+	@GetMapping("/{reportId}/tendency")
+	public TendencyResponse getTendency(@PathVariable UUID reportId) {
+		return reportService.getTendency(reportId);
 	}
 }
