@@ -6,9 +6,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.kt.mindLog.domain.report.ReportSuggestion;
+import com.kt.mindLog.domain.report.ReportTopic;
 
 @Repository
-public interface ReportSuggestionRepository extends JpaRepository<ReportSuggestion, UUID> {
-	List<ReportSuggestion> findByReportId(UUID reportId);
+public interface ReportTopicRepository extends JpaRepository<ReportTopic, UUID> {
+	List<ReportTopic> findByReportId(UUID reportId);
 }

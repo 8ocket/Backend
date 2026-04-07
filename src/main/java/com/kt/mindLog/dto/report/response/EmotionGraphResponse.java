@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record EmotionGraphResponse(
 	@JsonProperty("graph_count")
 	Integer graphCount,
-	List<GraphsResponse> graphs
+	List<GraphsResponse> graphs,
+	@JsonProperty("graph_evaluation")
+	String graphEvaluation
 ) {
 }

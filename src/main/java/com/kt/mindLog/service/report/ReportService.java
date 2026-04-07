@@ -18,13 +18,21 @@ import com.kt.mindLog.domain.summary.PositiveEmotionType;
 import com.kt.mindLog.dto.report.request.AiReportCreateRequest;
 import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.request.EmotionScoresRequest;
+import com.kt.mindLog.dto.report.response.AiReportTopicResponse;
 import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
 import com.kt.mindLog.dto.report.response.GraphsResponse;
+import com.kt.mindLog.dto.report.response.ReportResponse;
+import com.kt.mindLog.dto.report.response.SuggestionsResponse;
+import com.kt.mindLog.dto.report.response.TendencyResponse;
+import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
+import com.kt.mindLog.repository.report.ReportAnalysisRepository;
 import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
+import com.kt.mindLog.repository.report.ReportSuggestionRepository;
+import com.kt.mindLog.repository.report.ReportTopicRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.summary.EmotionRepository;
 import com.kt.mindLog.service.credit.CreditService;
@@ -44,6 +52,9 @@ public class ReportService {
 	private final UserRepository userRepository;
 
 	private final ReportEmotionGraphRepository reportGraphRepository;
+	private final ReportSuggestionRepository reportSuggestionRepository;
+	private final ReportAnalysisRepository reportAnalysisRepository;
+	private final ReportTopicRepository reportTopicRepository;
 
 	private final ReportStreamService reportStreamService;
 	private final CreditService creditService;
@@ -138,12 +149,38 @@ public class ReportService {
 		return report.getId();
 	}
 
-	public EmotionGraphResponse getEmotionGraphs(final UUID userId, final UUID reportId) {
-		var graphs = reportGraphRepository.findByReportId(reportId)
-			.stream()
+	public List<ReportResponse> getReports(final UUID userId) {
+		return reportRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+			.map(ReportResponse::from)
+			.toList();
+	}
+
+	public EmotionGraphResponse getEmotionGraphs(final UUID reportId) {
+		var graphs = reportGraphRepository.findByReportId(reportId).stream()
 			.map(GraphsResponse::from)
 			.toList();
 
-		return new EmotionGraphResponse(graphs.size(), graphs);
+		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return new EmotionGraphResponse(graphs.size(), graphs, analysis.getGraphEvaluation());
+	}
+
+	public List<SuggestionsResponse> getSuggestions(final UUID reportId) {
+		return reportSuggestionRepository.findByReportId(reportId).stream()
+			.map(SuggestionsResponse::from)
+			.toList();
+	}
+
+	public TopicsResponse getTopics(final UUID reportId) {
+		var topics = reportTopicRepository.findByReportId(reportId).stream()
+			.map(AiReportTopicResponse::from)
+			.toList();
+
+		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return TopicsResponse.of(topics, analysis.getTopicEvaluation());
+	}
+
+	public TendencyResponse getTendency(final UUID reportId) {
+		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+		return TendencyResponse.from(analysis);
 	}
 }

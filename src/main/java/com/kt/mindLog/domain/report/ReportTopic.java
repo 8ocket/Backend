@@ -11,12 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "topic_item")
+@Table(name = "report_topics")
 @NoArgsConstructor
 public class ReportTopic {
 	@Id
@@ -28,11 +29,17 @@ public class ReportTopic {
 
 	private String category;
 
-	private Integer count;
-
 	private String pattern;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "report_id", nullable = false)
 	private Report report;
+
+	@Builder
+	public ReportTopic(final String name, final String category, final String pattern, Report report) {
+		this.name = name;
+		this.category = category;
+		this.pattern = pattern;
+		this.report = report;
+	}
 }
