@@ -15,6 +15,7 @@ import com.kt.mindLog.domain.payment.PaymentStatus;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.payment.request.PaymentConfirmRequest;
 import com.kt.mindLog.dto.payment.request.PaymentCreateRequest;
+import com.kt.mindLog.dto.payment.response.PaymentConfirmResponse;
 import com.kt.mindLog.dto.payment.response.PaymentCreateResponse;
 import com.kt.mindLog.dto.payment.response.PaymentListResponse;
 import com.kt.mindLog.dto.payment.response.TossPaymentResponse;
@@ -65,7 +66,7 @@ public class PaymentService {
 	}
 
 	@Transactional
-	public void confirm(PaymentConfirmRequest request) {
+	public PaymentConfirmResponse confirm(PaymentConfirmRequest request) {
 		Payment payment = paymentRepository.findByOrderId(request.orderId())
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PAYMENT));
 
@@ -114,13 +115,15 @@ public class PaymentService {
 
 		// paymentKey 저장 및 결제 상태 완료로 변경
 		payment.updatePaymentKey(response.paymentKey());
-		payment.complete(response.approvedAt());
+		payment.complete(response.approvedAt().toLocalDateTime());
 
 		// 크레딧 충전
 		creditService.chargePaidCredit(
 			payment.getUser(),
 			payment
 		);
+
+		return PaymentConfirmResponse.from(response);
 	}
 
 	@Transactional

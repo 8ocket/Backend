@@ -17,10 +17,12 @@ import com.kt.mindLog.global.property.GoogleProperties;
 import com.kt.mindLog.global.property.KakaoProperties;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class AuthService {
 	private final KakaoProperties kakaoProperties;
 	private final GoogleProperties googleProperties;
@@ -60,10 +62,19 @@ public class AuthService {
 				.with("redirect_uri", kakaoProperties.getRedirectUri())
 				.with("code", code))
 			.retrieve()
-			.onStatus(HttpStatusCode::isError,
-				clientResponse -> Mono.error(new CustomException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
+			.onStatus(HttpStatusCode::isError, clientResponse ->
+				clientResponse.bodyToMono(String.class)
+					.flatMap(body -> {
+						log.error("Kakao API error: status={}, body={}", clientResponse.statusCode(), body);
+						return Mono.error(new CustomException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED));
+					})
+			)
 			.bodyToMono(KakaoTokenResponse.class)
 			.block();
+
+		if (response == null) {
+			throw new CustomException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED);
+		}
 
 		return response.accessToken();
 	}
@@ -99,10 +110,19 @@ public class AuthService {
 				.with("redirect_uri", googleProperties.getRedirectUri())
 				.with("code", code))
 			.retrieve()
-			.onStatus(HttpStatusCode::isError,
-				clientResponse -> Mono.error(new CustomException(ErrorCode.GOOGLE_TOKEN_REQUEST_FAILED)))
+			.onStatus(HttpStatusCode::isError, clientResponse ->
+				clientResponse.bodyToMono(String.class)
+					.flatMap(body -> {
+						log.error("Google API error: status={}, body={}", clientResponse.statusCode(), body);
+						return Mono.error(new CustomException(ErrorCode.GOOGLE_TOKEN_REQUEST_FAILED));
+					})
+			)
 			.bodyToMono(GoogleTokenResponse.class)
 			.block();
+
+		if (response == null) {
+			throw new CustomException(ErrorCode.GOOGLE_TOKEN_REQUEST_FAILED);
+		}
 
 		return response.accessToken();
 	}

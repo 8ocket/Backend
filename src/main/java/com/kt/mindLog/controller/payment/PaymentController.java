@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.dto.payment.request.PaymentConfirmRequest;
 import com.kt.mindLog.dto.payment.request.PaymentCreateRequest;
+import com.kt.mindLog.dto.payment.response.PaymentConfirmResponse;
 import com.kt.mindLog.dto.payment.response.PaymentCreateResponse;
 import com.kt.mindLog.dto.payment.response.PaymentListResponse;
 import com.kt.mindLog.global.annotation.Login;
@@ -43,9 +44,9 @@ public class PaymentController {
 	}
 
 	@PostMapping("/confirm")
-	public ApiResult<Void> confirmPayment(@RequestBody PaymentConfirmRequest request) {
+	public ApiResult<PaymentConfirmResponse> confirmPayment(@RequestBody PaymentConfirmRequest request) {
 		paymentService.confirm(request);
-		return ApiResult.ok();
+		return ApiResult.ok(paymentService.confirm(request));
 	}
 
 	@PostMapping

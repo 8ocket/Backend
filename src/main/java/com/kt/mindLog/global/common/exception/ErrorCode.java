@@ -62,6 +62,8 @@ public enum ErrorCode {
 	PAYMENT_NOT_READY(HttpStatus.BAD_REQUEST, "결제가 준비 상태가 아닙니다."),
 	PAYMENT_NOT_DONE(HttpStatus.BAD_REQUEST, "결제가 완료된 상태가 아닙니다."),
 	ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "이미 처리된 결제입니다."),
+	TOSS_CONFIRM_FAILED(HttpStatus.BAD_REQUEST, "토스 결제 승인에 실패했습니다."),
+	TOSS_REFUND_FAILED(HttpStatus.BAD_REQUEST, "토스 결제 환불에 실패했습니다."),
 
 	//report
 	INSUFFICIENT_SESSIONS(HttpStatus.BAD_REQUEST, "최소 상담 기록 횟수가 부족합니다"),
