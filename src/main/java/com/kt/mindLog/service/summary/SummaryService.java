@@ -147,6 +147,7 @@ public class SummaryService {
 		return SummaryCardResponse.from(summary);
 	}
 
+	@Transactional
 	public SummaryCardUpdateResponse updateSummaryCard(final UUID userId, final UUID summaryId,
 		SummaryCardUpdateRequest request) {
 		SessionSummary summary = summaryRepository.findByIdOrThrow(summaryId, ErrorCode.NOT_FOUND_SUMMARY);
