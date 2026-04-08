@@ -60,9 +60,9 @@ public class SessionService {
 			userId, today.atStartOfDay(), today.atTime(LocalTime.MAX)
 		);
 
-		// if (alreadyHasSessionToday) {
-		// 	creditService.useCreditForExtraSession(userId);
-		// }
+		if (alreadyHasSessionToday) {
+			creditService.useCreditForExtraSession(userId);
+		}
 
 		var newSession = createSession(userId);
 
