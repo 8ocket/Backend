@@ -11,4 +11,6 @@ import com.kt.mindLog.domain.report.ReportEmotionGraph;
 @Repository
 public interface ReportEmotionGraphRepository extends JpaRepository<ReportEmotionGraph, UUID> {
 	List<ReportEmotionGraph> findByReportId(UUID reportId);
+
+	void deleteByReportId(UUID reportId);
 }

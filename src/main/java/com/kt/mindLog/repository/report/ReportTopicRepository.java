@@ -11,4 +11,6 @@ import com.kt.mindLog.domain.report.ReportTopic;
 @Repository
 public interface ReportTopicRepository extends JpaRepository<ReportTopic, UUID> {
 	List<ReportTopic> findByReportId(UUID reportId);
+
+	void deleteByReportId(UUID reportId);
 }

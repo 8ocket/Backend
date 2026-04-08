@@ -162,6 +162,7 @@ public class SessionService {
 		session.clearSummary();
 		sessionRepository.saveAndFlush(session);
 		summaryRepository.deleteBySessionId(session.getId());
+
 		sessionRepository.deleteById(session.getId());
 
 		log.info("success to delete session : userId = {}, sessionId = {}", userId, sessionId);

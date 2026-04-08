@@ -203,11 +203,23 @@ public class ReportService {
 
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional
-	public void checkFailedReport() {
+	protected void checkFailedReport() {
 		var expiredReport = reportRepository.findByStatusIsNotAndCreatedAtBefore(
 			ReportStatus.FAILED, LocalDateTime.now().minusDays(1));
 
 		expiredReport.forEach(report -> report.updateReportStatus(ReportStatus.FAILED));
 		log.info("check failed report");
+	}
+
+	@Transactional
+	public void deleteReport(UUID userId, UUID reportId) {
+		reportGraphRepository.deleteByReportId(reportId);
+		reportTopicRepository.deleteByReportId(reportId);
+		reportSuggestionRepository.deleteByReportId(reportId);
+		reportAnalysisRepository.deleteByReportId(reportId);
+
+		reportRepository.deleteById(reportId);
+
+		log.info("success to delete report : userId = {}, sessionId = {}", userId, reportId);
 	}
 }
