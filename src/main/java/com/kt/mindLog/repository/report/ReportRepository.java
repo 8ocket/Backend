@@ -1,6 +1,7 @@
 package com.kt.mindLog.repository.report;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,5 +19,7 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
 		return findById(reportId).orElseThrow(() -> new CustomException(errorCode));
 	}
 
-	List<Report> findByUserIdOrderByCreatedAtDesc(UUID userId);
+	List<Report> findByUserIdAndStatusIsNotOrderByCreatedAtDesc(UUID userId, ReportStatus status);
+
+	List<Report> findByStatusIsNotAndCreatedAtBefore(ReportStatus status, LocalDateTime expiresAt);
 }
