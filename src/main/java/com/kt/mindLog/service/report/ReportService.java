@@ -156,6 +156,10 @@ public class ReportService {
 	}
 
 	public EmotionGraphResponse getEmotionGraphs(final UUID reportId) {
+		var report = reportRepository.findByIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+
+		if (!report.isViewed()) report.updateIsViewed();
+
 		var graphs = reportGraphRepository.findByReportId(reportId).stream()
 			.map(GraphsResponse::from)
 			.toList();
