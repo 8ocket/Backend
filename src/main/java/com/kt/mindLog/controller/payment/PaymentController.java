@@ -45,7 +45,6 @@ public class PaymentController {
 
 	@PostMapping("/confirm")
 	public ApiResult<PaymentConfirmResponse> confirmPayment(@RequestBody PaymentConfirmRequest request) {
-		paymentService.confirm(request);
 		return ApiResult.ok(paymentService.confirm(request));
 	}
 
