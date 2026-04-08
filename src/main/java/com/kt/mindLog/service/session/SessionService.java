@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
@@ -24,6 +25,7 @@ import com.kt.mindLog.dto.sessionMessage.response.SessionMessageListResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.response.ApiResult;
 import com.kt.mindLog.global.common.response.Pagination;
+import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.PersonaRepository;
 import com.kt.mindLog.repository.SessionMessageRepository;
@@ -62,6 +64,9 @@ public class SessionService {
 	private final RedisService redisService;
 	private final CreditService creditService;
 	private final EncryptionConverter encryptionConverter;
+
+	private final WebClient webClient;
+	private final StreamProperties streamProperties;
 
 	public Flux<Object> saveSession(final UUID userId, final SessionCreateRequest request) {
 		getHistory(userId);
@@ -171,6 +176,7 @@ public class SessionService {
 	@Transactional
 	public void deleteSession(final UUID userId, final UUID sessionId) {
 		var session = sessionRepository.findByIdAndUserIdOrThrow(sessionId, userId, ErrorCode.NOT_FOUND_SESSION);
+
 		crisisLogRepository.deleteBySessionId(session.getId());
 		emotionCardRepository.deleteBySessionId(session.getId());
 		emotionRepository.deleteBySessionId(session.getId());
@@ -182,6 +188,16 @@ public class SessionService {
 
 		sessionRepository.deleteById(session.getId());
 
+		deleteAISession(session.getId());
+
 		log.info("success to delete session : userId = {}, sessionId = {}", userId, sessionId);
+	}
+
+	private void deleteAISession(final UUID sessionId) {
+		webClient.delete()
+			.uri(streamProperties.getSessionUri(), sessionId)
+			.retrieve()
+			.bodyToMono(Void.class)
+			.block();
 	}
 }

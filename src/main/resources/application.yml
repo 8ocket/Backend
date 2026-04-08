@@ -54,6 +54,7 @@ stream:
   message-uri: ${SESSION_MESSAGE_URI}
   finalize-uri: ${SESSION_FINALIZE_URI}
   report-uri: ${REPORT_URI}
+  session-uri: ${SESSION_URI}
 
 cors:
   local: ${CORS_LOCAL_URL}

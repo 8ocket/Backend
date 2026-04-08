@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.report.Report;
 import com.kt.mindLog.domain.report.ReportStatus;
@@ -29,6 +30,7 @@ import com.kt.mindLog.dto.report.response.TendencyResponse;
 import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
+import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.report.ReportAnalysisRepository;
@@ -62,6 +64,9 @@ public class ReportService {
 	private final ReportStreamService reportStreamService;
 	private final CreditService creditService;
 	private final EncryptionConverter encryptionConverter;
+
+	private final WebClient webClient;
+	private final StreamProperties streamProperties;
 
 
 	public Flux<Object> createReport(final UUID userId, final ReportCreateRequest request) {
@@ -220,6 +225,16 @@ public class ReportService {
 
 		reportRepository.deleteById(reportId);
 
+		deleteAIReport(reportId);
+
 		log.info("success to delete report : userId = {}, sessionId = {}", userId, reportId);
+	}
+
+	private void deleteAIReport(UUID reportId) {
+		webClient.delete()
+			.uri(streamProperties.getReportUri()+"/{reportId}", reportId)
+			.retrieve()
+			.bodyToMono(Void.class)
+			.block();
 	}
 }

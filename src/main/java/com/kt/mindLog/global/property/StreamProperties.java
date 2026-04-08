@@ -12,4 +12,5 @@ public class StreamProperties {
 	private final String messageUri;
 	private final String finalizeUri;
 	private final String reportUri;
+	private final String sessionUri;
 }
