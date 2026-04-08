@@ -22,6 +22,7 @@ public enum ErrorCode {
 	EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다. 다시 로그인을 시도해주시기 바랍니다."),
 	INVALID_JWT_TOKEN_FORMAT(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
 	INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 리프레시 토큰입니다."),
+	INVALID_CRYPTO_KEY(HttpStatus.BAD_REQUEST, "암호화 키는 32바이트(256bit)여야 합니다."),
 
 	// user
 	NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 회원입니다."),
@@ -66,6 +67,10 @@ public enum ErrorCode {
 	INSUFFICIENT_SESSIONS(HttpStatus.BAD_REQUEST, "최소 상담 기록 횟수가 부족합니다"),
 	REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일 기간에 대해 생성한 AI 리포트가 이미 존재합니다"),
 	NOT_FOUND_REPORT(HttpStatus.BAD_REQUEST, "존재하지 않는 AI 리포트입니다"),
+
+	//encrypt
+	ENCRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 암호화에 실패하였습니다"),
+	DECRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 복호화에 실패하였습니다"),
 
 	;
 

@@ -82,4 +82,8 @@ public class Report {
 	public void updateReportStatus(final ReportStatus status) {
 		this.status = status;
 	}
+
+	public void updateIsViewed() {
+		this.isViewed = true;
+	}
 }

@@ -19,11 +19,11 @@ public record SessionMessageListResponse(
 	@JsonProperty("created_at")
 	LocalDateTime createdAt
 ) {
-	public static SessionMessageListResponse from(SessionMessages messages) {
+	public static SessionMessageListResponse from(SessionMessages messages, String decryptContent) {
 		return new SessionMessageListResponse(
 			messages.getId().toString(),
 			messages.getRole().toString(),
-			messages.getContent(),
+			decryptContent,
 			messages.getSequenceNum(),
 			messages.getCreatedAt()
 		);

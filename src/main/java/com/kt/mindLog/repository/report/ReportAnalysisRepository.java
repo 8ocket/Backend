@@ -17,4 +17,6 @@ public interface ReportAnalysisRepository extends JpaRepository<ReportAnalysis, 
 	default ReportAnalysis findByReportIdOrThrow(UUID reportId, ErrorCode errorCode) {
 		return findByReportId(reportId).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	void deleteByReportId(UUID reportId);
 }

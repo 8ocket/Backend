@@ -41,10 +41,10 @@ public class RedisService {
 		return SESSION_PREFIX + sessionId + MESSAGE_SUFFIX;
 	}
 
-	public void pushHistory(final UUID userId, final SessionContextSummary summary) {
+	public void pushHistory(final UUID userId, final SessionContextSummary summary, final String decryptContent) {
 		String key = buildUserKey(userId);
 
-		RedisHistoryRequest history = RedisHistoryRequest.from(summary);
+		RedisHistoryRequest history = RedisHistoryRequest.from(summary, decryptContent);
 		redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(history));
 	}
 

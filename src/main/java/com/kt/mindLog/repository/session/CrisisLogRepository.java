@@ -9,4 +9,5 @@ import com.kt.mindLog.domain.session.CrisisLogs;
 
 @Repository
 public interface CrisisLogRepository extends JpaRepository<CrisisLogs, UUID> {
+	void deleteBySessionId(UUID sessionId);
 }

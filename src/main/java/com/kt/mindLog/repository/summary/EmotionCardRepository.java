@@ -9,4 +9,5 @@ import com.kt.mindLog.domain.summary.EmotionCard;
 
 @Repository
 public interface EmotionCardRepository extends JpaRepository<EmotionCard, UUID> {
+	void deleteBySessionId(UUID sessionId);
 }

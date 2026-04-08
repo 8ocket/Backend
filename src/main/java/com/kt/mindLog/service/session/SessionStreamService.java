@@ -21,6 +21,7 @@ import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
+import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.sse.SSEService;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class SessionStreamService {
 
 	private final SSEService sseService;
 	private final SessionMessageService messageService;
+	private final CreditService creditService;
 
 	//일반 메세지 통신
 	public Flux<Object> receiveSSE(final String contents, final UUID sessionId, final UUID userId) {
@@ -88,12 +90,12 @@ public class SessionStreamService {
 
 		return sseService.streamSSE(streamProperties.getMessageUri(), sessionId, Map.of("content", contents))
 			.doFirst(() -> messageService.saveContents(Role.USER, contents, sessionId))
-			.handle((event, sink) ->  handleFirstMessageEvent(event, sink, session))
+			.handle((event, sink) ->  handleFirstMessageEvent(event, sink, session, userId))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}
 
 	private void handleFirstMessageEvent(final ServerSentEvent<String> event, final SynchronousSink<Object> sink,
-		final Session session) {
+		final Session session, UUID userId) {
 		switch (event.event()) {
 			case "session_title" -> {
 				messageService.saveTitle(session.getId(), event.data());
@@ -115,6 +117,8 @@ public class SessionStreamService {
 					.event("ai_complete")
 					.data(objectMapper.writeValueAsString(firstResponse))
 					.build());
+
+				creditService.earnCreditForSession(userId, session.getId());
 			}
 
 			case "error", "done" -> {

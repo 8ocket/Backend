@@ -1,10 +1,12 @@
 package com.kt.mindLog.service.report;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ import com.kt.mindLog.dto.report.response.TendencyResponse;
 import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
+import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.report.ReportAnalysisRepository;
 import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
@@ -58,6 +61,7 @@ public class ReportService {
 
 	private final ReportStreamService reportStreamService;
 	private final CreditService creditService;
+	private final EncryptionConverter encryptionConverter;
 
 
 	public Flux<Object> createReport(final UUID userId, final ReportCreateRequest request) {
@@ -150,37 +154,72 @@ public class ReportService {
 	}
 
 	public List<ReportResponse> getReports(final UUID userId) {
-		return reportRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+		return reportRepository.findByUserIdAndStatusIsNotOrderByCreatedAtDesc(userId, ReportStatus.FAILED)
+			.stream()
 			.map(ReportResponse::from)
 			.toList();
 	}
 
+	@Transactional
 	public EmotionGraphResponse getEmotionGraphs(final UUID reportId) {
+		var report = reportRepository.findByIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
+
+		if (!report.isViewed()) report.updateIsViewed();
+
 		var graphs = reportGraphRepository.findByReportId(reportId).stream()
 			.map(GraphsResponse::from)
 			.toList();
 
 		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
-		return new EmotionGraphResponse(graphs.size(), graphs, analysis.getGraphEvaluation());
+		return new EmotionGraphResponse(graphs.size(), graphs, decrypt(analysis.getGraphEvaluation()));
 	}
 
 	public List<SuggestionsResponse> getSuggestions(final UUID reportId) {
-		return reportSuggestionRepository.findByReportId(reportId).stream()
-			.map(SuggestionsResponse::from)
-			.toList();
+		return  reportSuggestionRepository.findByReportIdOrderByPriorityAsc(reportId)
+			.stream()
+			.map(suggestion -> new SuggestionsResponse(
+				decrypt(suggestion.getTitle()), decrypt(suggestion.getContent())
+			)).toList();
 	}
 
 	public TopicsResponse getTopics(final UUID reportId) {
 		var topics = reportTopicRepository.findByReportId(reportId).stream()
-			.map(AiReportTopicResponse::from)
-			.toList();
+			.map(topic -> new AiReportTopicResponse(
+				decrypt(topic.getName()), decrypt(topic.getCategory()), decrypt(topic.getPattern())
+			)).toList();
 
 		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
-		return TopicsResponse.of(topics, analysis.getTopicEvaluation());
+		return TopicsResponse.of(topics, decrypt(analysis.getTopicEvaluation()));
 	}
 
 	public TendencyResponse getTendency(final UUID reportId) {
 		var analysis = reportAnalysisRepository.findByReportIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
-		return TendencyResponse.from(analysis);
+		return new TendencyResponse(decrypt(analysis.getCurrentStatus()), decrypt(analysis.getTendencySummary()));
+	}
+
+	private String decrypt(String value) {
+		return encryptionConverter.convertToEntityAttribute(value);
+	}
+
+	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
+	protected void checkFailedReport() {
+		var expiredReport = reportRepository.findByStatusIsNotAndCreatedAtBefore(
+			ReportStatus.FAILED, LocalDateTime.now().minusDays(1));
+
+		expiredReport.forEach(report -> report.updateReportStatus(ReportStatus.FAILED));
+		log.info("check failed report");
+	}
+
+	@Transactional
+	public void deleteReport(UUID userId, UUID reportId) {
+		reportGraphRepository.deleteByReportId(reportId);
+		reportTopicRepository.deleteByReportId(reportId);
+		reportSuggestionRepository.deleteByReportId(reportId);
+		reportAnalysisRepository.deleteByReportId(reportId);
+
+		reportRepository.deleteById(reportId);
+
+		log.info("success to delete report : userId = {}, sessionId = {}", userId, reportId);
 	}
 }

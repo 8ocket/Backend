@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.mindLog.dto.attendance.response.AttendanceResponse;
 import com.kt.mindLog.global.annotation.Login;
-import com.kt.mindLog.global.security.CustomUser;
+import com.kt.mindLog.global.security.auth.CustomUser;
 import com.kt.mindLog.service.attendance.AttendanceService;
 
 import lombok.RequiredArgsConstructor;

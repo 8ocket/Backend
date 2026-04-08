@@ -8,10 +8,4 @@ public record TendencyResponse(
 	String currentStatus,
 	String tendency
 ) {
-	public static TendencyResponse from(ReportAnalysis analysis) {
-		return new TendencyResponse(
-			analysis.getCurrentStatus(),
-			analysis.getTendencySummary()
-		);
-	}
 }

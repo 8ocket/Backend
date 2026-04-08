@@ -9,4 +9,5 @@ import com.kt.mindLog.domain.summary.SessionSummary;
 
 @Repository
 public interface SummaryRepository extends JpaRepository<SessionSummary, UUID> {
+	void deleteBySessionId(UUID sessionId);
 }

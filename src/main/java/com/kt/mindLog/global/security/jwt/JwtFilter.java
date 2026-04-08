@@ -1,4 +1,4 @@
-package com.kt.mindLog.global.security;
+package com.kt.mindLog.global.security.jwt;
 
 import java.io.IOException;
 
@@ -7,8 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.kt.mindLog.global.common.exception.CustomException;
-import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.security.auth.AuthToken;
+import com.kt.mindLog.global.security.auth.CustomUser;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

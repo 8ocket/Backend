@@ -10,5 +10,7 @@ import com.kt.mindLog.domain.report.ReportSuggestion;
 
 @Repository
 public interface ReportSuggestionRepository extends JpaRepository<ReportSuggestion, UUID> {
-	List<ReportSuggestion> findByReportId(UUID reportId);
+	List<ReportSuggestion> findByReportIdOrderByPriorityAsc(UUID reportId);
+
+	void deleteByReportId(UUID reportId);
 }

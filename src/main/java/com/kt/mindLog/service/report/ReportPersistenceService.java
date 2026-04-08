@@ -18,6 +18,7 @@ import com.kt.mindLog.dto.report.response.AiReportResponse;
 import com.kt.mindLog.dto.report.response.AiReportSuggestionResponse;
 import com.kt.mindLog.dto.report.response.AiReportTopicResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.report.ReportAnalysisRepository;
 import com.kt.mindLog.repository.report.ReportEmotionGraphRepository;
 import com.kt.mindLog.repository.report.ReportRepository;
@@ -36,6 +37,8 @@ public class ReportPersistenceService {
 	private final ReportSuggestionRepository reportSuggestionRepository;
 	private final ReportTopicRepository reportTopicRepository;
 	private final ReportAnalysisRepository reportAnalysisRepository;
+
+	private final EncryptionConverter encryptionConverter;
 
 	@Transactional
 	public void saveReport(AiReportResponse response, UUID reportId) {
@@ -68,12 +71,11 @@ public class ReportPersistenceService {
 	}
 
 	private void saveTopics(List<AiReportTopicResponse> responses, Report report) {
-
 		var topics = responses.stream()
 			.map(response -> ReportTopic.builder()
-				.name(response.name())
-				.category(response.category())
-				.pattern(response.pattern())
+				.name(encrypt(response.name()))
+				.category(encrypt(response.category()))
+				.pattern(encrypt(response.pattern()))
 				.report(report)
 				.build()
 			).toList();
@@ -83,12 +85,11 @@ public class ReportPersistenceService {
 	}
 
 	private void saveSuggestions(List<AiReportSuggestionResponse> responses, Report report) {
-
 		var suggestions = responses.stream()
 			.map(response -> ReportSuggestion.builder()
 				.suggestionType(response.type())
-				.title(response.title())
-				.content(response.content())
+				.title(encrypt(response.title()))
+				.content(encrypt(response.content()))
 				.priority(response.priority())
 				.report(report)
 				.build()
@@ -99,17 +100,20 @@ public class ReportPersistenceService {
 	}
 
 	private void saveAnalysis(AiReportResponse response, Report report) {
-
 		var analysis = ReportAnalysis.builder()
-			.currentStatus(response.currentStatus())
-			.tendencySummary(response.tendency())
-			.graphEvaluation(response.graphEvaluation())
-			.topicEvaluation(response.topicEvaluation())
+			.currentStatus(encrypt(response.currentStatus()))
+			.tendencySummary(encrypt(response.tendency()))
+			.graphEvaluation(encrypt(response.graphEvaluation()))
+			.topicEvaluation(encrypt(response.topicEvaluation()))
 			.report(report)
 			.build();
 
 		reportAnalysisRepository.save(analysis);
 		log.info("success to save ai-report analysis");
+	}
+
+	private String encrypt(String value) {
+		return encryptionConverter.convertToDatabaseColumn(value);
 	}
 
 }

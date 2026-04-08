@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "suggestion_item")
+@Table(name = "report_action_suggestions")
 @NoArgsConstructor
 public class ReportSuggestion {
 	@Id
@@ -27,10 +27,12 @@ public class ReportSuggestion {
 
 	private String suggestionType;
 
+	@Column(columnDefinition = "TEXT")
 	private String content;
 
 	private Integer priority;
 
+	@Column(columnDefinition = "TEXT")
 	private String title;
 
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -68,10 +68,6 @@ public class Session {
 	@JoinColumn(name = "summary_id")
 	private SessionSummary summary;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "session_id")
-	private SessionContextSummary contextSummary;
-
 	@Builder
 	public Session(User user, Persona persona) {
 		this.user = user;
@@ -97,5 +93,9 @@ public class Session {
 
 	public void updateSummary(final SessionSummary summary) {
 		this.summary = summary;
+	}
+
+	public void clearSummary() {
+		this.summary = null;
 	}
 }

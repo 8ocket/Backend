@@ -19,9 +19,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import com.kt.mindLog.global.property.CorsProperties;
-import com.kt.mindLog.global.security.JwtAccessDeniedHandler;
-import com.kt.mindLog.global.security.JwtAuthenticationEntryPoint;
-import com.kt.mindLog.global.security.JwtFilter;
+import com.kt.mindLog.global.security.jwt.JwtAccessDeniedHandler;
+import com.kt.mindLog.global.security.jwt.JwtAuthenticationEntryPoint;
+import com.kt.mindLog.global.security.jwt.JwtFilter;
 
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;

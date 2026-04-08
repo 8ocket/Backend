@@ -18,7 +18,8 @@ import com.kt.mindLog.dto.payment.response.PaymentCreateResponse;
 import com.kt.mindLog.dto.payment.response.PaymentListResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.common.response.ApiResult;
-import com.kt.mindLog.global.security.CustomUser;
+
+import com.kt.mindLog.global.security.auth.CustomUser;
 import com.kt.mindLog.service.payment.PaymentService;
 
 import lombok.RequiredArgsConstructor;
