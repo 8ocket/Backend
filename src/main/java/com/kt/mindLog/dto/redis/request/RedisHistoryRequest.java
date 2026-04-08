@@ -12,10 +12,10 @@ public record RedisHistoryRequest(
 	@JsonProperty("created_at")
 	String createdAt
 ) {
-	public static RedisHistoryRequest from(SessionContextSummary summary) {
+	public static RedisHistoryRequest from(SessionContextSummary summary, String decryptContent) {
 		return new RedisHistoryRequest(
 			summary.getSession().getId(),
-			summary.getContent(),
+			decryptContent,
 			summary.getCreatedAt().toString()
 		);
 	}

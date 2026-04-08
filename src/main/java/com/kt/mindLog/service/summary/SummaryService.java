@@ -14,6 +14,7 @@ import com.kt.mindLog.domain.summary.SessionContextSummary;
 import com.kt.mindLog.dto.summary.response.SessionEmotionResponse;
 import com.kt.mindLog.dto.summary.response.SummaryResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.SessionMessageRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.summary.EmotionCardRepository;
@@ -36,6 +37,7 @@ public class SummaryService {
 	private final EmotionCardRepository emotionCardRepository;
 
 	private final ApplicationEventPublisher applicationEventPublisher;
+	private final EncryptionConverter encryptionConverter;
 
 	@Transactional
 	public void saveEmotions(final UUID sessionId, List<SessionEmotionResponse> response) {
@@ -71,7 +73,13 @@ public class SummaryService {
 	public void saveSummary(final UUID sessionId, final SummaryResponse response) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
-		var summary = SummaryResponse.to(response, session, session.getUser());
+		var encryptFact = encryptionConverter.convertToDatabaseColumn(response.fact());
+		var encryptEmotion = encryptionConverter.convertToDatabaseColumn(response.emotion());
+		var encryptInsight = encryptionConverter.convertToDatabaseColumn(response.insight());
+
+		var encryptSummary = new SummaryResponse(encryptFact, encryptEmotion, encryptInsight);
+
+		var summary = SummaryResponse.to(encryptSummary, session, session.getUser());
 		summaryRepository.save(summary);
 		session.updateSummary(summary);
 		log.info("success to save summary about sessionId: {}", sessionId);
@@ -81,8 +89,10 @@ public class SummaryService {
 	public void saveSessionContext(final UUID sessionId, String content) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
+		var encryptContext = encryptionConverter.convertToDatabaseColumn(content);
+
 		var context = SessionContextSummary.builder()
-			.content(content)
+			.content(encryptContext)
 			.user(session.getUser())
 			.session(session)
 			.build();

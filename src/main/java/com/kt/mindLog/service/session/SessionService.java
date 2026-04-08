@@ -66,7 +66,7 @@ public class SessionService {
 
 		var newSession = createSession(userId);
 
-		// creditService.earnCreditForSession(userId, newSession.getId());
+		creditService.earnCreditForSession(userId, newSession.getId());
 
 		return sessionStreamService.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 	}
@@ -135,7 +135,9 @@ public class SessionService {
 
 		sessions.forEach(session -> {
 			var summary = summaryContextRepository.findBySessionIdOrThrow(session.getId(), ErrorCode.NOT_FOUND_SUMMARY);
-			redisService.pushHistory(userId, summary);
+			var decryptContent = encryptionConverter.convertToEntityAttribute(summary.getContent());
+
+			redisService.pushHistory(userId, summary, decryptContent);
 		});
 
 		log.info("success to upload session history to redis : userId = {}", userId);

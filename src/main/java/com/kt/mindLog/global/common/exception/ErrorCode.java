@@ -68,6 +68,10 @@ public enum ErrorCode {
 	REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일 기간에 대해 생성한 AI 리포트가 이미 존재합니다"),
 	NOT_FOUND_REPORT(HttpStatus.BAD_REQUEST, "존재하지 않는 AI 리포트입니다"),
 
+	//encrypt
+	ENCRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 암호화에 실패하였습니다"),
+	DECRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 복호화에 실패하였습니다"),
+
 	;
 
 	private final HttpStatus status;

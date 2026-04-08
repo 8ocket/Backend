@@ -22,7 +22,6 @@ import com.kt.mindLog.global.client.TossClient;
 import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
-import com.kt.mindLog.global.security.CustomUser;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.payment.PaymentRepository;
 import com.kt.mindLog.service.credit.CreditService;

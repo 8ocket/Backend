@@ -9,8 +9,13 @@ import javax.crypto.spec.GCMParameterSpec;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
+import com.kt.mindLog.global.common.exception.CustomException;
+import com.kt.mindLog.global.common.exception.ErrorCode;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AesGcmEncryptor {
@@ -37,7 +42,8 @@ public class AesGcmEncryptor {
 
 			return Base64.getEncoder().encodeToString(combined);
 		} catch (Exception e) {
-			throw new RuntimeException("암호화 실패", e);
+			log.error("failed to encrypt text", e);
+			throw new CustomException(ErrorCode.ENCRYPTION_FAILED);
 		}
 	}
 
@@ -56,7 +62,8 @@ public class AesGcmEncryptor {
 
 			return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			throw new RuntimeException("복호화 실패", e);
+			log.error("failed to decrypt text", e);
+			throw new CustomException(ErrorCode.DECRYPTION_FAILED);
 		}
 	}
 }

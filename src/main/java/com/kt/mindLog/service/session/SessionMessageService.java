@@ -106,7 +106,6 @@ public class SessionMessageService {
 	protected void saveSessionSummary(final UUID sessionId, final SessionSummaryResponse summary, final String imageUrl) {
 		updateSessionStatus(sessionId, SessionStatus.COMPLETED);
 
-		//TODO 데이터 암호화
 		summaryService.saveSummary(sessionId, summary.summary());
 		summaryService.saveSessionContext(sessionId, summary.contextSummary());
 		summaryService.saveEmotionCard(sessionId, imageUrl);

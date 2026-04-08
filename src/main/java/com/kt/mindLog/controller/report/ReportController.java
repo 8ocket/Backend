@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kt.mindLog.domain.report.Report;
 import com.kt.mindLog.dto.report.request.ReportCreateRequest;
 import com.kt.mindLog.dto.report.response.EmotionGraphResponse;
 import com.kt.mindLog.dto.report.response.ReportResponse;
@@ -19,7 +18,7 @@ import com.kt.mindLog.dto.report.response.SuggestionsResponse;
 import com.kt.mindLog.dto.report.response.TendencyResponse;
 import com.kt.mindLog.dto.report.response.TopicsResponse;
 import com.kt.mindLog.global.annotation.Login;
-import com.kt.mindLog.global.security.CustomUser;
+import com.kt.mindLog.global.security.auth.CustomUser;
 import com.kt.mindLog.service.report.ReportService;
 
 import jakarta.validation.Valid;
