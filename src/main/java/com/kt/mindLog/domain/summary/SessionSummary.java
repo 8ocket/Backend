@@ -45,6 +45,9 @@ public class SessionSummary extends BaseEntity {
 	@Column(nullable = true)
 	private String visibility;
 
+	@Column(nullable = true)
+	private String cardImageUrl;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "session_id", nullable = false)
 	private Session session;
@@ -64,5 +67,16 @@ public class SessionSummary extends BaseEntity {
 		this.updatedAt = LocalDateTime.now();
 		this.session = session;
 		this.user = user;
+	}
+
+	public void updateCardImageUrl(String cardImageUrl) {
+		this.cardImageUrl = cardImageUrl;
+	}
+
+	public void updateSummaryCard(String emotion, String fact, String insight) {
+		if (emotion != null) this.emotion = emotion;
+		if (fact != null) this.fact = fact;
+	    if (insight != null) this.insight = insight;
+		this.isEdited = true;
 	}
 }
