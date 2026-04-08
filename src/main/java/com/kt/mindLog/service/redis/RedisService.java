@@ -49,7 +49,6 @@ public class RedisService {
 
 		RedisHistoryRequest history = RedisHistoryRequest.from(summary, decryptContent);
 		redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(history));
-		RedisHistoryRequest history = RedisHistoryRequest.from(summary);
 
 		if (!redisTemplate.hasKey(key)) {
 			redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(history));
