@@ -24,4 +24,6 @@ public interface SessionMessageRepository extends JpaRepository<SessionMessages,
 	default SessionMessages findBySessionIdAndSequenceNumOrThrow(UUID sessionId,  int sequenceNum, ErrorCode errorCode) {
 		return findBySessionIdAndSequenceNum(sessionId, sequenceNum).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	void deleteBySessionId(UUID sessionId);
 }

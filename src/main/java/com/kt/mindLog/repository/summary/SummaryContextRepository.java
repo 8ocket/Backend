@@ -17,4 +17,6 @@ public interface SummaryContextRepository extends JpaRepository<SessionContextSu
 	default SessionContextSummary findBySessionIdOrThrow(UUID sessionId, ErrorCode errorCode) {
 		return findBySessionId(sessionId).orElseThrow(() -> new CustomException(errorCode));
 	}
+
+	void deleteBySessionId(UUID sessionId);
 }

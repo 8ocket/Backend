@@ -20,14 +20,19 @@ import com.kt.mindLog.dto.session.response.SessionListResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
 import com.kt.mindLog.dto.sessionMessage.response.SessionMessageListResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.common.response.ApiResult;
 import com.kt.mindLog.global.common.response.Pagination;
 import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.PersonaRepository;
 import com.kt.mindLog.repository.SessionMessageRepository;
+import com.kt.mindLog.repository.session.CrisisLogRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepositoryCustom;
+import com.kt.mindLog.repository.summary.EmotionCardRepository;
+import com.kt.mindLog.repository.summary.EmotionRepository;
 import com.kt.mindLog.repository.summary.SummaryContextRepository;
+import com.kt.mindLog.repository.summary.SummaryRepository;
 import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.redis.RedisService;
 
@@ -45,6 +50,11 @@ public class SessionService {
 	private final SessionMessageRepository sessionMessageRepository;
 	private final SummaryContextRepository summaryContextRepository;
 	private final SessionRepositoryCustom sessionRepositoryCustom;
+
+	private final CrisisLogRepository crisisLogRepository;
+	private final EmotionCardRepository emotionCardRepository;
+	private final EmotionRepository emotionRepository;
+	private final SummaryRepository summaryRepository;
 
 	private final SessionStreamService sessionStreamService;
 	private final RedisService redisService;
@@ -65,8 +75,6 @@ public class SessionService {
 		}
 
 		var newSession = createSession(userId);
-
-		creditService.earnCreditForSession(userId, newSession.getId());
 
 		return sessionStreamService.receiveFirstMessage(request.firstContent(), newSession.getId(), userId);
 	}
@@ -141,5 +149,21 @@ public class SessionService {
 		});
 
 		log.info("success to upload session history to redis : userId = {}", userId);
+	}
+
+	@Transactional
+	public void deleteSession(final UUID userId, final UUID sessionId) {
+		var session = sessionRepository.findByIdAndUserIdOrThrow(sessionId, userId, ErrorCode.NOT_FOUND_SESSION);
+		crisisLogRepository.deleteBySessionId(session.getId());
+		emotionCardRepository.deleteBySessionId(session.getId());
+		emotionRepository.deleteBySessionId(session.getId());
+		summaryContextRepository.deleteBySessionId(session.getId());
+		sessionMessageRepository.deleteBySessionId(session.getId());
+		session.clearSummary();
+		sessionRepository.saveAndFlush(session);
+		summaryRepository.deleteBySessionId(session.getId());
+		sessionRepository.deleteById(session.getId());
+
+		log.info("success to delete session : userId = {}, sessionId = {}", userId, sessionId);
 	}
 }
