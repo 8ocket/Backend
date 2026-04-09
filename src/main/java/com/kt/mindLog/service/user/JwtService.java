@@ -67,7 +67,7 @@ public class JwtService {
 
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional
-	public void deleteExpiredTokens() {
+	protected void deleteExpiredTokens() {
 		jwtTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
 		log.info("deleted expired tokens");
 	}

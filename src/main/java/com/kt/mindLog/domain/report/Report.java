@@ -10,6 +10,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import com.kt.mindLog.domain.user.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -57,13 +58,13 @@ public class Report {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@OneToMany(mappedBy = "report")
+	@OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ReportEmotionGraph> emotionGraphs = new ArrayList<>();
 
-	@OneToMany(mappedBy = "report")
+	@OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ReportTopic> topics = new ArrayList<>();
 
-	@OneToMany(mappedBy = "report")
+	@OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ReportSuggestion> suggestions = new ArrayList<>();
 
 	@Builder

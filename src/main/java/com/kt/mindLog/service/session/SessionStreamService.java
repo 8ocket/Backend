@@ -105,20 +105,34 @@ public class SessionStreamService {
 			case "ai_chunk" -> sink.next(event);
 
 			case "ai_complete" -> {
-				messageService.saveContents(
-					Role.ASSISTANT,
-					parseJson(event.data(), "content"),
-					session.getId()
-				);
 
-				var firstResponse = FirstSessionResponse.from(session);
+				try {
+					messageService.saveContents(
+						Role.ASSISTANT,
+						parseJson(event.data(), "content"),
+						session.getId()
+					);
 
-				sink.next(ServerSentEvent.builder()
-					.event("ai_complete")
-					.data(objectMapper.writeValueAsString(firstResponse))
-					.build());
+					var firstResponse = FirstSessionResponse.from(session);
 
-				creditService.earnCreditForSession(userId, session.getId());
+					sink.next(ServerSentEvent.builder()
+						.event("ai_complete")
+						.data(objectMapper.writeValueAsString(firstResponse))
+						.build());
+
+					creditService.earnCreditForSession(userId, session.getId());
+				} catch (Exception e) {
+					log.error("세션 생성 실패 | sessionId={}", session.getId(), e);
+
+					sink.next(ServerSentEvent.builder()
+						.event("server_error")
+						.data(Map.of(
+							"content", "failed to create session"
+						))
+						.build());
+				} finally {
+					sink.complete();
+				}
 			}
 
 			case "error", "done" -> {
@@ -151,29 +165,45 @@ public class SessionStreamService {
 			case "session_title" -> messageService.saveTitle(sessionId, event.data());
 
 			case "ai_complete" -> {
-				var summary = objectMapper.readValue(event.data(), SessionSummaryResponse.class);
 
-				List<Map<String, Object>> emotions = summary.emotions().stream()
-					.map(r -> Map.<String, Object>of(
-						"emotion_type", r.emotionType(),
-						"intensity", r.intensity(),
-						"source_keyword", r.sourceKeyword()
-					))
-					.toList();
+				try {
+					var summary = objectMapper.readValue(event.data(), SessionSummaryResponse.class);
 
-				sink.next(ServerSentEvent.builder()
-					.event("ai_complete")
-					.data(Map.of(
-						"session_id", sessionId.toString(),
-						"summary", summary.summary(),
-						"emotions", emotions,
-						"card_image_url", summary.card().get("image_url").asText()
-					))
-					.build());
+					List<Map<String, Object>> emotions = summary.emotions().stream()
+						.map(r -> Map.<String, Object>of(
+							"emotion_type", r.emotionType(),
+							"intensity", r.intensity(),
+							"source_keyword", r.sourceKeyword()
+						))
+						.toList();
 
-				String imageUrl = summary.card().get("image_url").asText();
+					String imageUrl = summary.card().get("image_url").asText();
 
-				messageService.saveSessionSummary(sessionId, summary, imageUrl);
+					var summaryId = messageService.saveSessionSummary(sessionId, summary, imageUrl);
+
+					sink.next(ServerSentEvent.builder()
+						.event("ai_complete")
+						.data(Map.of(
+							"session_id", sessionId.toString(),
+							"summary_id", summaryId,
+							"summary", summary.summary(),
+							"emotions", emotions,
+							"card_image_url", summary.card().get("image_url").asText()
+						))
+						.build());
+				} catch (Exception e) {
+					log.error("마음기록카드 생성 실패 | sessionId={}", sessionId, e);
+
+					sink.next(ServerSentEvent.builder()
+						.event("server_error")
+						.data(Map.of(
+							"content", "failed to create report"
+						))
+						.build());
+				} finally {
+					sink.complete();
+				}
+
 			}
 
 			case "done" -> sink.complete();
