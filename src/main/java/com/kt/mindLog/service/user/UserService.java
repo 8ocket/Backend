@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.kt.mindLog.domain.user.LoginType;
+import com.kt.mindLog.domain.user.Occupation;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.request.UserCreateRequest;
+import com.kt.mindLog.dto.user.request.UserUpdateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.dto.user.response.UserProfileResponse;
 import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
@@ -90,25 +92,37 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserUpdateProfileResponse updateProfile(final  UUID userId, final MultipartFile profile, final String nickname) {
+	public UserUpdateProfileResponse updateProfile(final  UUID userId, final MultipartFile profile, final
+		UserUpdateRequest request) {
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
+
 		String newProfileImageUrl = user.getProfileImageUrl();
 		String newNickname = user.getNickname();
+
+		var newOccupation = user.getOccupation();
+		var newAge = user.getAge();
+		var newGender = user.getGender();
 
 		if (profile != null && !profile.isEmpty()) {
 			newProfileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
 		}
 
-		if (nickname != null && !nickname.isBlank()) {
+		if (request.nickname() != null && !request.nickname().isBlank()) {
 			Preconditions.validate(user.getNicknameChangeCount() < 3, ErrorCode.INVALID_NICKNAME_CHANGE);
-			Preconditions.validate(!user.getNickname().equals(nickname), ErrorCode.SAME_NICKNAME_NOT_ALLOWED);
+			Preconditions.validate(!user.getNickname().equals(request.nickname()), ErrorCode.SAME_NICKNAME_NOT_ALLOWED);
 
-			newNickname = nickname;
+			newNickname = request.nickname();
 			user.updateNicknameCount();
 		}
 
-		user.updateUserProfile(newProfileImageUrl, newNickname);
-		return UserUpdateProfileResponse.updateProfile(userId, newProfileImageUrl, newNickname);
+		if (request.occupation() != null)	newOccupation = request.occupation();
+
+		if (request.gender() != null) 	newGender = request.gender();
+
+		if (request.age() != null) 	newAge = request.age();
+
+		user.updateUserProfile(newProfileImageUrl, newNickname, newOccupation, newAge, newGender);
+		return UserUpdateProfileResponse.updateProfile(userId, newProfileImageUrl, newNickname,  newOccupation, newAge, newGender);
 	}
 
 	public UserProfileResponse getProfile(final UUID userId) {
