@@ -1,5 +1,6 @@
 package com.kt.mindLog.dto.summary.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.kt.mindLog.domain.summary.EmotionCard;
@@ -9,14 +10,16 @@ public record SummaryCardListResponse(
 	UUID summaryId,
 	UUID cardId,
 	String frontImageUrl,
-	String backImageUrl
+	String backImageUrl,
+	LocalDateTime createdAt
 ) {
 	public static SummaryCardListResponse of(SessionSummary summary, EmotionCard card) {
 		return new SummaryCardListResponse(
 			card.getId(),
 			summary.getId(),
 			card.getFrontImageUrl(),
-			card.getBackImageUrl()
+			card.getBackImageUrl(),
+			summary.getCreatedAt()
 		);
 	}
 }
