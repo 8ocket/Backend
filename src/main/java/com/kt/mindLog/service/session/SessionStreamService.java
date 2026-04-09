@@ -177,19 +177,20 @@ public class SessionStreamService {
 						))
 						.toList();
 
+					String imageUrl = summary.card().get("image_url").asText();
+
+					var summaryId = messageService.saveSessionSummary(sessionId, summary, imageUrl);
+
 					sink.next(ServerSentEvent.builder()
 						.event("ai_complete")
 						.data(Map.of(
 							"session_id", sessionId.toString(),
+							"summary_id", summaryId,
 							"summary", summary.summary(),
 							"emotions", emotions,
 							"card_image_url", summary.card().get("image_url").asText()
 						))
 						.build());
-
-					String imageUrl = summary.card().get("image_url").asText();
-
-					messageService.saveSessionSummary(sessionId, summary, imageUrl);
 				} catch (Exception e) {
 					log.error("마음기록카드 생성 실패 | sessionId={}", sessionId, e);
 

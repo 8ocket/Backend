@@ -14,11 +14,11 @@
       image: postgres:18
       container_name: mindlog-postgres
       environment:
-        POSTGRES_USER: admin
-        POSTGRES_PASSWORD: 1234
-        POSTGRES_DB: mindLog
+        POSTGRES_USER: mindlog
+        POSTGRES_PASSWORD: mindlog_password
+        POSTGRES_DB: mindlog_dev
       ports:
-        - "5433:5432"
+        - "5432:5432"
       platform: linux/arm64
 
     redis:
@@ -39,10 +39,6 @@
         - "8080:8080"
       env_file:
         - .env
-      networks:
-        - mindlog-network
-
-  networks:
-    mindlog-network:
-      external: true
-      name: mindlog_ai_mindlog-network
+      network_mode: "host"
+      environment:
+        - SPRING_PROFILES_ACTIVE=dev

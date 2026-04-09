@@ -70,7 +70,7 @@ public class SummaryService {
 	}
 
 	@Transactional
-	public void saveSummary(final UUID sessionId, final SummaryResponse response) {
+	public UUID saveSummary(final UUID sessionId, final SummaryResponse response) {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
 		var encryptFact = encryptionConverter.convertToDatabaseColumn(response.fact());
@@ -83,6 +83,7 @@ public class SummaryService {
 		summaryRepository.save(summary);
 		session.updateSummary(summary);
 		log.info("success to save summary about sessionId: {}", sessionId);
+		return summary.getId();
 	}
 
 	@Transactional

@@ -103,15 +103,16 @@ public class SessionMessageService {
 	}
 
 	@Transactional
-	protected void saveSessionSummary(final UUID sessionId, final SessionSummaryResponse summary, final String imageUrl) {
+	protected UUID saveSessionSummary(final UUID sessionId, final SessionSummaryResponse summary, final String imageUrl) {
 		updateSessionStatus(sessionId, SessionStatus.COMPLETED);
 
-		summaryService.saveSummary(sessionId, summary.summary());
+		var summaryId = summaryService.saveSummary(sessionId, summary.summary());
 		summaryService.saveSessionContext(sessionId, summary.contextSummary());
 		summaryService.saveEmotionCard(sessionId, imageUrl);
 		summaryService.saveEmotions(sessionId, summary.emotions());
 
 		updateSessionStatus(sessionId, SessionStatus.SAVED);
+		return summaryId;
 	}
 
 	private String parseJson(final String contents, final String key) {
