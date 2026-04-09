@@ -12,6 +12,12 @@ public record UserProfileResponse(
 
 	String nickname,
 
+	String occupation,
+
+	Integer age,
+
+	String gender,
+
 	@JsonProperty("nickname_change_count")
 	Integer nicknameCount
 ) {
@@ -20,6 +26,9 @@ public record UserProfileResponse(
 			user.getId().toString(),
 			user.getProfileImageUrl(),
 			user.getNickname(),
+			user.getOccupation().toString(),
+			user.getAge(),
+			user.getGender().toString(),
 			user.getNicknameChangeCount()
 		);
 	}

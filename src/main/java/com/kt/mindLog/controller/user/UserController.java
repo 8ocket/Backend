@@ -35,8 +35,8 @@ public class UserController {
 
 	@PatchMapping("/me/profile")
 	public UserUpdateProfileResponse updateProfile(@Login CustomUser user, @RequestPart("profile_image") MultipartFile profileImage,
-		@RequestPart("contents") final UserUpdateRequest request) {
-		return userService.updateProfile(user.getId(), profileImage, request.nickname());
+		@Valid @RequestPart("contents") final UserUpdateRequest request) {
+		return userService.updateProfile(user.getId(), profileImage, request);
 	}
 
 	@GetMapping("/me/profile")

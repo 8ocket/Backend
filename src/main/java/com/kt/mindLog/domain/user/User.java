@@ -85,9 +85,13 @@ public class User {
 		this.gender = gender;
 	}
 
-	public void updateUserProfile(final String profileImageUrl, final String nickname) {
+	public void updateUserProfile(final String profileImageUrl, final String nickname,
+		final Occupation occupation, final Integer age, final Gender gender) {
 		this.profileImageUrl = profileImageUrl;
 		this.nickname = nickname;
+		this.occupation = occupation;
+		this.age = age;
+		this.gender = gender;
 	}
 
 	public void updateNicknameCount() {
