@@ -165,9 +165,11 @@ public class SummaryService {
 
 	public Page<SummaryCardListResponse> getSummaryCardList(final UUID userId, Pageable pageable) {
 		return summaryRepository.findAllByUserId(userId, pageable)
-			.map(summary -> SummaryCardListResponse.of(
-				summary,
-				emotionRepository.findAllBySession(summary.getSession())
-			));
+			.map(summary -> {
+				EmotionCard card = emotionCardRepository.findBySessionId(summary.getId())
+					.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
+				return SummaryCardListResponse.of(summary, card);
+				}
+			);
 	}
 }

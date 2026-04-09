@@ -1,42 +1,22 @@
 package com.kt.mindLog.dto.summary.response;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
-import com.kt.mindLog.domain.summary.Emotion;
-import com.kt.mindLog.domain.summary.EmotionType;
+import com.kt.mindLog.domain.summary.EmotionCard;
 import com.kt.mindLog.domain.summary.SessionSummary;
 
 public record SummaryCardListResponse(
 	UUID summaryId,
-	UUID sessionId,
-	LocalDateTime createdAt,
-	String fact,
-	String emotion,
-	String insight,
-	List<EmotionInfo> emotions
+	UUID cardId,
+	String frontImageUrl,
+	String backImageUrl
 ) {
-	public record EmotionInfo(
-		EmotionType emotionType,
-		Integer intensity
-	) {
-		public static EmotionInfo from(Emotion emotion) {
-			return new EmotionInfo(
-				emotion.getEmotionType(),
-				emotion.getIntensity()
-			);
-		}
-	}
-	public static SummaryCardListResponse of(SessionSummary summary, List<Emotion> emotions) {
+	public static SummaryCardListResponse of(SessionSummary summary, EmotionCard card) {
 		return new SummaryCardListResponse(
+			card.getId(),
 			summary.getId(),
-			summary.getSession().getId(),
-			summary.getCreatedAt(),
-			summary.getFact(),
-			summary.getEmotion(),
-			summary.getInsight(),
-			emotions.stream().map(EmotionInfo::from).toList()
+			card.getFrontImageUrl(),
+			card.getBackImageUrl()
 		);
 	}
 }
