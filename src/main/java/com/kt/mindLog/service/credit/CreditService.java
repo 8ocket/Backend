@@ -150,10 +150,17 @@ public class CreditService {
 
 		int currentFree = creditRepository.sumFreeCreditByUserId(userId);
 		int currentPaid = creditRepository.sumPaidCreditByUserId(userId);
-
 		int totalCredit = currentFree + currentPaid;
 
-		return UserCreditResponse.from(totalCredit);
+		List<UserCreditResponse.CreditTransaction> transactions = creditRepository.findAllByUserId(userId).stream()
+			.map(credit -> UserCreditResponse.CreditTransaction.of(
+				credit.getTransactionType(),
+				credit.getAmount(),
+				credit.getCreatedAt()
+			))
+			.toList();
+
+		return UserCreditResponse.of(totalCredit, transactions);
 	}
 
 	public List<CreditProductResponse> getCreditProducts() {
