@@ -75,6 +75,9 @@ public enum ErrorCode {
 	ENCRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 암호화에 실패하였습니다"),
 	DECRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 복호화에 실패하였습니다"),
 
+	// emotion
+	NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "감정 카드를 찾을 수 없습니다.")
+
 	;
 
 	private final HttpStatus status;

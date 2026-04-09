@@ -1,5 +1,6 @@
 package com.kt.mindLog.repository.summary;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,6 @@ import com.kt.mindLog.domain.summary.EmotionCard;
 @Repository
 public interface EmotionCardRepository extends JpaRepository<EmotionCard, UUID> {
 	void deleteBySessionId(UUID sessionId);
+
+	Optional<EmotionCard> findBySessionId(UUID sessionId);
 }

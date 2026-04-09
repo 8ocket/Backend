@@ -13,7 +13,6 @@ public record SummaryCardResponse(
 	String insight,
 	boolean isEdited,
 	String visibility,
-	String cardImageUrl,
 	LocalDateTime createdAt,
 	LocalDateTime updatedAt
 ) {
@@ -26,7 +25,6 @@ public record SummaryCardResponse(
 			summary.getInsight(),
 			summary.isEdited(),
 			summary.getVisibility(),
-			summary.getCardImageUrl(),
 			summary.getCreatedAt(),
 			summary.getUpdatedAt()
 		);

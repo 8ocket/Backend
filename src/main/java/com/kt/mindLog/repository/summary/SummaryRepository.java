@@ -2,6 +2,8 @@ package com.kt.mindLog.repository.summary;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,6 @@ public interface SummaryRepository extends JpaRepository<SessionSummary, UUID> {
 	}
 
 	void deleteBySessionId(UUID sessionId);
+
+	Page<SessionSummary> findAllByUserId(UUID userId, Pageable pageable);
 }

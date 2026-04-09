@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,17 +15,17 @@ import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.summary.EmotionCard;
 import com.kt.mindLog.domain.summary.SessionContextSummary;
 import com.kt.mindLog.domain.summary.SessionSummary;
-import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.summary.request.SummaryCardUpdateRequest;
 import com.kt.mindLog.dto.summary.response.SessionEmotionResponse;
+import com.kt.mindLog.dto.summary.response.SummaryCardListResponse;
 import com.kt.mindLog.dto.summary.response.SummaryCardResponse;
 import com.kt.mindLog.dto.summary.response.SummaryCardUpdateResponse;
 import com.kt.mindLog.dto.summary.response.SummaryResponse;
+import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.global.security.encryption.EncryptionConverter;
 import com.kt.mindLog.repository.SessionMessageRepository;
-import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
 import com.kt.mindLog.repository.summary.EmotionCardRepository;
 import com.kt.mindLog.repository.summary.EmotionRepository;
@@ -45,7 +47,6 @@ public class SummaryService {
 	private final SummaryRepository summaryRepository;
 	private final SummaryContextRepository summaryContextRepository;
 	private final EmotionCardRepository emotionCardRepository;
-	private final UserRepository userRepository;
 
 	private final S3Service s3Service;
 
@@ -118,7 +119,7 @@ public class SummaryService {
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
 		var card = EmotionCard.builder()
-			.imageUrl(url)
+			.backImageUrl(url)
 			.user(session.getUser())
 			.session(session)
 			.build();
@@ -132,11 +133,14 @@ public class SummaryService {
 
 		Preconditions.validate(summary.getUser().getId().equals(userId), ErrorCode.NOT_SUMMARY_USER);
 
-		String summaryCardUrl = s3Service.uploadImage(summaryCard, S3Path.SUMMARY);
+		Session session = summary.getSession();
 
-		summary.updateCardImageUrl(summaryCardUrl);
+		EmotionCard card = emotionCardRepository.findBySessionId(session.getId())
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
 
-		summaryRepository.save(summary);
+		String frontImageUrl = s3Service.uploadImage(summaryCard, S3Path.SUMMARY);
+
+		card.updateFrontImageUrl(frontImageUrl);
 	}
 
 	public SummaryCardResponse getSummaryCard(final UUID userId, final UUID summaryId) {
@@ -157,5 +161,13 @@ public class SummaryService {
 		summary.updateSummaryCard(request.emotion(), request.fact(), request.insight());
 
 		return SummaryCardUpdateResponse.from(summary);
+	}
+
+	public Page<SummaryCardListResponse> getSummaryCardList(final UUID userId, Pageable pageable) {
+		return summaryRepository.findAllByUserId(userId, pageable)
+			.map(summary -> SummaryCardListResponse.of(
+				summary,
+				emotionRepository.findAllBySession(summary.getSession())
+			));
 	}
 }

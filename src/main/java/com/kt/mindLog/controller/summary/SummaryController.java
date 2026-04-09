@@ -2,6 +2,8 @@ package com.kt.mindLog.controller.summary;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.kt.mindLog.dto.summary.request.SummaryCardUpdateRequest;
+import com.kt.mindLog.dto.summary.response.SummaryCardListResponse;
 import com.kt.mindLog.dto.summary.response.SummaryCardResponse;
 import com.kt.mindLog.dto.summary.response.SummaryCardUpdateResponse;
 import com.kt.mindLog.global.annotation.Login;
@@ -45,5 +48,10 @@ public class SummaryController {
 	public ApiResult<SummaryCardUpdateResponse> updateSummaryCard(@Login CustomUser user,
 		@PathVariable UUID summaryId, @RequestBody SummaryCardUpdateRequest request) {
 		return ApiResult.ok(summaryService.updateSummaryCard(user.getId(), summaryId, request));
+	}
+
+	@GetMapping
+	public ApiResult<Page<SummaryCardListResponse>> getSummaryCardList(@Login CustomUser user, Pageable pageable) {
+		return ApiResult.ok(summaryService.getSummaryCardList(user.getId(), pageable));
 	}
 }
