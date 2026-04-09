@@ -49,6 +49,7 @@ public enum ErrorCode {
 	// summary
 	INVALID_SESSION_SUMMARY(HttpStatus.BAD_REQUEST, "이미 분석 완료된 상담 세션입니다."),
 	NOT_FOUND_SUMMARY(HttpStatus.BAD_REQUEST, "해당 세션 요약 컨텍스트를 찾을 수 없습니다."),
+	NOT_SUMMARY_USER(HttpStatus.BAD_REQUEST, "본인 소유 세션만 사용 가능합니다."),
 
 	// credit
 	ALREADY_USED_CREDIT(HttpStatus.BAD_REQUEST, "이미 사용된 크레딧입니다."),
@@ -73,6 +74,9 @@ public enum ErrorCode {
 	//encrypt
 	ENCRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 암호화에 실패하였습니다"),
 	DECRYPTION_FAILED(HttpStatus.BAD_REQUEST, "텍스트 복호화에 실패하였습니다"),
+
+	// emotion
+	NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "감정 카드를 찾을 수 없습니다.")
 
 	;
 

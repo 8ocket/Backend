@@ -31,7 +31,10 @@ public class EmotionCard {
 	private UUID id;
 
 	@Column(columnDefinition = "TEXT")
-	private String imageUrl;
+	private String backImageUrl;
+
+	@Column(columnDefinition = "TEXT")
+	private String frontImageUrl;
 
 	private String interpretation;
 
@@ -48,10 +51,16 @@ public class EmotionCard {
 	private Session session;
 
 	@Builder
-	public EmotionCard(final String imageUrl, final User user, final Session session) {
-		this.imageUrl = imageUrl;
+	public EmotionCard(final String backImageUrl, final String frontImageUrl,
+		final User user, final Session session) {
+		this.backImageUrl = backImageUrl;
+		this.frontImageUrl = frontImageUrl;
 		this.user = user;
 		this.session = session;
 		this.createdAt = LocalDateTime.now();
+	}
+
+	public void updateFrontImageUrl(String frontImageUrl) {
+		this.frontImageUrl = frontImageUrl;
 	}
 }

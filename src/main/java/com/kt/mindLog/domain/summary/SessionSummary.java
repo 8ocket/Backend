@@ -65,4 +65,11 @@ public class SessionSummary extends BaseEntity {
 		this.session = session;
 		this.user = user;
 	}
+
+	public void updateSummaryCard(String emotion, String fact, String insight) {
+		if (emotion != null) this.emotion = emotion;
+		if (fact != null) this.fact = fact;
+	    if (insight != null) this.insight = insight;
+		this.isEdited = true;
+	}
 }
