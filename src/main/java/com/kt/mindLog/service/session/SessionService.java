@@ -3,7 +3,6 @@ package com.kt.mindLog.service.session;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -164,24 +163,32 @@ public class SessionService {
 		log.info("success to upload session history to redis : userId = {}", userId);
 	}
 
-	// public void getSessionProgress(final UUID userId, final UUID sessionId) {
-	// 	List<SessionProgressResponse> progressResponses = new ArrayList<>();
-	//
-	// 	LocalDateTime now = LocalDateTime.now();
-	//
-	// 	var weekSessionCount = sessionRepository.countByIdAndUserIdAndEndedAtBetween(sessionId, userId,
-	// 		now.minusDays(6).toLocalDate().atStartOfDay(), now);
-	//
-	// 	SessionProgressResponse.builder()
-	// 		.reportType(ReportType.WEEKLY.toString())
-	// 		.currentCount(weekSessionCount)
-	// 		.requiredCount(ReportType.WEEKLY.getMinSessions())
-	// 		.progressPercentage(weekSessionCount/ReportType.WEEKLY.getMinSessions() * 100)
-	// 		.build();
-	//
-	// 	var monthProgress = sessionRepository.countByIdAndUserIdAndEndedAtBetween(sessionId, userId,
-	// 		now.withDayOfMonth(1).toLocalDate().atStartOfDay(), now);
-	// }
+	public List<SessionProgressResponse> getSessionProgress(final UUID userId) {
+		LocalDateTime now = LocalDateTime.now();
+
+		return List.of(
+			createProgress(userId, ReportType.WEEKLY, now.minusDays(6).toLocalDate().atStartOfDay(), now),
+			createProgress(userId, ReportType.MONTHLY, now.withDayOfMonth(1).toLocalDate().atStartOfDay(), now)
+		);
+	}
+
+	private SessionProgressResponse createProgress(UUID userId, ReportType reportType, LocalDateTime start, LocalDateTime end) {
+		var count = sessionRepository.countByUserIdAndEndedAtBetween(userId, start, end);
+		var required = reportType.getMinSessions();
+
+		return SessionProgressResponse.builder()
+			.reportType(reportType.toString())
+			.currentCount(count)
+			.requiredCount(required)
+			.progressPercentage(calculatePercentage(count, required))
+			.build();
+	}
+
+	private Integer calculatePercentage(final int current, final int required) {
+		var percent = (int) ((double)current / (double)required * 100);
+
+		return Math.min(percent, 100);
+	}
 
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional

@@ -39,4 +39,6 @@ public interface SessionRepository extends JpaRepository<Session,UUID> {
 
 	List<Session> findByUserIdAndStatusAndCreatedAtBetweenOrderByEndedAtAsc(UUID userId, SessionStatus status,
 		LocalDateTime periodStart, LocalDateTime periodEnd);
+
+	Integer countByUserIdAndEndedAtBetween(UUID userId, LocalDateTime endedAt, LocalDateTime endedAtEnd);
 }

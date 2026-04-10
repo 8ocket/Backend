@@ -19,6 +19,7 @@ import com.kt.mindLog.dto.session.request.SessionReceiveRequest;
 import com.kt.mindLog.dto.session.response.ActiveSessionResponse;
 import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
+import com.kt.mindLog.dto.session.response.SessionProgressResponse;
 import com.kt.mindLog.global.annotation.Login;
 import com.kt.mindLog.global.common.request.Paging;
 import com.kt.mindLog.global.common.response.ApiResult;
@@ -71,6 +72,11 @@ public class SessionController {
 	@PostMapping(value = "/{sessionId}/finalize", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Object> finalizeSession(@Login CustomUser user, @PathVariable UUID sessionId) {
 		return sessionStreamService.finalizeSession(sessionId, user.getId());
+	}
+
+	@GetMapping("/me/progress")
+	public List<SessionProgressResponse> getSessionProgress(@Login CustomUser user) {
+		return sessionService.getSessionProgress(user.getId());
 	}
 
 	@DeleteMapping("/{sessionId}")
