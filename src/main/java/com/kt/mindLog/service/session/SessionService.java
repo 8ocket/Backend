@@ -3,6 +3,7 @@ package com.kt.mindLog.service.session;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.kt.mindLog.domain.report.ReportType;
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.dto.session.request.SessionCreateRequest;
@@ -21,9 +23,9 @@ import com.kt.mindLog.dto.session.response.ActiveSessionResponse;
 import com.kt.mindLog.dto.session.response.SessionDetailResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponse;
 import com.kt.mindLog.dto.session.response.SessionListResponses;
+import com.kt.mindLog.dto.session.response.SessionProgressResponse;
 import com.kt.mindLog.dto.sessionMessage.response.SessionMessageListResponse;
 import com.kt.mindLog.global.common.exception.ErrorCode;
-import com.kt.mindLog.global.common.response.ApiResult;
 import com.kt.mindLog.global.common.response.Pagination;
 import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.global.security.encryption.EncryptionConverter;
@@ -54,6 +56,7 @@ public class SessionService {
 	private final SessionMessageRepository sessionMessageRepository;
 	private final SummaryContextRepository summaryContextRepository;
 	private final SessionRepositoryCustom sessionRepositoryCustom;
+	private final EmotionCardRepository cardRepository;
 
 	private final CrisisLogRepository crisisLogRepository;
 	private final EmotionCardRepository emotionCardRepository;
@@ -134,7 +137,10 @@ public class SessionService {
 
 		var hasSummary = session.getSummary() != null;
 
-		return SessionDetailResponse.from(session, messages, hasSummary);
+		var card = cardRepository.findBySessionId(sessionId);
+		return card.map(
+				emotionCard -> SessionDetailResponse.from(session, messages, hasSummary, emotionCard.getFrontImageUrl()))
+			.orElseGet(() -> SessionDetailResponse.from(session, messages, hasSummary, null));
 	}
 
 	public ActiveSessionResponse getActiveSession(final UUID userId) {
@@ -157,6 +163,25 @@ public class SessionService {
 
 		log.info("success to upload session history to redis : userId = {}", userId);
 	}
+
+	// public void getSessionProgress(final UUID userId, final UUID sessionId) {
+	// 	List<SessionProgressResponse> progressResponses = new ArrayList<>();
+	//
+	// 	LocalDateTime now = LocalDateTime.now();
+	//
+	// 	var weekSessionCount = sessionRepository.countByIdAndUserIdAndEndedAtBetween(sessionId, userId,
+	// 		now.minusDays(6).toLocalDate().atStartOfDay(), now);
+	//
+	// 	SessionProgressResponse.builder()
+	// 		.reportType(ReportType.WEEKLY.toString())
+	// 		.currentCount(weekSessionCount)
+	// 		.requiredCount(ReportType.WEEKLY.getMinSessions())
+	// 		.progressPercentage(weekSessionCount/ReportType.WEEKLY.getMinSessions() * 100)
+	// 		.build();
+	//
+	// 	var monthProgress = sessionRepository.countByIdAndUserIdAndEndedAtBetween(sessionId, userId,
+	// 		now.withDayOfMonth(1).toLocalDate().atStartOfDay(), now);
+	// }
 
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional

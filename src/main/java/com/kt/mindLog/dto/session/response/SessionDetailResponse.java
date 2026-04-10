@@ -21,16 +21,21 @@ public record SessionDetailResponse(
 	List<SessionMessageListResponse> messages,
 
 	@JsonProperty("has_summary")
-	boolean hasSummary
+	boolean hasSummary,
+
+	@JsonProperty("card_image_url")
+	String cardImageUrl
 ) {
-	public static SessionDetailResponse from(Session session, List<SessionMessageListResponse> messages, boolean hasSummary) {
+	public static SessionDetailResponse from(Session session, List<SessionMessageListResponse> messages,
+		boolean hasSummary, String cardImageUrl) {
 		return new SessionDetailResponse(
 			session.getId().toString(),
 			session.getPersona().getPersonaImageUrl(),
 			session.getPersona().getPersonaName(),
 			session.getStatus().toString(),
 			messages,
-			hasSummary
+			hasSummary,
+			cardImageUrl
 		);
 	}
 }
