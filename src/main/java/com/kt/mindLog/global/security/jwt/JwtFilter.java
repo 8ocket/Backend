@@ -3,12 +3,17 @@ package com.kt.mindLog.global.security.jwt;
 import java.io.IOException;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.kt.mindLog.global.common.exception.CustomException;
+import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.security.auth.AuthToken;
 import com.kt.mindLog.global.security.auth.CustomUser;
+import com.kt.mindLog.repository.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	private static final String TOKEN_PREFIX = "Bearer ";
 	private final JwtProvider jwtProvider;
+	private final UserRepository userRepository;
 
 
 	@Override
@@ -42,14 +48,19 @@ public class JwtFilter extends OncePerRequestFilter {
 			jwtProvider.validateToken(token);
 
 			var user = jwtProvider.getUserDetail(token);
-			var authentication = new AuthToken(user, user.getAuthorities());
 
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+			if (userRepository.findByIdOrThrow(user.getId(), ErrorCode.NOT_FOUND_USER).isActive()) {
+				var authentication = new AuthToken(user, user.getAuthorities());
 
-			request.setAttribute("CustomUser", CustomUser.builder().id(user.getId()).role(user.getRole()).build());
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+
+				request.setAttribute("CustomUser", CustomUser.builder().id(user.getId()).role(user.getRole()).build());
+			}
+
 		} catch (Exception e) {
-			log.error("JWT Filter Error", e);
-			throw e;
+			new JwtAuthenticationEntryPoint().commence(request, response,
+				new BadCredentialsException(ErrorCode.INVALID_USER.getMessage()));
+			return;
 		}
 
 		filterChain.doFilter(request, response);

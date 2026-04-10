@@ -17,6 +17,7 @@ import com.kt.mindLog.dto.user.request.UserUpdateRequest;
 import com.kt.mindLog.dto.user.response.LoginResponse;
 import com.kt.mindLog.dto.user.response.UserProfileResponse;
 import com.kt.mindLog.dto.user.response.UserUpdateProfileResponse;
+import com.kt.mindLog.global.common.exception.CustomException;
 import com.kt.mindLog.global.common.exception.ErrorCode;
 import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.repository.UserRepository;
@@ -132,7 +133,20 @@ public class UserService {
 		return UserProfileResponse.from(user);
 	}
 
+	@Transactional
+	public void withdrawUser(final UUID userId) {
+		var user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 
+		if (user.isActive()) {
+			jwtService.deleteToken(userId);
+			user.withdrawUser();
+
+			log.info("success to withdraw user information");
+		} else {
+			log.error("fail to withdraw user information");
+			throw new CustomException(ErrorCode.INVALID_ACCESS);
+		}
+	}
 
 	@Scheduled(cron = "0 0 0 1 * *")
 	@Transactional

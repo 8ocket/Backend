@@ -3,6 +3,7 @@ package com.kt.mindLog.service.user;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,12 @@ public class JwtService {
 	protected void deleteExpiredTokens() {
 		jwtTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
 		log.info("deleted expired tokens");
+	}
+
+	@Transactional
+	protected void deleteToken(UUID userId) {
+		jwtTokenRepository.deleteByUserId(userId);
+		log.info("deleted token : userId={}", userId);
 	}
 
 	@Transactional

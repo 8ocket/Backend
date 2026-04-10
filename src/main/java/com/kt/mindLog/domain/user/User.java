@@ -26,12 +26,13 @@ public class User {
 	@Column(name = "user_id")
 	private UUID id;
 
-	@Column(length = 30)
+	@Column(length = 100)
 	private String email;
 
 	@Column(length = 30)
 	private String nickname;
 
+	@Column(columnDefinition = "TEXT")
 	private String profileImageUrl;
 
 	@Enumerated(EnumType.STRING)
