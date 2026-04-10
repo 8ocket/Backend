@@ -1,5 +1,6 @@
 package com.kt.mindLog.controller.user;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,5 +43,11 @@ public class UserController {
 	@GetMapping("/me/profile")
 	public UserProfileResponse getProfile(@Login CustomUser user) {
 		return userService.getProfile(user.getId());
+	}
+
+	@DeleteMapping("/me/withdraw")
+	public ApiResult<Void> withdraw(@Login CustomUser user) {
+		userService.withdrawUser(user.getId());
+		return ApiResult.ok();
 	}
 }

@@ -26,12 +26,13 @@ public class User {
 	@Column(name = "user_id")
 	private UUID id;
 
-	@Column(length = 30)
+	@Column(length = 100)
 	private String email;
 
 	@Column(length = 30)
 	private String nickname;
 
+	@Column(columnDefinition = "TEXT")
 	private String profileImageUrl;
 
 	@Enumerated(EnumType.STRING)
@@ -66,10 +67,10 @@ public class User {
 		this.email = email;
 		this.loginType = loginType;
 		this.role = Role.USER;
-		this.isActive = true;
+		this.isActive = false;
 		this.createdAt = LocalDateTime.now();
 		this.lastLoginAt = LocalDateTime.now();
-		nicknameChangeCount = 0;
+		this.nicknameChangeCount = 0;
 	}
 
 	public void updateLastLoginAt() {
@@ -83,6 +84,7 @@ public class User {
 		this.occupation = occupation;
 		this.age = age;
 		this.gender = gender;
+		this.isActive = true;
 	}
 
 	public void updateUserProfile(final String profileImageUrl, final String nickname,
@@ -98,7 +100,8 @@ public class User {
 		this.nicknameChangeCount = this.nicknameChangeCount + 1;
 	}
 
-	public void resetNicknameCount() {
-		this.nicknameChangeCount = 0;
+	public void withdrawUser() {
+		this.isActive = false;
+		this.email = "withdrawn_" + this.id;
 	}
 }

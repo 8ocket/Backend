@@ -35,6 +35,7 @@ public class Persona{
 	@Column(columnDefinition = "TEXT")
 	private String toneSettings;
 
+	@Column(columnDefinition = "TEXT")
 	private String personaImageUrl;
 
 	private Integer unlockCredits;
