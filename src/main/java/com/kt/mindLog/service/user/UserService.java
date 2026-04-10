@@ -51,7 +51,9 @@ public class UserService {
 			findUser.get().updateLastLoginAt();
 			creditService.earnAttendanceBonus(findUser.get());
 			attendanceService.saveAttendance(findUser.get().getId());
-			return jwtService.createJwtTokens(findUser.get(), false);
+
+			return findUser.get().isActive() ? jwtService.createJwtTokens(findUser.get(), false)
+				: jwtService.createJwtTokens(findUser.get(), true);
 		}
 
 		User newUser = User.builder()
@@ -129,6 +131,8 @@ public class UserService {
 		User user =  userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 		return UserProfileResponse.from(user);
 	}
+
+
 
 	@Scheduled(cron = "0 0 0 1 * *")
 	@Transactional
