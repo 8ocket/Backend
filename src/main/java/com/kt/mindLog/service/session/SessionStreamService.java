@@ -154,11 +154,12 @@ public class SessionStreamService {
 		Preconditions.validate(session.getStatus().equals(SessionStatus.ACTIVE), ErrorCode.INVALID_SESSION);
 
 		return sseService.streamSSE(streamProperties.getFinalizeUri(), sessionId, null)
-			.handle((event, sink) -> handleFinalizeEvent(event, sink, sessionId))
+			.handle((event, sink) -> handleFinalizeEvent(event, sink, sessionId, userId))
 			.doOnError(e -> log.error("스트림 오류", e));
 	}
 
-	private void handleFinalizeEvent(final ServerSentEvent<String> event, final SynchronousSink<Object> sink, final UUID sessionId) {
+	private void handleFinalizeEvent(final ServerSentEvent<String> event, final SynchronousSink<Object> sink,
+		final UUID sessionId, final UUID userId) {
 		switch (event.event()) {
 			case "status" -> sink.next(event);
 
@@ -179,7 +180,7 @@ public class SessionStreamService {
 
 					String imageUrl = summary.card().get("image_url").asText();
 
-					var summaryId = messageService.saveSessionSummary(sessionId, summary, imageUrl);
+					var summaryId = messageService.saveSessionSummary(sessionId, summary, imageUrl, userId);
 
 					sink.next(ServerSentEvent.builder()
 						.event("ai_complete")
