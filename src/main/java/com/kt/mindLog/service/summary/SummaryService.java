@@ -144,6 +144,7 @@ public class SummaryService {
 		card.updateFrontImageUrl(frontImageUrl);
 	}
 
+	@Transactional(readOnly = true)
 	public SummaryCardResponse getSummaryCard(final UUID userId, final UUID summaryId) {
 		SessionSummary summary = summaryRepository.findByIdOrThrow(summaryId, ErrorCode.NOT_FOUND_SUMMARY);
 
@@ -164,6 +165,7 @@ public class SummaryService {
 		return SummaryCardUpdateResponse.from(summary);
 	}
 
+	@Transactional(readOnly = true)
 	public Page<SummaryCardListResponse> getSummaryCardList(final UUID userId, Pageable pageable) {
 		return summaryRepository.findAllByUserId(userId, pageable)
 			.map(summary -> {
