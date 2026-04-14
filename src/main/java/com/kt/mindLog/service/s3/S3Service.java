@@ -44,9 +44,13 @@ public class S3Service {
 			metadata.setContentLength(file.getSize());
 			metadata.setContentType(file.getContentType());
 
+			log.info("success to create file type:  " + metadata.getContentType() + "file size : " + file.getSize());
+
 			amazonS3.putObject(
 				new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
 			);
+
+			log.info("success to upload image");
 		} catch (AmazonS3Exception e) {
 			log.error("S3 upload failed. Status Code: {}, Error Message: {}", e.getStatusCode(), e.getMessage());
 			throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
