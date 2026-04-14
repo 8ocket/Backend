@@ -133,13 +133,15 @@ public class SummaryService {
 		SessionSummary summary = summaryRepository.findByIdOrThrow(summaryId, ErrorCode.NOT_FOUND_SUMMARY);
 
 		Preconditions.validate(summary.getUser().getId().equals(userId), ErrorCode.NOT_SUMMARY_USER);
-
+		log.info("success to get summary");
 		Session session = summary.getSession();
 
 		EmotionCard card = emotionCardRepository.findBySessionId(session.getId())
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
+		log.info("success to get card");
 
 		String frontImageUrl = s3Service.uploadImage(summaryCard, S3Path.SUMMARY);
+		log.info("success to upload image");
 
 		card.updateFrontImageUrl(frontImageUrl);
 	}

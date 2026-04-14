@@ -49,14 +49,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
 			var user = jwtProvider.getUserDetail(token);
 
-			if (userRepository.findByIdOrThrow(user.getId(), ErrorCode.NOT_FOUND_USER).isActive()) {
+			var getUser = userRepository.findByIdOrThrow(user.getId(), ErrorCode.NOT_FOUND_USER);
+			if (!getUser.getEmail().startsWith("withdrawn")) {
 				var authentication = new AuthToken(user, user.getAuthorities());
-
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-
 				request.setAttribute("CustomUser", CustomUser.builder().id(user.getId()).role(user.getRole()).build());
 			}
-
 		} catch (Exception e) {
 			new JwtAuthenticationEntryPoint().commence(request, response,
 				new BadCredentialsException(ErrorCode.INVALID_USER.getMessage()));
