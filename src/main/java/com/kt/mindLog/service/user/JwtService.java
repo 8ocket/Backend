@@ -1,0 +1,91 @@
+package com.kt.mindLog.service.user;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kt.mindLog.domain.auth.JwtToken;
+import com.kt.mindLog.domain.user.User;
+import com.kt.mindLog.dto.user.response.LoginResponse;
+import com.kt.mindLog.global.common.exception.CustomException;
+import com.kt.mindLog.global.common.exception.ErrorCode;
+import com.kt.mindLog.global.property.JwtProperties;
+import com.kt.mindLog.global.security.jwt.JwtProvider;
+import com.kt.mindLog.repository.JwtTokenRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class JwtService {
+
+	private final JwtProperties jwtProperties;
+	private final JwtProvider jwtProvider;
+	private final JwtTokenRepository jwtTokenRepository;
+
+	public LoginResponse createJwtTokens(User user, Boolean isNewUser) {
+		String accessToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getAccessTokenExp());
+		String refreshToken = jwtProvider.createToken(user.getId(), user.getRole(), jwtProperties.getRefreshTokenExp());
+
+		LocalDateTime expiresAt = jwtProperties.getRefreshTokenExp().toInstant()
+			.atZone(ZoneId.systemDefault())
+			.toLocalDateTime();
+
+		JwtToken jwtToken = JwtToken.builder()
+			.user(user)
+			.refreshToken(refreshToken)
+			.expiresAt(expiresAt)
+			.build();
+
+		jwtTokenRepository.save(jwtToken);
+		log.info("success to login : userId={}, loginType={}", user.getId(), user.getLoginType());
+
+		return LoginResponse.of(accessToken, refreshToken, isNewUser);
+	}
+
+	@Transactional
+	public LoginResponse reissueToken(String token) {
+
+		jwtProvider.validateToken(token);
+
+		Optional<JwtToken> jwtToken = jwtTokenRepository.findByRefreshToken(token);
+		if (jwtToken.isEmpty()) {
+			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN_FORMAT);
+		}
+
+		LoginResponse reissueToken = createJwtTokens(jwtToken.get().getUser(), null);
+		jwtTokenRepository.delete(jwtToken.get());
+
+		return reissueToken;
+	}
+
+	@Scheduled(cron = "0 0 0 * * *")
+	@Transactional
+	protected void deleteExpiredTokens() {
+		jwtTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
+		log.info("deleted expired tokens");
+	}
+
+	@Transactional
+	protected void deleteToken(UUID userId) {
+		jwtTokenRepository.deleteByUserId(userId);
+		log.info("deleted token : userId={}", userId);
+	}
+
+	@Transactional
+	public void logout(String refreshToken) {
+		if (refreshToken == null || refreshToken.isBlank()) {
+			throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+		}
+
+		jwtTokenRepository.deleteByRefreshToken(refreshToken);
+		log.info("logout success");
+	}
+}

@@ -1,0 +1,44 @@
+  services:
+    local-postgres:
+      image: postgres:18
+      container_name: mindlog-postgres
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: 1234
+        POSTGRES_DB: mindLogDB
+      ports:
+        - "5432:5432"
+      platform: linux/arm64
+
+    dev-postgres:
+      image: postgres:18
+      container_name: mindlog-postgres
+      environment:
+        POSTGRES_USER: mindlog
+        POSTGRES_PASSWORD: mindlog_password
+        POSTGRES_DB: mindlog_dev
+      ports:
+        - "5432:5432"
+      platform: linux/arm64
+
+    redis:
+      image: valkey/valkey:8.1.6
+      container_name: mindlog-redis
+      ports:
+        - "6379:6379"
+      healthcheck:
+        test: [ "CMD", "valkey-cli", "ping" ]
+        interval: 10s
+        timeout: 3s
+        retries: 5
+
+    app:
+      build: .
+      container_name: mindlog-backend
+      ports:
+        - "8080:8080"
+      env_file:
+        - .env
+      network_mode: "host"
+      environment:
+        - SPRING_PROFILES_ACTIVE=dev

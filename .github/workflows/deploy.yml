@@ -1,0 +1,14 @@
+#.github/workflows/deploy.yaml
+
+name: Deploy Backend Service
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  call-workflow:
+    uses: 8ocket/cicd/.github/workflows/action-deploy.yml@main
+    with:
+      service_name: 'mindlog-be'
+    secrets: inherit

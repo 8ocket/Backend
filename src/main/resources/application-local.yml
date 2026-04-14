@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mindLogDB
+    username: admin
+    password: 1234
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret-key: to-test-in-local-jwt-secret-key-it-will-be-changed
+
+kakao:
+  redirect-uri: ${KAKAO_LOCAL_REDIRECT_URI}
+
+google:
+  redirect-uri: ${GOOGLE_LOCAL_REDIRECT_URI}
+
+stream:
+  baseurl: ${SESSION_LOCAL_BASE_URL}
