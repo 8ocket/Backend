@@ -11,4 +11,5 @@ import lombok.RequiredArgsConstructor;
 public class RedisProperties {
 	private final String host;
 	private final Integer port;
+	private final boolean sslEnabled;
 }
