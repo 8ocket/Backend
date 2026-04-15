@@ -76,16 +76,16 @@ public class UserService {
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 		String profileImageUrl = "";
 
-		if (profile.isEmpty()) {
+		if (profile.isEmpty() || profile == null) {
 			profileImageUrl = defaultProfile;
 		} else {
 			profileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
 		}
 
 		var nickname = "example";
-		var occupation = Occupation.STUDENT;
-		var age = 20;
-		var gender = Gender.MALE;
+		var occupation = Occupation.CAREER_SWITCHER;
+		var age = 30;
+		var gender = Gender.FEMALE;
 
 		if (request.nickname() != null && !request.nickname().isEmpty()) nickname = request.nickname();
 		if (request.occupation() != null)  occupation = request.occupation();
