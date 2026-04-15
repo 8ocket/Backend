@@ -28,7 +28,7 @@ public class UserController {
 	private final UserService userService;
 
 	@PatchMapping("/signup")
-	public ApiResult<Void> createUser(@Login CustomUser user, @RequestPart("profile_image") MultipartFile profileImage,
+	public ApiResult<Void> createUser(@Login CustomUser user, @RequestPart(value = "profile_image", required = false) MultipartFile profileImage,
 		@Valid @RequestPart("contents") final UserCreateRequest request) {
 		userService.createUserInfo(user.getId(), profileImage, request);
 		return ApiResult.ok();
