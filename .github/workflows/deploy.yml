@@ -4,7 +4,7 @@ name: Deploy Backend Service
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
 
 jobs:
   call-workflow:
