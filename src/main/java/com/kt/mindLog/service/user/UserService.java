@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.kt.mindLog.domain.user.Gender;
 import com.kt.mindLog.domain.user.LoginType;
-import com.kt.mindLog.domain.user.Occupation;
 import com.kt.mindLog.domain.user.User;
 import com.kt.mindLog.dto.user.request.UserCreateRequest;
 import com.kt.mindLog.dto.user.request.UserUpdateRequest;
@@ -71,8 +69,6 @@ public class UserService {
 
 	@Transactional
 	public void createUserInfo(final UUID userId, final MultipartFile profile, final UserCreateRequest request) {
-		log.info("user create request : {}", request.toString());
-
 		User user = userRepository.findByIdOrThrow(userId, ErrorCode.NOT_FOUND_USER);
 		String profileImageUrl = "";
 
@@ -81,16 +77,6 @@ public class UserService {
 		} else {
 			profileImageUrl = s3Service.uploadImage(profile, S3Path.PROFILE);
 		}
-
-		var nickname = "example";
-		var occupation = Occupation.CAREER_SWITCHER;
-		var age = 30;
-		var gender = Gender.FEMALE;
-
-		if (request.nickname() != null && !request.nickname().isEmpty()) nickname = request.nickname();
-		if (request.occupation() != null)  occupation = request.occupation();
-		if (request.age() != null)  age = request.age();
-		if (request.gender() != null)  gender = request.gender();
 
 		user.updateUserInfo(
 			request.nickname(),
