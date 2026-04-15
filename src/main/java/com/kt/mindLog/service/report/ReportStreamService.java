@@ -55,11 +55,8 @@ public class ReportStreamService {
 					reportPersistenceService.saveReport(report, reportId);
 					// credit 차감
 					Report reportEntity = reportRepository.findByIdOrThrow(reportId, ErrorCode.NOT_FOUND_REPORT);
-
 					UUID userId = reportEntity.getUser().getId();
-
 					ReportType type = reportEntity.getReportType();
-
 					creditService.useCreditForReport(userId, type);
 
 					sink.next(ServerSentEvent.builder()
