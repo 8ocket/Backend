@@ -29,7 +29,7 @@ public class UserController {
 
 	@PatchMapping("/signup")
 	public ApiResult<Void> createUser(@Login CustomUser user, @RequestPart(value = "profile_image", required = false) MultipartFile profileImage,
-		@Valid @RequestPart("contents") final UserCreateRequest request) {
+		@RequestPart("contents") final UserCreateRequest request) {
 		userService.createUserInfo(user.getId(), profileImage, request);
 		return ApiResult.ok();
 	}
