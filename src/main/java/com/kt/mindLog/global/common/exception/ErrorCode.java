@@ -46,6 +46,7 @@ public enum ErrorCode {
 	INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
 	FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기는 5MB를 초과 할 수 없습니다."),
 	FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다."),
+	INVALID_IMAGE_FILE(HttpStatus.BAD_REQUEST, "이미지 파일이 존재하지 않거나 비어 있습니다"),
 
 	// summary
 	INVALID_SESSION_SUMMARY(HttpStatus.BAD_REQUEST, "이미 분석 완료된 상담 세션입니다."),

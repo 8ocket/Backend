@@ -95,7 +95,6 @@ public class SummaryService {
 
 		var summary = SummaryResponse.to(encryptSummary, session, session.getUser());
 		summaryRepository.save(summary);
-		session.updateSummary(summary);
 		log.info("success to save summary about sessionId: {}", sessionId);
 		return summary.getId();
 	}
@@ -129,7 +128,13 @@ public class SummaryService {
 	}
 
 	@Transactional
-	public void uploadSummaryCard(final UUID userId, final UUID summaryId, final MultipartFile summaryCard) {
+	public void uploadSummaryCard(final UUID userId, final UUID summaryId, final MultipartFile cardFrontImage,
+		final MultipartFile cardBackImage) {
+		if (cardFrontImage == null || cardFrontImage.isEmpty() ||
+			cardBackImage == null || cardBackImage.isEmpty()) {
+			throw new CustomException(ErrorCode.INVALID_IMAGE_FILE);
+		}
+
 		SessionSummary summary = summaryRepository.findByIdOrThrow(summaryId, ErrorCode.NOT_FOUND_SUMMARY);
 
 		Preconditions.validate(summary.getUser().getId().equals(userId), ErrorCode.NOT_SUMMARY_USER);
@@ -140,10 +145,13 @@ public class SummaryService {
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
 		log.info("success to get card");
 
-		String frontImageUrl = s3Service.uploadImage(summaryCard, S3Path.SUMMARY);
-		log.info("success to upload image");
+		String frontImageUrl = s3Service.uploadImage(cardFrontImage, S3Path.SUMMARY);
+		log.info("success to upload front image. summaryId={}, url={}", summaryId, frontImageUrl);
 
-		card.updateFrontImageUrl(frontImageUrl);
+		String backImageUrl = s3Service.uploadImage(cardBackImage, S3Path.SUMMARY);
+		log.info("success to upload back image. summaryId={}, url={}", summaryId, backImageUrl);
+
+		card.updateImageUrl(frontImageUrl, backImageUrl);
 	}
 
 	@Transactional(readOnly = true)
@@ -171,7 +179,7 @@ public class SummaryService {
 	public Page<SummaryCardListResponse> getSummaryCardList(final UUID userId, Pageable pageable) {
 		return summaryRepository.findAllByUserId(userId, pageable)
 			.map(summary -> {
-				EmotionCard card = emotionCardRepository.findBySessionId(summary.getId())
+				EmotionCard card = emotionCardRepository.findBySessionId(summary.getSession().getId())
 					.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
 				return SummaryCardListResponse.of(summary, card);
 				}

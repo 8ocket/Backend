@@ -44,8 +44,6 @@ public class S3Service {
 			metadata.setContentLength(file.getSize());
 			metadata.setContentType(file.getContentType());
 
-			log.info("success to create file type:  " + metadata.getContentType() + "file size : " + file.getSize());
-
 			amazonS3.putObject(
 				new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
 			);

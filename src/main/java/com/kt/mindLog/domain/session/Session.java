@@ -8,8 +8,6 @@ import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.kt.mindLog.domain.persona.Persona;
-import com.kt.mindLog.domain.summary.SessionContextSummary;
-import com.kt.mindLog.domain.summary.SessionSummary;
 import com.kt.mindLog.domain.user.User;
 
 import jakarta.persistence.Column;
@@ -64,10 +62,6 @@ public class Session {
 	@OneToMany(mappedBy = "session")
 	private List<SessionMessages> messages = new ArrayList<>();
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "summary_id")
-	private SessionSummary summary;
-
 	@Builder
 	public Session(User user, Persona persona) {
 		this.user = user;
@@ -91,15 +85,7 @@ public class Session {
 		this.updatedAt = LocalDateTime.now();
 	}
 
-	public void updateSummary(final SessionSummary summary) {
-		this.summary = summary;
-	}
-
 	public void updateSessionExpired() {
 		this.status = SessionStatus.EXPIRED;
-	}
-
-	public void clearSummary() {
-		this.summary = null;
 	}
 }

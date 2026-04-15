@@ -225,16 +225,6 @@ public class ReportService {
 
 		reportRepository.deleteById(reportId);
 
-		deleteAIReport(reportId);
-
 		log.info("success to delete report : userId = {}, sessionId = {}", userId, reportId);
-	}
-
-	private void deleteAIReport(UUID reportId) {
-		webClient.delete()
-			.uri(streamProperties.getReportUri()+"/{reportId}", reportId)
-			.retrieve()
-			.bodyToMono(Void.class)
-			.block();
 	}
 }
