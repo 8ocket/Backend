@@ -60,7 +60,8 @@ public class EmotionCard {
 		this.createdAt = LocalDateTime.now();
 	}
 
-	public void updateFrontImageUrl(String frontImageUrl) {
+	public void updateImageUrl(String frontImageUrl, String backImageUrl) {
 		this.frontImageUrl = frontImageUrl;
+		this.backImageUrl = backImageUrl;
 	}
 }
