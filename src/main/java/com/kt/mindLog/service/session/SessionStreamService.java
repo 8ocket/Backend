@@ -58,6 +58,11 @@ public class SessionStreamService {
 	private void handleMessageEvent(final ServerSentEvent<String> event, final SynchronousSink<Object> sink,
 		final UUID sessionId, final User user, final AtomicReference<UUID> messageIdRef) {
 		switch (event.event()) {
+			case "session_title" -> {
+				messageService.saveTitle(sessionId, event.data());
+				sink.next(event);
+			}
+
 			case "ai_chunk" -> sink.next(event);
 
 			case "crisis_check" -> {
