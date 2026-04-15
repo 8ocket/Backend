@@ -33,8 +33,9 @@ public class SummaryController {
 
 	@PatchMapping("/{summaryId}/image")
 	public ApiResult<Void> uploadSummaryCard(@Login CustomUser user, @PathVariable UUID summaryId,
-		@RequestPart("summary_card") MultipartFile summaryCard) {
-		summaryService.uploadSummaryCard(user.getId(), summaryId, summaryCard);
+		@RequestPart("card_front_image") MultipartFile cardFrontImage,
+		@RequestPart("card_back_image") MultipartFile cardBackImage) {
+		summaryService.uploadSummaryCard(user.getId(), summaryId, cardFrontImage, cardBackImage);
 
 		return ApiResult.ok();
 	}
