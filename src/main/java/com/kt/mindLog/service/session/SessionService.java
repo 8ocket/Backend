@@ -44,6 +44,7 @@ import com.kt.mindLog.service.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -134,7 +135,7 @@ public class SessionService {
 			})
 			.toList();
 
-		var hasSummary = session.getSummary() != null;
+		var hasSummary = summaryRepository.existsBySessionId(sessionId);
 
 		var card = cardRepository.findBySessionId(sessionId);
 		return card.map(
@@ -214,13 +215,11 @@ public class SessionService {
 		emotionRepository.deleteBySessionId(session.getId());
 		summaryContextRepository.deleteBySessionId(session.getId());
 		sessionMessageRepository.deleteBySessionId(session.getId());
-		session.clearSummary();
-		sessionRepository.saveAndFlush(session);
 		summaryRepository.deleteBySessionId(session.getId());
 
 		sessionRepository.deleteById(session.getId());
 
-		deleteAISession(session.getId());
+		// deleteAISession(session.getId());
 
 		log.info("success to delete session : userId = {}, sessionId = {}", userId, sessionId);
 	}
@@ -229,6 +228,7 @@ public class SessionService {
 		webClient.delete()
 			.uri(streamProperties.getSessionUri(), sessionId)
 			.retrieve()
+			.onStatus(status -> status.value() == 404, response -> Mono.empty())
 			.bodyToMono(Void.class)
 			.block();
 	}

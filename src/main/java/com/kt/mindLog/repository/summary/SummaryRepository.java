@@ -1,5 +1,6 @@
 package com.kt.mindLog.repository.summary;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -20,4 +21,6 @@ public interface SummaryRepository extends JpaRepository<SessionSummary, UUID> {
 	void deleteBySessionId(UUID sessionId);
 
 	Page<SessionSummary> findAllByUserId(UUID userId, Pageable pageable);
+
+	boolean existsBySessionId(UUID sessionId);
 }

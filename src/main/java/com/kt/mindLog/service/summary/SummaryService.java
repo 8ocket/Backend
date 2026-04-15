@@ -95,7 +95,6 @@ public class SummaryService {
 
 		var summary = SummaryResponse.to(encryptSummary, session, session.getUser());
 		summaryRepository.save(summary);
-		session.updateSummary(summary);
 		log.info("success to save summary about sessionId: {}", sessionId);
 		return summary.getId();
 	}

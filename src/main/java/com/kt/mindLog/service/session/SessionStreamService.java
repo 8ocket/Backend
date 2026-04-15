@@ -21,6 +21,7 @@ import com.kt.mindLog.global.common.support.Preconditions;
 import com.kt.mindLog.global.property.StreamProperties;
 import com.kt.mindLog.repository.UserRepository;
 import com.kt.mindLog.repository.session.SessionRepository;
+import com.kt.mindLog.repository.summary.SummaryRepository;
 import com.kt.mindLog.service.credit.CreditService;
 import com.kt.mindLog.service.sse.SSEService;
 
@@ -43,6 +44,7 @@ public class SessionStreamService {
 	private final SSEService sseService;
 	private final SessionMessageService messageService;
 	private final CreditService creditService;
+	private final SummaryRepository summaryRepository;
 
 	//일반 메세지 통신
 	public Flux<Object> receiveSSE(final String contents, final UUID sessionId, final UUID userId) {
@@ -58,6 +60,11 @@ public class SessionStreamService {
 	private void handleMessageEvent(final ServerSentEvent<String> event, final SynchronousSink<Object> sink,
 		final UUID sessionId, final User user, final AtomicReference<UUID> messageIdRef) {
 		switch (event.event()) {
+			case "session_title" -> {
+				messageService.saveTitle(sessionId, event.data());
+				sink.next(event);
+			}
+
 			case "ai_chunk" -> sink.next(event);
 
 			case "crisis_check" -> {
@@ -148,7 +155,9 @@ public class SessionStreamService {
 		validateUser(userId);
 		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
 
-		if (session.getSummary() != null) {
+		var hasSummary = summaryRepository.existsBySessionId(sessionId);
+
+		if (hasSummary) {
 			new CustomException(ErrorCode.INVALID_SESSION_SUMMARY).printStackTrace();
 		}
 		Preconditions.validate(session.getStatus().equals(SessionStatus.ACTIVE), ErrorCode.INVALID_SESSION);
