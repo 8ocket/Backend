@@ -1,10 +1,14 @@
 package com.kt.mindLog.service.summary;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -169,12 +173,24 @@ public class SummaryService {
 
 	@Transactional(readOnly = true)
 	public Page<SummaryCardListResponse> getSummaryCardList(final UUID userId, Pageable pageable) {
-		return summaryRepository.findAllByUserId(userId, pageable)
-			.map(summary -> {
-				EmotionCard card = emotionCardRepository.findBySessionId(summary.getSession().getId())
-					.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
-				return SummaryCardListResponse.of(summary, card);
-				}
-			);
+
+		List<SummaryCardListResponse> content = summaryRepository.findAllByUserId(userId, pageable)
+			.stream()
+			.map(summary ->
+				emotionCardRepository.findBySessionId(summary.getSession().getId())
+					.map(card -> SummaryCardListResponse.of(summary, card))
+					.orElse(null)
+			)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+
+		return new PageImpl<>(content, pageable, content.size());
+		// return summaryRepository.findAllByUserId(userId, pageable)
+		// 	.map(summary -> {
+		// 		EmotionCard card = emotionCardRepository.findBySessionId(summary.getSession().getId())
+		// 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
+		// 		return SummaryCardListResponse.of(summary, card);
+		// 		}
+		// 	);
 	}
 }
