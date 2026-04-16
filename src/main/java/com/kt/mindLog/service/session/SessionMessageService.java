@@ -103,13 +103,11 @@ public class SessionMessageService {
 	}
 
 	@Transactional
-	protected UUID saveSessionSummary(final UUID sessionId, final SessionSummaryResponse summary,
-		final String imageUrl, final UUID userId) {
+	protected UUID saveSessionSummary(final UUID sessionId, final SessionSummaryResponse summary, final UUID userId) {
 		updateSessionStatus(sessionId, SessionStatus.COMPLETED);
 
 		var summaryId = summaryService.saveSummary(sessionId, summary.summary());
 		summaryService.saveSessionContext(sessionId, summary.contextSummary());
-		summaryService.saveEmotionCard(sessionId, imageUrl);
 		summaryService.saveEmotions(sessionId, summary.emotions());
 
 		updateSessionStatus(sessionId, SessionStatus.SAVED);

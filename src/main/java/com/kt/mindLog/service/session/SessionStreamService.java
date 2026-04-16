@@ -187,9 +187,7 @@ public class SessionStreamService {
 						))
 						.toList();
 
-					String imageUrl = summary.card().get("image_url").asText();
-
-					var summaryId = messageService.saveSessionSummary(sessionId, summary, imageUrl, userId);
+					var summaryId = messageService.saveSessionSummary(sessionId, summary, userId);
 
 					sink.next(ServerSentEvent.builder()
 						.event("ai_complete")
