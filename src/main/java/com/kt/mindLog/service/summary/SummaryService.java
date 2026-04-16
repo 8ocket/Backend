@@ -126,11 +126,7 @@ public class SummaryService {
 
 		Preconditions.validate(summary.getUser().getId().equals(userId), ErrorCode.NOT_SUMMARY_USER);
 		log.info("success to get summary");
-		Session session = summary.getSession();
 
-		EmotionCard card = emotionCardRepository.findBySessionId(session.getId())
-			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
-		log.info("success to get card");
 
 		String frontImageUrl = s3Service.uploadImage(cardFrontImage, S3Path.SUMMARY);
 		log.info("success to upload front image. summaryId={}, url={}", summaryId, frontImageUrl);
@@ -138,7 +134,16 @@ public class SummaryService {
 		String backImageUrl = s3Service.uploadImage(cardBackImage, S3Path.SUMMARY);
 		log.info("success to upload back image. summaryId={}, url={}", summaryId, backImageUrl);
 
-		card.updateImageUrl(frontImageUrl, backImageUrl);
+		Session session = summary.getSession();
+
+		var card = EmotionCard.builder()
+			.backImageUrl(backImageUrl)
+			.frontImageUrl(frontImageUrl)
+			.user(session.getUser())
+			.session(session)
+			.build();
+
+		emotionCardRepository.save(card);
 	}
 
 	@Transactional(readOnly = true)

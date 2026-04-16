@@ -35,7 +35,7 @@ public class RedisService {
 
 		RedisMessageRequest message = new RedisMessageRequest(role.toString().toLowerCase(), content);
 		Long index = redisTemplate.opsForList().rightPush(key, objectMapper.writeValueAsString(message));
-		log.info("success to push message : sessionId={}, content={}", sessionId, content);
+		log.info("success to push message : sessionId={}", sessionId);
 
 		return index == null ? 1 : index.intValue();
 	}
