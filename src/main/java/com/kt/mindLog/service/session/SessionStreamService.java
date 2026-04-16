@@ -195,8 +195,7 @@ public class SessionStreamService {
 							"session_id", sessionId.toString(),
 							"summary_id", summaryId,
 							"summary", summary.summary(),
-							"emotions", emotions,
-							"card_image_url", summary.card().get("image_url").asText()
+							"emotions", emotions
 						))
 						.build());
 				} catch (Exception e) {
