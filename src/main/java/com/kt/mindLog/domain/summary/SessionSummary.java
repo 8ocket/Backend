@@ -63,6 +63,7 @@ public class SessionSummary extends BaseEntity {
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 		this.session = session;
+		this.visibility = "PUBLIC";
 		this.user = user;
 	}
 
