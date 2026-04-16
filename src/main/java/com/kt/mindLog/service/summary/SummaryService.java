@@ -115,19 +115,6 @@ public class SummaryService {
 	}
 
 	@Transactional
-	public void saveEmotionCard(final UUID sessionId, final String url) {
-		var session = sessionRepository.findByIdOrThrow(sessionId, ErrorCode.NOT_FOUND_SESSION);
-
-		var card = EmotionCard.builder()
-			.backImageUrl(url)
-			.user(session.getUser())
-			.session(session)
-			.build();
-
-		emotionCardRepository.save(card);
-	}
-
-	@Transactional
 	public void uploadSummaryCard(final UUID userId, final UUID summaryId, final MultipartFile cardFrontImage,
 		final MultipartFile cardBackImage) {
 		if (cardFrontImage == null || cardFrontImage.isEmpty() ||
