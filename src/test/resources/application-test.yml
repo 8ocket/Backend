@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:3306/mindlog-test
+    username: root
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+server:
+  port: 8080
+
+default:
+  image:
+    profile: ${DEFAULT_PROFILE_IMAGE}
+    persona: ${DEFAULT_PERSONA_IMAGE}
+
+encryption:
+  secret-key: ${ENCRYPT_SECRET_KEY}
