@@ -45,8 +45,6 @@ public class SSEService {
 	private void logEvent(final ServerSentEvent<String> event) {
 		if ("error".equals(event.event())) {
 			log.error("AI error: {}", event.data());
-		} else {
-			log.info("event: {}, data: {}", event.event(), event.data()); // TODO 최종 배포 시 삭제
 		}
 	}
 }
