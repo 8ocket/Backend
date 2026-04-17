@@ -1,10 +1,14 @@
 package com.kt.mindLog.service.summary;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -126,11 +130,7 @@ public class SummaryService {
 
 		Preconditions.validate(summary.getUser().getId().equals(userId), ErrorCode.NOT_SUMMARY_USER);
 		log.info("success to get summary");
-		Session session = summary.getSession();
 
-		EmotionCard card = emotionCardRepository.findBySessionId(session.getId())
-			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
-		log.info("success to get card");
 
 		String frontImageUrl = s3Service.uploadImage(cardFrontImage, S3Path.SUMMARY);
 		log.info("success to upload front image. summaryId={}, url={}", summaryId, frontImageUrl);
@@ -138,7 +138,16 @@ public class SummaryService {
 		String backImageUrl = s3Service.uploadImage(cardBackImage, S3Path.SUMMARY);
 		log.info("success to upload back image. summaryId={}, url={}", summaryId, backImageUrl);
 
-		card.updateImageUrl(frontImageUrl, backImageUrl);
+		Session session = summary.getSession();
+
+		var card = EmotionCard.builder()
+			.backImageUrl(backImageUrl)
+			.frontImageUrl(frontImageUrl)
+			.user(session.getUser())
+			.session(session)
+			.build();
+
+		emotionCardRepository.save(card);
 	}
 
 	@Transactional(readOnly = true)
@@ -164,12 +173,24 @@ public class SummaryService {
 
 	@Transactional(readOnly = true)
 	public Page<SummaryCardListResponse> getSummaryCardList(final UUID userId, Pageable pageable) {
-		return summaryRepository.findAllByUserId(userId, pageable)
-			.map(summary -> {
-				EmotionCard card = emotionCardRepository.findBySessionId(summary.getSession().getId())
-					.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
-				return SummaryCardListResponse.of(summary, card);
-				}
-			);
+
+		List<SummaryCardListResponse> content = summaryRepository.findAllByUserId(userId, pageable)
+			.stream()
+			.map(summary ->
+				emotionCardRepository.findBySessionId(summary.getSession().getId())
+					.map(card -> SummaryCardListResponse.of(summary, card))
+					.orElse(null)
+			)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+
+		return new PageImpl<>(content, pageable, content.size());
+		// return summaryRepository.findAllByUserId(userId, pageable)
+		// 	.map(summary -> {
+		// 		EmotionCard card = emotionCardRepository.findBySessionId(summary.getSession().getId())
+		// 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CARD));
+		// 		return SummaryCardListResponse.of(summary, card);
+		// 		}
+		// 	);
 	}
 }

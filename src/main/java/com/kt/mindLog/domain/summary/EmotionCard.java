@@ -55,6 +55,8 @@ public class EmotionCard {
 		final User user, final Session session) {
 		this.backImageUrl = backImageUrl;
 		this.frontImageUrl = frontImageUrl;
+		this.interpretation = "null";
+		this.generationMetadata = "null";
 		this.user = user;
 		this.session = session;
 		this.createdAt = LocalDateTime.now();
