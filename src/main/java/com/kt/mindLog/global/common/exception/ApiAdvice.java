@@ -21,7 +21,6 @@ public class ApiAdvice {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorResponse.ErrorData> methodArgumentNotValidException(MethodArgumentNotValidException e) {
-		e.printStackTrace();
 		var details = Arrays.toString(e.getDetailMessageArguments());
 		var message = details.split(",", 2)[1].replace("]", "").trim();
 
@@ -30,7 +29,6 @@ public class ApiAdvice {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse.ErrorData> internalServerError(Exception e) {
-		e.printStackTrace();
 		return ErrorResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "서버에러입니다. 백엔드팀에 문의하세요.");
 	}
 

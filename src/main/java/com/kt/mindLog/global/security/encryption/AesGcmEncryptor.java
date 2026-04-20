@@ -27,6 +27,8 @@ public class AesGcmEncryptor {
 
 	public String encrypt(String plainText) {
 		try {
+			if (plainText == null) return null;
+
 			byte[] iv = new byte[GCM_IV_LENGTH];
 			new SecureRandom().nextBytes(iv);
 
@@ -49,6 +51,8 @@ public class AesGcmEncryptor {
 
 	public String decrypt(String encryptedText) {
 		try {
+			if (encryptedText == null) return null;
+
 			byte[] combined = Base64.getDecoder().decode(encryptedText);
 
 			byte[] iv = new byte[GCM_IV_LENGTH];
