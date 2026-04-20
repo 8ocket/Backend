@@ -191,14 +191,18 @@ public class CreditService {
 		int currentPaid = creditRepository.sumPaidCreditByUserId(userId);
 		int currentFree = creditRepository.sumFreeCreditByUserId(userId);
 
+		// 총 환불액 먼저 계산
+		int totalRefund = credits.stream()
+			.mapToInt(Credit::getRemainingPaidCredit)
+			.sum();
+
+		int balanceAfter = currentFree + currentPaid - totalRefund;
+
 		for (Credit credit : credits) {
 			int usedPaid = credit.getPaidCredit() - credit.getRemainingPaidCredit();
 			Preconditions.validate(usedPaid == 0, ErrorCode.ALREADY_USED_CREDIT);
 
 			int refundAmount = credit.getRemainingPaidCredit();
-
-			currentPaid -= refundAmount;
-			int balanceAfter = currentFree + currentPaid;
 
 			Credit refund = Credit.builder()
 				.user(credit.getUser())

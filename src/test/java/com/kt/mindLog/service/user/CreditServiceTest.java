@@ -446,7 +446,8 @@ class CreditServiceTest {
 			then(creditRepository).should().save(argThat(refund ->
 				refund.getTransactionType() == TransactionType.REFUND &&
 					refund.getAmount() == -200 &&
-					refund.getPaidCredit() == -200
+					refund.getPaidCredit() == -200 &&
+					refund.getBalanceAfter() == 0  // (free=0 + paid=200) - refund=200
 			));
 		}
 

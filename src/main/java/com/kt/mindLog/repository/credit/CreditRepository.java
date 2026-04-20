@@ -20,7 +20,7 @@ public interface CreditRepository extends JpaRepository<Credit, UUID> {
 	int sumFreeCreditByUserId(UUID userId);
 
 	// 유료 크레딧 합계 (null 대신 0 반환)
-	@Query("SELECT COALESCE(SUM(c.paidCredit), 0) FROM Credit c WHERE c.user.id = :userId")
+	@Query("SELECT COALESCE(SUM(c.paidCredit), 0) FROM Credit c WHERE c.user.id = :userId AND c.transactionType != 'REFUND'")
 	int sumPaidCreditByUserId(UUID userId);
 
 	List<Credit> findByPaymentId(UUID paymentId);
