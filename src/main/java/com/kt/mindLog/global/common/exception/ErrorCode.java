@@ -70,7 +70,7 @@ public enum ErrorCode {
 
 	//report
 	INSUFFICIENT_SESSIONS(HttpStatus.BAD_REQUEST, "최소 상담 기록 횟수가 부족합니다"),
-	REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일 기간에 대해 생성한 AI 리포트가 이미 존재합니다"),
+	REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일한 AI 리포트가 이미 존재합니다"),
 	NOT_FOUND_REPORT(HttpStatus.BAD_REQUEST, "존재하지 않는 AI 리포트입니다"),
 
 	//encrypt

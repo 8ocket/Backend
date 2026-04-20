@@ -158,7 +158,7 @@ public class SessionStreamService {
 		var hasSummary = summaryRepository.existsBySessionId(sessionId);
 
 		if (hasSummary) {
-			new CustomException(ErrorCode.INVALID_SESSION_SUMMARY).printStackTrace();
+			throw new CustomException(ErrorCode.INVALID_SESSION_SUMMARY);
 		}
 		Preconditions.validate(session.getStatus().equals(SessionStatus.ACTIVE), ErrorCode.INVALID_SESSION);
 
