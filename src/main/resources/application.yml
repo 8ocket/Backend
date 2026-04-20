@@ -17,6 +17,7 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+    show-sql: false
 
   data:
     redis:
@@ -87,3 +88,8 @@ toss:
 
 encryption:
   secret-key: ${ENCRYPT_SECRET_KEY}
+
+logging:
+  level:
+    root: warn
+    com.kt.mindLog: info
