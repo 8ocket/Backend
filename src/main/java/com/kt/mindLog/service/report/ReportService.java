@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.kt.mindLog.domain.report.Report;
 import com.kt.mindLog.domain.report.ReportStatus;
+import com.kt.mindLog.domain.report.ReportType;
 import com.kt.mindLog.domain.session.Session;
 import com.kt.mindLog.domain.session.SessionStatus;
 import com.kt.mindLog.domain.summary.Emotion;
@@ -113,9 +114,9 @@ public class ReportService {
 		Preconditions.validate(sessions.size() >= request.reportType().getMinSessions(),
 			ErrorCode.INSUFFICIENT_SESSIONS);
 
-
-		Preconditions.validate(!reportRepository.existsByUserIdAndStatusAndPeriodStartAndPeriodEnd(userId,
-				ReportStatus.GENERATED, request.periodStart(), periodEnd), ErrorCode.REPORT_ALREADY_EXISTS);
+		Preconditions.validate(!reportRepository.existsByUserIdAndStatusAndReportTypeAndSessionCountAndPeriodStartAndPeriodEnd(userId,
+				ReportStatus.GENERATED, request.reportType(), sessions.size(), request.periodStart(), periodEnd),
+			ErrorCode.REPORT_ALREADY_EXISTS);
 
 		return sessions;
 	}

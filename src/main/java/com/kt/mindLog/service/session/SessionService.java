@@ -203,7 +203,7 @@ public class SessionService {
 			redisService.deleteHistory(session.getUser().getId());
 		});
 
-		log.info("check expired sessions success");
+		log.info("check expired sessions");
 	}
 
 	@Transactional
