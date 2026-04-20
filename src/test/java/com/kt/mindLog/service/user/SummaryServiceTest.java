@@ -37,6 +37,7 @@ import com.kt.mindLog.repository.summary.SummaryRepository;
 import com.kt.mindLog.service.s3.S3Path;
 import com.kt.mindLog.service.s3.S3Service;
 import com.kt.mindLog.service.summary.SummaryService;
+import com.kt.mindLog.util.fixture.SessionFixture;
 import com.kt.mindLog.util.fixture.UserFixture;
 import com.kt.mindLog.domain.user.LoginType;
 
@@ -73,11 +74,7 @@ class SummaryServiceTest {
 		otherUserId = (UUID) ReflectionTestUtils.getField(otherUser, "id");
 		summaryId = UUID.randomUUID();
 
-		session = Session.builder()
-			.user(user)
-			.persona(null) // persona는 이 테스트에서 불필요
-			.build();
-		ReflectionTestUtils.setField(session, "id", UUID.randomUUID());
+		session = SessionFixture.initSession(user, null);
 	}
 
 	// ────────────────────────────────────────────────────────────────────────────
